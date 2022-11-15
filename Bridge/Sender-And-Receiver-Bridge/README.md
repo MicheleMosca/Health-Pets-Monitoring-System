@@ -2,7 +2,7 @@
 Read a packet from serial and send data values to MQTT server.
 Listening to MQTT server for new topic's message and send packet with value to serial. 
 
-## Data Packet Structure Received Packet
+## Data Packet Structure Received
 An example of a data packet received from serial below:
 
 | START | LEN | DATA_1 | DATA_2 | CHECKSUM | END |
@@ -15,7 +15,7 @@ Checksum is calculated from xor of length and data value. In this case is:
 CHECKSUM = LEN ^ DATA_1 ^ DATA_2 = 2 ^ 20 ^ 40 = 62
 ```
 
-## Data Packet Structure Sent Packet
+## Data Packet Structure Sent
 An example of a data packet sent to serial below:
 
 | START | LEN | DATA | CHECKSUM | END |
