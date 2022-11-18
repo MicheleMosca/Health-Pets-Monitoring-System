@@ -16,7 +16,7 @@ CHECKSUM = LEN ^ DATA = 1 ^ ord('A') = 1 ^ 65 = 64
 ```
 
 ## Data Packet Structure Sent
-An example of a data sent packet from serial below:
+An example of a data sent packet to serial below:
 
 | START | LEN | DATA_1 | DATA_2 | CHECKSUM | END |
 | :---: | :---: | :---: | :---: | :---: | :---: |
