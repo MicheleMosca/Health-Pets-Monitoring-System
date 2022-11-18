@@ -1,4 +1,5 @@
 #define PIN 13
+#define SEND_INTERVAL 15000 // every 15 seconds
 
 /* Serial Send variables */
 unsigned long timestamp;
@@ -37,7 +38,7 @@ void serialSend()
   int data_2;
   int checksum;
   
-  if (millis() - timestamp > 1000)
+  if (millis() - timestamp > SEND_INTERVAL)
   {
     data_1 = map(analogRead(0),0,1023,0,253);
     data_2 = map(analogRead(1),0,1023,0,253);
