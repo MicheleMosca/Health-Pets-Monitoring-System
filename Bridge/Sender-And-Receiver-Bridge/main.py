@@ -91,7 +91,7 @@ class Bridge:
 
         # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
-        self.clientMQTT.subscribe(f"{self.feed}")
+        self.clientMQTT.subscribe(f"{self.feed}/#")
 
     def on_message(self, client, userdata, msg):
         """
@@ -103,7 +103,7 @@ class Bridge:
         """
 
         print(f"{msg.topic}: {msg.payload}")
-        if int(msg.payload) > 100:
+        if int(msg.payload) > 74:
             data = b'A'  # example of on message sent to Arduino
         else:
             data = b'S'  # example of off message sent to Arduino
@@ -117,6 +117,7 @@ class Bridge:
         self.serial.write(data)
         self.serial.write(int.to_bytes(checksum, length=1, byteorder='little'))
         self.serial.write(b'\xFE')
+        print(f"Packet sent: xFF {numval} {data} {checksum} xFE")
 
     def loop(self):
         """
@@ -170,7 +171,7 @@ class Bridge:
 
         for i in range(numval):
             print(f"Sensor {i}: {val[i]}")
-            self.clientMQTT.publish(f'{self.feed}/{i}', f'{val}')
+            self.clientMQTT.publish(f'{self.feed}/{i}', f'{val[i]}')
 
 
 if __name__ == '__main__':
