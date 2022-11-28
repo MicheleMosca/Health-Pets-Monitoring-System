@@ -1,0 +1,8 @@
+{% extends 'main.html' %}
+{% block contents %}
+    {% for sensor in sensorfeed %}
+        <p>Sensor Id: {{ sensor.id }}</p>
+        <p>Sensor Value: {{ sensor.value }}</p>
+        <br>
+    {% endfor %}
+{% endblock %}
