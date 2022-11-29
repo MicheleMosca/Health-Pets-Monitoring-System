@@ -82,6 +82,7 @@ class Meal(db.Model):
         self.data = data
         self.animal_id = animal_id
 
+
 class Person(db.Model):
     """
     Represent a Person
@@ -275,7 +276,6 @@ def populatedb():
         200:
             description: id
     """
-
     user_1 = Person(name='Michele', username='michele', password='password')
     db.session.add(user_1)
     db.session.commit()
@@ -328,7 +328,6 @@ def populatedb():
     db.session.add(animal_4)
     db.session.commit()
 
-
     animal_5 = Animal(name='bartolomeo', age=13, gender='M', animal_type='dog',
                       breed='cane da pastore', person_id=user_3.id, station_id=station_3.id)
     db.session.add(animal_5)
@@ -373,8 +372,27 @@ def populatedb():
     return str(user_1.id)
 
 
-@app.route('/setmeal/<animal_id>', methods=['POST'])
-def setmeal(animal_id):
+@app.route('/meal/<animal_id>', methods=['GET'])
+def getMeal(animal_id):
+    """
+    Get meal list of an animal
+    ---
+    parameters:
+        -   in: path
+            name: animal_id
+            description: Animal identification id
+            required: true
+
+    responses:
+        200:
+            description: Meal list
+    """
+    meal = Meal.query.filter_by(animal_id=animal_id).all()
+    return [{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity, "data": m.data} for m in meal]
+
+
+@app.route('/meal/<animal_id>', methods=['POST'])
+def setMeal(animal_id):
     """
     Set a meal of an animal
     ---
@@ -386,17 +404,17 @@ def setmeal(animal_id):
 
         -   in: query
             name: meal_type
-            description: Type of meal
+            description: Type of meal (secco/umido)
             required: true
 
         -   in: query
             name: quantity
-            description: Quantity of meal
+            description: Quantity of meal in grams
             required: true
 
         -   in: query
             name: data
-            description: Data of the meal
+            description: Data of the meal (example 2022-11-29 17:00:00)
             required: true
     responses:
         200:
@@ -409,7 +427,8 @@ def setmeal(animal_id):
     if meal_type is None or quantity is None or data is None:
         return "ERROR"
 
-    meal = Meal(meal_type=meal_type, quantity=quantity, data=data, animal_id=animal_id)
+    meal = Meal(meal_type=meal_type, quantity=quantity, data=datetime.strptime(data, '%Y-%m-%d %H:%M:%S'),
+                animal_id=animal_id)
     db.session.add(meal)
     db.session.commit()
 
