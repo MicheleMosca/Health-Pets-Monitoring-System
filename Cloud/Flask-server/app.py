@@ -49,9 +49,9 @@ class Animal(db.Model):
     temperature = db.Column(db.Integer)
     bark = db.Column(db.Boolean)
 
-    person_id = db.Column(db.Integer, db.ForeignKey('person.id'), nullable = False)
+    person_id = db.Column(db.Integer, db.ForeignKey('person.id'), nullable=False)
     meals = db.relationship('Meal', backref='animal')
-    station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable = False)
+    station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable=False)
     weights = db.relationship('Weight', backref='animal')
     beats = db.relationship('Beat', backref='animal')
 
@@ -74,7 +74,7 @@ class Meal(db.Model):
     quantity = db.Column(db.Integer)
     data = db.Column(db.DateTime(timezone=True))
 
-    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable = False)
+    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)
 
     def __init__(self, meal_type, quantity, data):
         self.meal_type = meal_type
@@ -109,7 +109,7 @@ class Station(db.Model):
     longitude = db.Column(db.Float)
 
     animals = db.relationship('Animal', backref='station')
-    person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable = False)
+    person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=False)
     waters = db.relationship('Water', backref='station')
     foods = db.relationship('Food', backref='station')
 
@@ -127,7 +127,7 @@ class Weight(db.Model):
     value = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
-    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable = False)
+    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)
 
     def __init__(self, value):
         self.value = value
@@ -141,7 +141,7 @@ class Water(db.Model):
     value = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
-    station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable = False)
+    station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable=False)
 
     def __init__(self, value):
         self.value = value
@@ -155,7 +155,7 @@ class Food(db.Model):
     value = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
-    station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable = False)
+    station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable=False)
 
     def __init__(self, value):
         self.value = value
@@ -169,7 +169,7 @@ class Beat(db.Model):
     value = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
-    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable = False)
+    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)
 
     def __init__(self, value):
         self.value = value
@@ -271,6 +271,8 @@ def populatedb():
     utente1 = Person(name='Michele', username='michele1', password='password')
     db.session.add(utente1)
     db.session.commit()
+
+    station_1 = Station(latitude='', longitude='')
     return str(utente1.id)
 
 
