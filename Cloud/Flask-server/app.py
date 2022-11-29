@@ -76,11 +76,11 @@ class Meal(db.Model):
 
     animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable = False)
 
-    def __init__(self, meal_type, quantity, data):
+    def __init__(self, meal_type, quantity, data, animal_id):
         self.meal_type = meal_type
         self.quantity = quantity
         self.data = data
-
+        self.animal_id = animal_id
 
 class Person(db.Model):
     """
@@ -113,10 +113,10 @@ class Station(db.Model):
     waters = db.relationship('Water', backref='station')
     foods = db.relationship('Food', backref='station')
 
-    # def __init__(self, latitude, longitude, person_id):
-    #     self.latitude = latitude
-    #     self.longitude = longitude
-    #     self.person_id = person_id
+    def __init__(self, latitude, longitude, person_id):
+         self.latitude = latitude
+         self.longitude = longitude
+         self.person_id = person_id
 
 
 class Weight(db.Model):
@@ -268,10 +268,102 @@ def doc():
 
 @app.route('/populatedb')
 def populatedb():
-    utente1 = Person(name='Michele', username='michele1', password='password')
-    db.session.add(utente1)
+    user_1 = Person(name='Michele', username='michele', password='password')
+    db.session.add(user_1)
     db.session.commit()
-    return str(utente1.id)
+
+    user_2 = Person(name='Elme', username='elme', password='password')
+    db.session.add(user_2)
+    db.session.commit()
+
+    user_3 = Person(name='Giuseppe', username='beppe', password='password')
+    db.session.add(user_3)
+    db.session.commit()
+
+    user_4 = Person(name='Gaetano', username='tano', password='password')
+    db.session.add(user_4)
+    db.session.commit()
+
+    station_1 = Station(latitude=44.63890, longitude=10.94452, person_id=user_1.id)
+    db.session.add(station_1)
+    db.session.commit()
+
+    station_2 = Station(latitude=50.63890, longitude=10.94452, person_id=user_2.id)
+    db.session.add(station_2)
+    db.session.commit()
+
+    station_3 = Station(latitude=44.63890, longitude=50.94452, person_id=user_3.id)
+    db.session.add(station_3)
+    db.session.commit()
+
+    station_4 = Station(latitude=14.63890, longitude=10.94452, person_id=user_4.id)
+    db.session.add(station_4)
+    db.session.commit()
+
+    animal_1 = Animal(name='pippo', age=2, gender='M', animal_type='dog',
+                   breed='alano', person_id=user_1.id, station_id=station_1.id)
+    db.session.add(animal_1)
+    db.session.commit()
+
+    animal_2 = Animal(name='agnelli', age=5, gender='M', animal_type='dog',
+                      breed='beagle', person_id=user_2.id, station_id=station_2.id)
+    db.session.add(animal_2)
+    db.session.commit()
+
+    animal_3 = Animal(name='sofia', age=12, gender='F', animal_type='dog',
+                      breed='bassotto', person_id=user_3.id, station_id=station_3.id)
+    db.session.add(animal_3)
+    db.session.commit()
+
+    animal_4 = Animal(name='carletto', age=1, gender='M', animal_type='dog',
+                      breed='carlino', person_id=user_4.id, station_id=station_4.id)
+    db.session.add(animal_4)
+    db.session.commit()
+
+
+    animal_5 = Animal(name='bartolomeo', age=13, gender='M', animal_type='dog',
+                      breed='cane da pastore', person_id=user_3.id, station_id=station_3.id)
+    db.session.add(animal_5)
+    db.session.commit()
+
+    animal_6 = Animal(name='rebecca', age=4, gender='F', animal_type='cat',
+                      breed='balinese', person_id=user_3.id, station_id=station_3.id)
+    db.session.add(animal_6)
+    db.session.commit()
+
+    animal_7 = Animal(name='rex', age=8, gender='M', animal_type='dog',
+                      breed='beagle', person_id=user_1.id, station_id=station_1.id)
+    db.session.add(animal_7)
+    db.session.commit()
+
+    animal_8 = Animal(name='alice', age=1, gender='F', animal_type='cat',
+                      breed='persiano', person_id=user_2.id, station_id=station_2.id)
+    db.session.add(animal_8)
+    db.session.commit()
+
+    animal_9 = Animal(name='pelliccia', age=2, gender='F', animal_type='cat',
+                      breed='egyptian mau', person_id=user_2.id, station_id=station_2.id)
+    db.session.add(animal_9)
+    db.session.commit()
+
+    animal_10 = Animal(name='mao', age=7, gender='F', animal_type='cat',
+                      breed='bengala', person_id=user_4.id, station_id=station_4.id)
+    db.session.add(animal_10)
+    db.session.commit()
+
+    meal_1 = Meal(meal_type='secco', quantity=100, data=datetime(2022, 11, 29, 8, 0, 0, 0), animal_id=animal_1.id)
+    db.session.add(meal_1)
+    db.session.commit()
+
+    meal_2 = Meal(meal_type='secco', quantity=200, data=datetime(2022, 11, 29, 13, 15, 0, 0), animal_id=animal_1.id)
+    db.session.add(meal_2)
+    db.session.commit()
+
+    meal_3 = Meal(meal_type='umido', quantity=100, data=datetime(2022, 11, 29, 19, 30, 0, 0), animal_id=animal_1.id)
+    db.session.add(meal_3)
+    db.session.commit()
+
+    return str(user_1.id)
 
 
 if __name__ == '__main__':
