@@ -76,10 +76,11 @@ class Meal(db.Model):
 
     animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)
 
-    def __init__(self, meal_type, quantity, data):
+    def __init__(self, meal_type, quantity, data, animal_id):
         self.meal_type = meal_type
         self.quantity = quantity
         self.data = data
+        self.animal_id = animal_id
 
 
 class Person(db.Model):
@@ -88,8 +89,8 @@ class Person(db.Model):
     """
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100))
-    username = db.Column(db.String(100))
-    password = db.Column(db.String(100))
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(80), nullable=False)
 
     animals = db.relationship('Animal', backref='person')
     stations = db.relationship('Station', backref='person')
@@ -113,10 +114,10 @@ class Station(db.Model):
     waters = db.relationship('Water', backref='station')
     foods = db.relationship('Food', backref='station')
 
-    # def __init__(self, latitude, longitude, person_id):
-    #     self.latitude = latitude
-    #     self.longitude = longitude
-    #     self.person_id = person_id
+    def __init__(self, latitude, longitude, person_id):
+        self.latitude = latitude
+        self.longitude = longitude
+        self.person_id = person_id
 
 
 class Weight(db.Model):
@@ -268,12 +269,60 @@ def doc():
 
 @app.route('/populatedb')
 def populatedb():
+    """
+    Populate db, only for test!
+    ---
+    responses:
+        200:
+            description: id
+    """
     utente1 = Person(name='Michele', username='michele1', password='password')
     db.session.add(utente1)
     db.session.commit()
-
-    station_1 = Station(latitude='', longitude='')
     return str(utente1.id)
+
+
+@app.route('/setmeal/<animal_id>', methods=['POST'])
+def setmeal(animal_id):
+    """
+    Set a meal of an animal
+    ---
+    parameters:
+        -   in: path
+            name: animal_id
+            description: Animal identification id
+            required: true
+
+        -   in: query
+            name: meal_type
+            description: Type of meal
+            required: true
+
+        -   in: query
+            name: quantity
+            description: Quantity of meal
+            required: true
+
+        -   in: query
+            name: data
+            description: Data of the meal
+            required: true
+    responses:
+        200:
+            description: Sensorfeed id
+    """
+    meal_type = request.args.get('meal_type')
+    quantity = request.args.get('quantity')
+    data = request.args.get('data')
+
+    if meal_type is None or quantity is None or data is None:
+        return "ERROR"
+
+    meal = Meal(meal_type=meal_type, quantity=quantity, data=data, animal_id=animal_id)
+    db.session.add(meal)
+    db.session.commit()
+
+    return str(meal.id)
 
 
 if __name__ == '__main__':
