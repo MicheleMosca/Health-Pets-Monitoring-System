@@ -36,6 +36,144 @@ class Sensorfeed(db.Model):
         self.value = value
 
 
+class Animal(db.Model):
+    """
+    Digital Twin of an Animal
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    age = db.Column(db.Integer)
+    gender = db.Column(db.String(2))
+    animal_type = db.Column(db.String(100))
+    breed = db.Column(db.String(100))
+    temperature = db.Column(db.Integer)
+    bark = db.Column(db.Boolean)
+
+    person_id = db.Column(db.Integer, db.ForeignKey('person.id'))
+    meals = db.relationship('Meal', backref='animal')
+    station_id = db.Column(db.Integer, db.ForeignKey('station.id'))
+    weights = db.relationship('Weight', backref='animal')
+    beats = db.relationship('Beat', backref='animal')
+
+    def __init__(self, name, age, gender, animal_type, breed, temperature):
+        self.name = name
+        self.age = age
+        self.gender = gender
+        self.animal_type = animal_type
+        self.breed = breed
+        self.temperature = temperature
+
+
+class Meal(db.Model):
+    """
+    Represent a meal of an animal
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    meal_type = db.Column(db.String(100))
+    quantity = db.Column(db.Integer)
+    data = db.Column(db.DateTime(timezone=True))
+
+    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'))
+
+    def __init__(self, meal_type, quantity, data):
+        self.meal_type = meal_type
+        self.quantity = quantity
+        self.data = data
+
+
+class Person(db.Model):
+    """
+    Represent a Person
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    username = db.Column(db.String(100))
+    password = db.Column(db.String(100))
+
+    animals = db.relationship('Animal', backref='person')
+    stations = db.relationship('Station', backref='person')
+
+    def __init__(self, name, username, password):
+        self.name = name
+        self.username = username
+        self.password = password
+
+
+class Station(db.Model):
+    """
+    Memorize information about Stations
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+
+    animals = db.relationship('Animal', backref='station')
+    person_id = db.Column(db.Integer, db.ForeignKey("person.id"))
+    waters = db.relationship('Water', backref='station')
+    foods = db.relationship('Food', backref='station')
+
+    def __init__(self, value, latitude, longitude):
+        self.value = value
+        self.latitude = latitude
+        self.longitude = longitude
+
+
+class Weight(db.Model):
+    """
+    Memorize in db weights of animals
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+
+    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'))
+
+    def __init__(self, value):
+        self.value = value
+
+
+class Water(db.Model):
+    """
+    Memorize in db water level of the Station
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+
+    station_id = db.Column(db.Integer, db.ForeignKey('station.id'))
+
+    def __init__(self, value):
+        self.value = value
+
+
+class Food(db.Model):
+    """
+    Memorize in db food level of the Station
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+
+    station_id = db.Column(db.Integer, db.ForeignKey('station.id'))
+
+    def __init__(self, value):
+        self.value = value
+
+
+class Beat(db.Model):
+    """
+    Memorize in db the hearth beat of the animal
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    value = db.Column(db.Integer)
+    timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+
+    animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'))
+
+    def __init__(self, value):
+        self.value = value
+
+
 @app.route('/sensor', methods=['GET'])
 def getSensorValue():
     """
