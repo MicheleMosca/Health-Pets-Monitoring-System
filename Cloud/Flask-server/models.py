@@ -41,14 +41,14 @@ class Meal(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     meal_type = db.Column(db.String(100))
     quantity = db.Column(db.Integer)
-    data = db.Column(db.DateTime(timezone=True))
+    time = db.Column(db.DateTime(timezone=True))
 
     animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)
 
-    def __init__(self, meal_type, quantity, data, animal_id):
+    def __init__(self, meal_type, quantity, time, animal_id):
         self.meal_type = meal_type
         self.quantity = quantity
-        self.data = data
+        self.time = time
         self.animal_id = animal_id
 
 

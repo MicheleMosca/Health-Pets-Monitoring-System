@@ -1,4 +1,4 @@
-from models import Person, Animal, Station, Meal, Food, Water, Weight
+from models import Person, Animal, Station, Meal, Food, Water, Weight, Beat
 from datetime import datetime
 
 
@@ -91,15 +91,15 @@ def populatedb(db):
     db.session.add(animal_10)
     db.session.commit()
 
-    meal_1 = Meal(meal_type='secco', quantity=100, data=datetime(2022, 11, 29, 8, 0, 0, 0), animal_id=animal_1.id)
+    meal_1 = Meal(meal_type='secco', quantity=100, time=datetime.strptime('8:00:00', '%H:%M:%S'), animal_id=animal_1.id)
     db.session.add(meal_1)
     db.session.commit()
 
-    meal_2 = Meal(meal_type='secco', quantity=200, data=datetime(2022, 11, 29, 13, 15, 0, 0), animal_id=animal_1.id)
+    meal_2 = Meal(meal_type='secco', quantity=200, time=datetime.strptime('13:15:00', '%H:%M:%S'), animal_id=animal_1.id)
     db.session.add(meal_2)
     db.session.commit()
 
-    meal_3 = Meal(meal_type='umido', quantity=100, data=datetime(2022, 11, 29, 19, 30, 0, 0), animal_id=animal_1.id)
+    meal_3 = Meal(meal_type='umido', quantity=100, time=datetime.strptime('19:30:00', '%H:%M:%S'), animal_id=animal_1.id)
     db.session.add(meal_3)
     db.session.commit()
 
@@ -125,6 +125,14 @@ def populatedb(db):
 
     weight_2 = Weight(value=5, animal_id=animal_1.id)
     db.session.add(weight_2)
+    db.session.commit()
+
+    beats_1 = Beat(value=120, animal_id=animal_1.id)
+    db.session.add(beats_1)
+    db.session.commit()
+
+    beats_2 = Beat(value=110, animal_id=animal_1.id)
+    db.session.add(beats_2)
     db.session.commit()
 
     return str(user_1.id)

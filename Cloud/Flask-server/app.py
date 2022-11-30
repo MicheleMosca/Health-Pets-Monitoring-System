@@ -1,18 +1,20 @@
 from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint
-from sqlalchemy_utils.functions import database_exists
 from flask import Flask, request, jsonify
 import configparser
 from datetime import datetime
-from models import db, Person, Meal, Station, Food, Water, Weight
-from text_populatedb import populatedb
+
+from sqlalchemy_utils import database_exists
+
+from models import db, Person, Meal, Station, Food, Water, Weight, Beat
+from test_populatedb import populatedb
 
 config = configparser.ConfigParser()
 if not config.read('config.ini'):
     print("Please write a config.ini file")
     exit(1)
 
-appname = 'Flask Server Trial'
+appname = 'HPMS: Health Pets Monitoring System'
 app = Flask(__name__)
 app.config.update(
     SQLALCHEMY_DATABASE_URI=config.get('SQLAlchemy', 'SQLALCHEMY_DATABASE_URI', fallback='sqlite:///db.sqlite')
@@ -47,9 +49,9 @@ def index():
             description: Text
     """
     if request.accept_mimetypes['application/json']:
-        return jsonify({'text': 'Flask Server Trial'})
+        return jsonify({'text': appname})
     else:
-        return '<h1>Flask Server Trial</h1>'
+        return f'<h1>{appname}</h1>'
 
 
 @app.route('/api/doc')
@@ -100,8 +102,8 @@ def setMeal(username, station_id, animal_id):
             required: true
 
         -   in: query
-            name: data
-            description: Data of the meal (example 2022-11-29 17:00:00)
+            name: time
+            description: Time of the meal (example 17:00:00)
             required: true
 
     responses:
@@ -119,12 +121,12 @@ def setMeal(username, station_id, animal_id):
 
     meal_type = request.args.get('meal_type')
     quantity = request.args.get('quantity')
-    data = request.args.get('data')
+    time = request.args.get('time')
 
-    if meal_type is None or quantity is None or data is None:
+    if meal_type is None or quantity is None or time is None:
         return "Query Parameters Not Found!", 404
 
-    meal = Meal(meal_type=meal_type, quantity=quantity, data=datetime.strptime(data, '%Y-%m-%d %H:%M:%S'),
+    meal = Meal(meal_type=meal_type, quantity=quantity, time=datetime.strptime(time, '%H:%M:%S'),
                 animal_id=animal_id)
     db.session.add(meal)
     db.session.commit()
@@ -178,7 +180,8 @@ def getMeal(username, station_id, animal_id):
     else:
         meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).all()
 
-    return [{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity, "data": m.data} for m in meal]
+    return [{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity,
+             "time": datetime.strftime(m.time, '%H:%M:%S')} for m in meal]
 
 
 @app.route('/api/users/<username>/stations/<station_id>/foods', methods=['GET'])
@@ -245,7 +248,7 @@ def getWaterLevel(username, station_id):
 
     responses:
         200:
-            description: List of food level
+            description: List of water level
     """
     if Person.query.filter_by(username=username).first() is None:
         return "User Not Found!", 404
@@ -266,7 +269,7 @@ def getWaterLevel(username, station_id):
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/weights', methods=['GET'])
 def getAnimalWeight(username, station_id, animal_id):
     """
-    Get water level
+    Get Animal Weight
     ---
     parameters:
         -   in: path
@@ -291,7 +294,7 @@ def getAnimalWeight(username, station_id, animal_id):
 
     responses:
         200:
-            description: List of food level
+            description: List of animal weight
     """
     if Person.query.filter_by(username=username).first() is None:
         return "User Not Found!", 404
@@ -312,9 +315,53 @@ def getAnimalWeight(username, station_id, animal_id):
     return jsonify([{"id": w.id, "value": w.value, "timestamp": w.timestamp} for w in weights])
 
 
-@app.route('/api/')
-def getAnimalBeat():
-    pass
+@app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/beats', methods=['GET'])
+def getAnimalBeat(username, station_id, animal_id):
+    """
+    Get Animal Beat
+    ---
+    parameters:
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+        -   in: path
+            name: animal_id
+            description: Animal identification id
+            required: true
+
+        -   in: query
+            name: limit
+            description: Limit the list of values
+            required: false
+
+    responses:
+        200:
+            description: List of animal beats
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    limit = request.args.get('limit')
+
+    if limit is not None:
+        beats = Beat.query.filter_by(animal_id=animal_id).order_by(Beat.id.desc()).limit(int(limit)).all()
+    else:
+        beats = Beat.query.filter_by(animal_id=animal_id).order_by(Beat.id.desc()).all()
+
+    return jsonify([{"id": b.id, "value": b.value, "timestamp": b.timestamp} for b in beats])
 
 
 if __name__ == '__main__':
