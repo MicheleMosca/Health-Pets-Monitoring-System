@@ -6,7 +6,7 @@ from datetime import datetime
 
 from sqlalchemy_utils import database_exists
 
-from models import db, Person, Meal, Station, Food, Water, Weight, Beat
+from models import db, Person, Meal, Station, Food, Water, Weight, Beat, Animal
 from test_populatedb import populatedb
 
 config = configparser.ConfigParser()
@@ -364,12 +364,70 @@ def getAnimalBeat(username, station_id, animal_id):
     return jsonify([{"id": b.id, "value": b.value, "timestamp": b.timestamp} for b in beats])
 
 
+@app.route('/api/users/<username>/stations', methods=['GET'])
+def getStations(username):
+    """
+    Return stations of one user
+    ---
+    parameters:
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+    responses:
+        200:
+            description: List of stations
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    stations = Station.query.filter_by(person_id=Person.query.filter_by(username=username).first().id)\
+        .order_by(Station.id.asc()).all()
+
+    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude} for s in stations])
+
+
+@app.route('/api/users/<username>/stations/<station_id>/animals', methods=['GET'])
+def getStationAnimals(username, station_id):
+    """
+    Return animals of one user and served by an input station
+    ---
+    parameters:
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+    responses:
+        200:
+            description: List of user's animals served by an input station
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    station_animals = Animal.query.filter_by(station_id=int(station_id)).order_by(Animal.id.asc()).all()
+
+    return jsonify([{"id": sa.id, "name": sa.name, "age": sa.age, "gender": sa.gender,
+                     "animal_type": sa.animal_type, "breed": sa.breed,
+                     "temperature": sa.temperature, "bark": sa.bark} for sa in station_animals])
+
+
 if __name__ == '__main__':
     # If sqlite db is not created, now will create it
     if not database_exists(app.config['SQLALCHEMY_DATABASE_URI']):
         with app.app_context():
-            db.create_all()
-            populatedb(db)    # Only for test
+            print("Non va più detabase_exists")
+            #db.create_all()
+            #populatedb(db)    # Only for test
 
     # Call factory function to create our blueprint
     swaggerui_blueprint = get_swaggerui_blueprint(
