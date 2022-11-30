@@ -1,4 +1,4 @@
-from models import Person, Animal, Station, Meal, Food
+from models import Person, Animal, Station, Meal, Food, Water, Weight
 from datetime import datetime
 
 
@@ -109,6 +109,22 @@ def populatedb(db):
 
     food_2 = Food(value='medium', station_id=station_1.id)
     db.session.add(food_2)
+    db.session.commit()
+
+    water_1 = Water(value='medium', station_id=station_1.id)
+    db.session.add(water_1)
+    db.session.commit()
+
+    water_2 = Water(value='high', station_id=station_1.id)
+    db.session.add(water_2)
+    db.session.commit()
+
+    weight_1 = Weight(value=4, animal_id=animal_1.id)
+    db.session.add(weight_1)
+    db.session.commit()
+
+    weight_2 = Weight(value=5, animal_id=animal_1.id)
+    db.session.add(weight_2)
     db.session.commit()
 
     return str(user_1.id)

@@ -4,7 +4,7 @@ from sqlalchemy_utils.functions import database_exists
 from flask import Flask, request, jsonify
 import configparser
 from datetime import datetime
-from models import db, Person, Meal, Station, Food
+from models import db, Person, Meal, Station, Food, Water, Weight
 from text_populatedb import populatedb
 
 config = configparser.ConfigParser()
@@ -66,11 +66,6 @@ def doc():
     swag['info']['title'] = appname
 
     return jsonify(swag)
-
-
-@app.route('/populatedb')
-def text_populatedb():
-    return populatedb(db)
 
 
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/meals', methods=['POST'])
@@ -227,14 +222,94 @@ def getFoodLevel(username, station_id):
     return jsonify([{"id": f.id, "value": f.value, "timestamp": f.timestamp} for f in foods])
 
 
-@app.route('/api/')
-def getWaterLevel():
-    pass
+@app.route('/api/users/<username>/stations/<station_id>/waters', methods=['GET'])
+def getWaterLevel(username, station_id):
+    """
+    Get water level
+    ---
+    parameters:
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+        -   in: query
+            name: limit
+            description: Limit the list of values
+            required: false
+
+    responses:
+        200:
+            description: List of food level
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    limit = request.args.get('limit')
+
+    if limit is not None:
+        waters = Water.query.filter_by(station_id=station_id).order_by(Water.id.desc()).limit(int(limit)).all()
+    else:
+        waters = Water.query.filter_by(station_id=station_id).order_by(Water.id.desc()).all()
+
+    return jsonify([{"id": w.id, "value": w.value, "timestamp": w.timestamp} for w in waters])
 
 
-@app.route('/api/')
-def getAnimalWeight():
-    pass
+@app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/weights', methods=['GET'])
+def getAnimalWeight(username, station_id, animal_id):
+    """
+    Get water level
+    ---
+    parameters:
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+        -   in: path
+            name: animal_id
+            description: Animal identification id
+            required: true
+
+        -   in: query
+            name: limit
+            description: Limit the list of values
+            required: false
+
+    responses:
+        200:
+            description: List of food level
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    limit = request.args.get('limit')
+
+    if limit is not None:
+        weights = Weight.query.filter_by(animal_id=animal_id).order_by(Weight.id.desc()).limit(int(limit)).all()
+    else:
+        weights = Weight.query.filter_by(animal_id=animal_id).order_by(Weight.id.desc()).all()
+
+    return jsonify([{"id": w.id, "value": w.value, "timestamp": w.timestamp} for w in weights])
 
 
 @app.route('/api/')
@@ -247,6 +322,7 @@ if __name__ == '__main__':
     if not database_exists(app.config['SQLALCHEMY_DATABASE_URI']):
         with app.app_context():
             db.create_all()
+            populatedb(db)    # Only for test
 
     # Call factory function to create our blueprint
     swaggerui_blueprint = get_swaggerui_blueprint(
