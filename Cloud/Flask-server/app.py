@@ -1,10 +1,10 @@
 from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint
 from sqlalchemy_utils.functions import database_exists
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify
 import configparser
 from datetime import datetime
-from models import db, Person, Animal, Beat, Water, Meal, Station, Food, Weight
+from models import db, Person, Meal, Station, Food
 from text_populatedb import populatedb
 
 config = configparser.ConfigParser()
@@ -22,7 +22,7 @@ app.config.update(
 db.init_app(app)
 
 SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
-API_URL = '/doc'  # Our API url (can of course be a local resource)
+API_URL = '/api/doc'  # Our API url (can of course be a local resource)
 
 
 @app.errorhandler(404)
@@ -52,7 +52,7 @@ def index():
         return '<h1>Flask Server Trial</h1>'
 
 
-@app.route('/doc')
+@app.route('/api/doc')
 def doc():
     """
     Swagger documentation
@@ -73,7 +73,71 @@ def text_populatedb():
     return populatedb(db)
 
 
-@app.route('/users/<username>/stations/<station_id>/animals/<animal_id>/meals', methods=['GET'])
+@app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/meals', methods=['POST'])
+def setMeal(username, station_id, animal_id):
+    """
+    Set a meal of an animal
+    ---
+    parameters:
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+        -   in: path
+            name: animal_id
+            description: Animal identification id
+            required: true
+
+        -   in: query
+            name: meal_type
+            description: Type of meal (secco/umido)
+            required: true
+
+        -   in: query
+            name: quantity
+            description: Quantity of meal in grams
+            required: true
+
+        -   in: query
+            name: data
+            description: Data of the meal (example 2022-11-29 17:00:00)
+            required: true
+
+    responses:
+        200:
+            description: Sensorfeed id
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    meal_type = request.args.get('meal_type')
+    quantity = request.args.get('quantity')
+    data = request.args.get('data')
+
+    if meal_type is None or quantity is None or data is None:
+        return "Query Parameters Not Found!", 404
+
+    meal = Meal(meal_type=meal_type, quantity=quantity, data=datetime.strptime(data, '%Y-%m-%d %H:%M:%S'),
+                animal_id=animal_id)
+    db.session.add(meal)
+    db.session.commit()
+
+    return str(meal.id)
+
+
+@app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/meals', methods=['GET'])
 def getMeal(username, station_id, animal_id):
     """
     Get meal list of an animal
@@ -109,58 +173,20 @@ def getMeal(username, station_id, animal_id):
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
 
-    if int(animal_id) not in []:
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
         return "Animal Not Found!", 404
 
-    meal = Meal.query.filter_by(animal_id=animal_id).all()
+    limit = request.args.get('limit')
+
+    if limit is not None:
+        meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).limit(int(limit)).all()
+    else:
+        meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).all()
+
     return [{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity, "data": m.data} for m in meal]
 
 
-@app.route('/meals/<animal_id>', methods=['POST'])
-def setMeal(animal_id):
-    """
-    Set a meal of an animal
-    ---data
-    parameters:
-        -   in: path
-            name: animal_id
-            description: Animal identification id
-            required: true
-
-        -   in: query
-            name: meal_type
-            description: Type of meal (secco/umido)
-            required: true
-
-        -   in: query
-            name: quantity
-            description: Quantity of meal in grams
-            required: true
-
-        -   in: query
-            name: data
-            description: Data of the meal (example 2022-11-29 17:00:00)
-            required: true
-    responses:
-        200:
-            description: Sensorfeed id
-    """
-    meal_type = request.args.get('meal_type')
-    quantity = request.args.get('quantity')
-    data = request.args.get('data')
-
-    if meal_type is None or quantity is None or data is None:
-        return "ERROR"
-
-    meal = Meal(meal_type=meal_type, quantity=quantity, data=datetime.strptime(data, '%Y-%m-%d %H:%M:%S'),
-                animal_id=animal_id)
-    db.session.add(meal)
-    db.session.commit()
-
-    return str(meal.id)
-
-
-@app.route('/users/<username>/stations/<station_id>/foods', methods=['GET'])
+@app.route('/api/users/<username>/stations/<station_id>/foods', methods=['GET'])
 def getFoodLevel(username, station_id):
     """
     Get food level
@@ -185,33 +211,33 @@ def getFoodLevel(username, station_id):
         200:
             description: List of food level
     """
-    limit = request.args.get('limit')
-
     if Person.query.filter_by(username=username).first() is None:
         return "User Not Found!", 404
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
 
+    limit = request.args.get('limit')
+
     if limit is not None:
         foods = Food.query.filter_by(station_id=station_id).order_by(Food.id.desc()).limit(int(limit)).all()
     else:
-        foods = Food.query.filter_by(station_id=station_id).all()
+        foods = Food.query.filter_by(station_id=station_id).order_by(Food.id.desc()).all()
 
     return jsonify([{"id": f.id, "value": f.value, "timestamp": f.timestamp} for f in foods])
 
 
-@app.route('/')
+@app.route('/api/')
 def getWaterLevel():
     pass
 
 
-@app.route('/')
+@app.route('/api/')
 def getAnimalWeight():
     pass
 
 
-@app.route('/')
+@app.route('/api/')
 def getAnimalBeat():
     pass
 
