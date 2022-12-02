@@ -3,9 +3,6 @@ from flask_swagger_ui import get_swaggerui_blueprint
 from flask import Flask, request, jsonify
 import configparser
 from datetime import datetime
-
-from sqlalchemy_utils import database_exists
-
 from models import db, Person, Meal, Station, Food, Water, Weight, Beat, Animal
 from test_populatedb import populatedb
 
@@ -422,12 +419,9 @@ def getStationAnimals(username, station_id):
 
 
 if __name__ == '__main__':
-    # If sqlite db is not created, now will create it
-    if not database_exists(app.config['SQLALCHEMY_DATABASE_URI']):
-        with app.app_context():
-            print("Non va più detabase_exists")
-            #db.create_all()
-            #populatedb(db)    # Only for test
+    with app.app_context():
+        db.create_all()
+        populatedb(db)    # Only for test
 
     # Call factory function to create our blueprint
     swaggerui_blueprint = get_swaggerui_blueprint(

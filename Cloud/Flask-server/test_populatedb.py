@@ -1,3 +1,4 @@
+import sqlalchemy.exc
 from models import Person, Animal, Station, Meal, Food, Water, Weight, Beat
 from datetime import datetime
 
@@ -5,14 +6,13 @@ from datetime import datetime
 def populatedb(db):
     """
     Populate db, only for test!
-    ---
-    responses:
-        200:
-            description: id
     """
-    user_1 = Person(name='Michele', username='michele', password='password')
-    db.session.add(user_1)
-    db.session.commit()
+    try:
+        user_1 = Person(name='Michele', username='michele', password='password')
+        db.session.add(user_1)
+        db.session.commit()
+    except sqlalchemy.exc.IntegrityError:
+        return
 
     user_2 = Person(name='Elme', username='elme', password='password')
     db.session.add(user_2)
