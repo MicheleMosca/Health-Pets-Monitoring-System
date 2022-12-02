@@ -138,6 +138,61 @@ def setMeal(username, station_id, animal_id):
     return str(meal.id)
 
 
+@app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/meals/<meal_id>', methods=['DELETE'])
+def deleteMeal(username, station_id, animal_id, meal_id):
+    """
+    Delete a meal of an animal
+    ---
+    parameters:
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+        -   in: path
+            name: animal_id
+            description: Animal identification id
+            required: true
+
+        -   in: path
+            name: meal_id
+            description: Meal identification id
+            required: true
+
+    responses:
+        200:
+            description: New Meals list
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    if Meal.query.filter_by(id=meal_id).first() is None:
+        return "Meal Not Found!", 404
+
+    meal = Meal.query.filter_by(id=meal_id).first()
+    db.session.delete(meal)
+    db.session.commit()
+
+    # send new configuration to the bridge throw MQTT
+    meal_list = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).all()
+    json_meal_list = jsonify([{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity,
+                            "time": datetime.strftime(m.time, '%H:%M:%S')} for m in meal_list]).get_data(as_text=True)
+    listener.send_message(f'HPMS/users/{username}/stations/{station_id}/animals/{animal_id}/meals', json_meal_list)
+
+    return json_meal_list
+
+
 @app.route('/api/users/<username>/stations', methods=['POST'])
 def setStation(username):
     """
