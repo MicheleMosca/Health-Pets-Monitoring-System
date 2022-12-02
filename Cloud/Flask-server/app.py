@@ -333,6 +333,56 @@ def setFoodLevel(username, station_id, value):
     return str(food.id)
 
 
+def setAnimalBark(username, station_id, animal_id, value):
+    """
+    Set bark status on animal given in input
+    :param username: username of the user
+    :param station_id: station identification id
+    :param animal_id: animal identification id
+    :param value: value of bark status
+    :return: new bark status
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    animal = Animal.query.filter_by(id=animal_id).first()
+    animal.bark = bool(int(value))
+    db.session.commit()
+
+    return str(animal.bark)
+
+
+def setAnimalTemperature(username, station_id, animal_id, value):
+    """
+    Set the temperature of an animal given in input
+    :param username: username of the user
+    :param station_id: station identification id
+    :param animal_id: animal identification id
+    :param value: value of temperature
+    :return: new value of temperature
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    animal = Animal.query.filter_by(id=animal_id).first()
+    animal.temperature = int(value)
+    db.session.commit()
+
+    return animal.temperature
+
+
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/meals', methods=['GET'])
 def getMeal(username, station_id, animal_id):
     """
@@ -633,6 +683,12 @@ def on_message_action(feed_type, params, payload):
             print(f"[DATABASE] Water id: {setWaterLevel(params['users'], params['stations'], payload)}")
         elif feed_type == 'foods':
             print(f"[DATABASE] Food id: {setFoodLevel(params['users'], params['stations'], payload)}")
+        elif feed_type == 'barks':
+            print(f"[DATABASE] Animal with id: {params['animals']} set bark on: "
+                  f"{setAnimalBark(params['users'], params['stations'], params['animals'], payload)}")
+        elif feed_type == 'temperatures':
+            print(f"[DATABASE] Animal with id: {params['animals']} set temperature on: "
+                  f"{setAnimalTemperature(params['users'], params['stations'], params['animals'], payload)}")
 
 if __name__ == '__main__':
     with app.app_context():
