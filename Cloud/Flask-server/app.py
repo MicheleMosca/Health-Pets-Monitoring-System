@@ -129,6 +129,12 @@ def setMeal(username, station_id, animal_id):
     db.session.add(meal)
     db.session.commit()
 
+    # send new configuration to the bridge throw MQTT
+    meal_list = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).all()
+    listener.send_message(f'HPMS/users/{username}/stations/{station_id}/animals/{animal_id}/meals',
+                          jsonify([{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity,
+                            "time": datetime.strftime(m.time, '%H:%M:%S')} for m in meal_list]).get_data(as_text=True))
+
     return str(meal.id)
 
 
@@ -429,8 +435,8 @@ def getMeal(username, station_id, animal_id):
     else:
         meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).all()
 
-    return [{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity,
-             "time": datetime.strftime(m.time, '%H:%M:%S')} for m in meal]
+    return jsonify([{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity,
+             "time": datetime.strftime(m.time, '%H:%M:%S')} for m in meal])
 
 
 @app.route('/api/users/<username>/stations/<station_id>/foods', methods=['GET'])
@@ -690,6 +696,11 @@ def on_message_action(feed_type, params, payload):
             print(f"[DATABASE] Animal with id: {params['animals']} set temperature on: "
                   f"{setAnimalTemperature(params['users'], params['stations'], params['animals'], payload)}")
 
+
+# Run MQTT Listener
+listener = MQTTListener(on_message_action)
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
@@ -704,9 +715,6 @@ if __name__ == '__main__':
         }
     )
     app.register_blueprint(swaggerui_blueprint)
-
-    # Run MQTT Listener
-    listener = MQTTListener(on_message_action)
 
     # Run app with configuration
     app.run(host=config.get('Flask', 'FLASK_RUN_HOST', fallback='0.0.0.0'),

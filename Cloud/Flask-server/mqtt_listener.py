@@ -70,6 +70,9 @@ class MQTTListener:
 
         self.on_message_action(feed_type, params, msg.payload)
 
+    def send_message(self, feed, value):
+        self.clientMQTT.publish(f'{feed}', f'{value}')
+
     def loop(self):
         """
         Infinite loop for managing communication
