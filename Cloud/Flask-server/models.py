@@ -109,7 +109,7 @@ class Water(db.Model):
     Store water level of the Station
     """
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    value = db.Column(db.Integer)
+    value = db.Column(db.String(10))
     timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
     station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable=False)
@@ -124,7 +124,7 @@ class Food(db.Model):
     Store food level of the Station
     """
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    value = db.Column(db.Integer)
+    value = db.Column(db.String(10))
     timestamp = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.utcnow)
 
     station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable=False)

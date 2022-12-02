@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 import configparser
 from datetime import datetime
 from models import db, Person, Meal, Station, Food, Water, Weight, Beat, Animal
+from mqtt_listener import MQTTListener
 from test_populatedb import populatedb
 
 config = configparser.ConfigParser()
@@ -130,6 +131,7 @@ def setMeal(username, station_id, animal_id):
 
     return str(meal.id)
 
+
 @app.route('/api/users/<username>/stations', methods=['POST'])
 def setStation(username):
     """
@@ -169,6 +171,7 @@ def setStation(username):
     db.session.commit()
 
     return str(station.id)
+
 
 @app.route('/api/users/<username>/stations/<station_id>/animals', methods=['POST'])
 def setStationAnimal(username, station_id):
@@ -237,6 +240,97 @@ def setStationAnimal(username, station_id):
     db.session.commit()
 
     return str(animal.id)
+
+def setBeats(username, station_id, animal_id, value):
+    """
+    Set Animal Beats
+    :param username: username of the user
+    :param station_id: station identification id
+    :param animal_id: animal identification id
+    :param value: Beat value
+    :return: Record id
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    beat = Beat(value=int(value), animal_id=int(animal_id))
+    db.session.add(beat)
+    db.session.commit()
+
+    return str(beat.id)
+
+
+def setAnimalWeight(username, station_id, animal_id, value):
+    """
+    Set Animal Weight
+    :param username: username of the user
+    :param station_id: station identification id
+    :param animal_id: animal identification id
+    :param value: Weight value
+    :return: Record id
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    weight = Weight(value=int(value), animal_id=int(animal_id))
+    db.session.add(weight)
+    db.session.commit()
+
+    return str(weight.id)
+
+
+def setWaterLevel(username, station_id, value):
+    """
+    Set Station Water level
+    :param username: username of the user
+    :param station_id: station identification id
+    :param value: Water value
+    :return: Record id
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    water = Water(value=value.decode().lower(), station_id=int(station_id))
+    db.session.add(water)
+    db.session.commit()
+
+    return str(water.id)
+
+
+def setFoodLevel(username, station_id, value):
+    """
+    Set Station Food level
+    :param username: username of the user
+    :param station_id: station identification id
+    :param value: Food value
+    :return: Record id
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    food = Food(value=value.decode().lower(), station_id=int(station_id))
+    db.session.add(food)
+    db.session.commit()
+
+    return str(food.id)
 
 
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/meals', methods=['GET'])
@@ -526,6 +620,20 @@ def getStationAnimals(username, station_id):
                      "temperature": sa.temperature, "bark": sa.bark} for sa in station_animals])
 
 
+def on_message_action(feed_type, params, payload):
+    """
+    Set the action to do with the MQTT message
+    """
+    with app.app_context():
+        if feed_type == 'beats':
+            print(f"[DATABASE] Beat id: {setBeats(params['users'], params['stations'], params['animals'], payload)}")
+        elif feed_type == 'weights':
+            print(f"[DATABASE] Weight id: {setAnimalWeight(params['users'], params['stations'], params['animals'], payload)}")
+        elif feed_type == 'waters':
+            print(f"[DATABASE] Water id: {setWaterLevel(params['users'], params['stations'], payload)}")
+        elif feed_type == 'foods':
+            print(f"[DATABASE] Food id: {setFoodLevel(params['users'], params['stations'], payload)}")
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
@@ -540,6 +648,9 @@ if __name__ == '__main__':
         }
     )
     app.register_blueprint(swaggerui_blueprint)
+
+    # Run MQTT Listener
+    listener = MQTTListener(on_message_action)
 
     # Run app with configuration
     app.run(host=config.get('Flask', 'FLASK_RUN_HOST', fallback='0.0.0.0'),
