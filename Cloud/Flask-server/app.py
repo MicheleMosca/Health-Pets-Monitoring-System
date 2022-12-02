@@ -105,7 +105,7 @@ def setMeal(username, station_id, animal_id):
 
     responses:
         200:
-            description: Sensorfeed id
+            description: Meal id
     """
     if Person.query.filter_by(username=username).first() is None:
         return "User Not Found!", 404
@@ -116,7 +116,7 @@ def setMeal(username, station_id, animal_id):
     if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
         return "Animal Not Found!", 404
 
-    meal_type = request.args.get('meal_type')
+    meal_type = request.args.get('meal_type').lower()
     quantity = request.args.get('quantity')
     time = request.args.get('time')
 
@@ -129,6 +129,114 @@ def setMeal(username, station_id, animal_id):
     db.session.commit()
 
     return str(meal.id)
+
+@app.route('/api/users/<username>/stations', methods=['POST'])
+def setStation(username):
+    """
+    Set a new Station
+    ---
+    parameters:
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: query
+            name: latitude
+            description: latitude coordination of the Station
+            required: true
+
+        -   in: query
+            name: longitude
+            description: longitude coordination of the Station
+            required: true
+
+    responses:
+        200:
+            description: Station id
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    latitude = request.args.get('latitude')
+    longitude = request.args.get('longitude')
+
+    if latitude is None or longitude is None:
+        return "Query Parameters Not Found!", 404
+
+    station = Station(latitude=latitude, longitude=longitude, person_id=Person.query.filter_by(username=username).first().id)
+    db.session.add(station)
+    db.session.commit()
+
+    return str(station.id)
+
+@app.route('/api/users/<username>/stations/<station_id>/animals', methods=['POST'])
+def setStationAnimal(username, station_id):
+    """
+    Set a new Animal served by a station given in input
+    ---
+    parameters:
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+        -   in: query
+            name: name
+            description: Animal name
+            required: true
+
+        -   in: query
+            name: age
+            description: Animal age
+            required: true
+
+        -   in: query
+            name: gender
+            description: Animal gender (M/F)
+            required: true
+
+        -   in: query
+            name: animal_type
+            description: Animal type (dog/cat)
+            required: true
+
+        -   in: query
+            name: breed
+            description: Animal breed
+            required: true
+
+    responses:
+        200:
+            description: Animal id
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    name = request.args.get('name').lower()
+    age = request.args.get('age').lower()
+    gender = request.args.get('gender').upper()
+    animal_type = request.args.get('animal_type').lower()
+    breed = request.args.get('breed').lower()
+
+    if name is None or age is None or gender is None or animal_type is None or breed is None:
+        return "Query Parameters Not Found!", 404
+
+    animal = Animal(name=name, age=age, gender=gender, animal_type=animal_type,
+                    breed=breed, person_id=Person.query.filter_by(username=username).first().id, station_id=station_id)
+
+    db.session.add(animal)
+    db.session.commit()
+
+    return str(animal.id)
 
 
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/meals', methods=['GET'])
