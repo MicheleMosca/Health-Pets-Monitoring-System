@@ -1,3 +1,5 @@
+import json
+import requests
 import serial
 import serial.tools.list_ports
 import configparser
@@ -17,8 +19,29 @@ class Bridge:
         if not self.config.read('config.ini'):
             print("Please write a config.ini file")
             exit(1)
+        self.HPMS_server = None
+        self.HPMS_port = None
+        self.HPMS_username = None
+        self.HPMS_station = None
+        self.HPMS_animals = dict
+        self.setupHPMS()
         self.setupSerial()
         self.setupMQTT()
+
+    def setupHPMS(self):
+        """
+        Setup HPMS variable and MQTT Subscriptions
+        """
+        self.HPMS_server = self.config.get("HPMS", "server")
+        self.HPMS_port = self.config.get("HPMS", "port")
+        self.HPMS_username = self.config.get("HPMS", "username")
+        self.HPMS_station = self.config.get("HPMS", "station")
+
+        # Create a dictionary of animals, where the key is the animal id and the item is a json object list of animal meals
+        animals = requests.get(f'http://{self.HPMS_server}:{self.HPMS_port}/api/users/'
+                               f'{self.HPMS_username}/stations/{self.HPMS_station}/animals').json()
+
+        self.HPMS_animals = {animal['id']: requests.get(f'http://{self.HPMS_server}:{self.HPMS_port}/api/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal["id"]}/meals').json() for animal in animals}
 
     def setupSerial(self):
         """
@@ -89,9 +112,9 @@ class Bridge:
 
         print(f"Connected with result code {rc}")
 
-        # Subscribing in on_connect() means that if we lose the connection and
-        # reconnect then subscriptions will be renewed.
-        self.clientMQTT.subscribe(f"{self.feed}/#")
+        # Connect with MQTT topic of animals meals
+        for animal_id in self.HPMS_animals.keys():
+            self.clientMQTT.subscribe(f"{self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal_id}/meals")
 
     def on_message(self, client, userdata, msg):
         """
@@ -103,21 +126,16 @@ class Bridge:
         """
 
         print(f"{msg.topic}: {msg.payload}")
-        if int(msg.payload) > 74:
-            data = b'A'  # example of on message sent to Arduino
-        else:
-            data = b'S'  # example of off message sent to Arduino
 
-        numval = 1
-        checksum = numval ^ ord(data)
+        feed_type = msg.topic.split('/')[-1]
+        raw_params = msg.topic.split('/')[1:-1]
+        params = {raw_params[i - 1]: raw_params[i] for i in range(1, len(raw_params), 2)}
 
-        # send packet to Arduino
-        self.serial.write(b'\xFF')
-        self.serial.write(int.to_bytes(numval, length=1, byteorder='little'))
-        self.serial.write(data)
-        self.serial.write(int.to_bytes(checksum, length=1, byteorder='little'))
-        self.serial.write(b'\xFE')
-        print(f"Packet sent: xFF {numval} {data} {checksum} xFE")
+        # If there is a new configuration of meals
+        if feed_type == 'meals':
+            self.HPMS_animals[int(params['animals'])] = json.loads(msg.payload.decode())
+
+        print(f'[Animal {params["animals"]}] meals: {self.HPMS_animals[int(params["animals"])]}')
 
     def loop(self):
         """

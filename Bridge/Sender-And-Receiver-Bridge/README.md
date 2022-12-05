@@ -40,7 +40,7 @@ Need to write a config.ini file to run the bridge. An example below:
 [Serial]
 UseDescription =
 PortDescription =
-PortName = COM7
+PortName = /dev/rfcomm0
 BaudRate = 9600
 
 [MQTT]
@@ -49,5 +49,41 @@ Server = broker.hivemq.com
 UseCredentials =
 Username =
 Password =
-Feed = MySensor
+Feed = HPMS
+
+[HPMS]
+server = localhost
+port = 9000
+username = michele
+station = 1
 ```
+
+## MQTT Topics
+- Receive Animals meals:
+    ```text
+    HPMS/users/{username}/stations/{station_id}/animals/{animal_id}/meals
+    ```
+- Send Animals beats:
+    ```text
+    HPMS/users/{username}/stations/{station_id}/animals/{animal_id}/beats
+    ```
+- Send Animals weights:
+    ```text
+    HPMS/users/{username}/stations/{station_id}/animals/{animal_id}/weights
+    ```
+- Send Station water level:
+    ```text
+    HPMS/users/{username}/stations/{station_id}/waters
+    ```
+- Send Station food level:
+    ```text
+    HPMS/users/{username}/stations/{station_id}/foods
+    ```
+- Send Animals barks:
+    ```text
+    HPMS/users/{username}/stations/{station_id}/animals/{animal_id}/barks
+    ```
+- Send Animals temperatures:
+    ```text
+    HPMS/users/{username}/stations/{station_id}/animals/{animal_id}/temperatures
+    ```
