@@ -6,6 +6,7 @@ from datetime import datetime
 from models import db, Person, Meal, Station, Food, Water, Weight, Beat, Animal
 from mqtt_listener import MQTTListener
 from test_populatedb import populatedb
+from flask_cors import CORS
 
 config = configparser.ConfigParser()
 if not config.read('config.ini'):
@@ -17,9 +18,13 @@ app = Flask(__name__)
 app.config.update(
     SQLALCHEMY_DATABASE_URI=config.get('SQLAlchemy', 'SQLALCHEMY_DATABASE_URI', fallback='sqlite:///db.sqlite')
 )
-#prova commento da togliere
+
 # Initialize db
 db.init_app(app)
+
+# Initialize cors
+cors = CORS()
+cors.init_app(app)
 
 SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
 API_URL = '/api/doc'  # Our API url (can of course be a local resource)
