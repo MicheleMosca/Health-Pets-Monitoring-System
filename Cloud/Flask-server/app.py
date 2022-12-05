@@ -17,7 +17,7 @@ app = Flask(__name__)
 app.config.update(
     SQLALCHEMY_DATABASE_URI=config.get('SQLAlchemy', 'SQLALCHEMY_DATABASE_URI', fallback='sqlite:///db.sqlite')
 )
-
+#prova commento da togliere
 # Initialize db
 db.init_app(app)
 
