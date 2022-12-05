@@ -13,3 +13,4 @@ PyYAML==6.0
 SQLAlchemy==1.4.44
 Werkzeug==2.2.2
 zipp==3.11.0
+Flask_Cors==3.0.10

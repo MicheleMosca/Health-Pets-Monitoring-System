@@ -1,6 +1,7 @@
 from flask_swagger import swagger
 from flask_swagger_ui import get_swaggerui_blueprint
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import configparser
 from datetime import datetime
 from models import db, Person, Meal, Station, Food, Water, Weight, Beat, Animal
@@ -20,6 +21,10 @@ app.config.update(
 #prova commento da togliere
 # Initialize db
 db.init_app(app)
+
+#initialize CORS
+cors = CORS()
+cors.init_app(app)
 
 SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
 API_URL = '/api/doc'  # Our API url (can of course be a local resource)
