@@ -187,9 +187,61 @@ class Bridge:
         if checksum != checksum_received:
             return False
 
-        for i in range(numval):
-            print(f"Sensor {i}: {val[i]}")
-            self.clientMQTT.publish(f'{self.feed}/{i}', f'{val[i]}')
+        # Extract data
+        if numval != 7:
+            return False
+
+        food_level = 'high' if chr(val[0]) == 'h' else 'medium' if chr(val[0]) == 'm' else 'low'
+        water_level = 'high' if chr(val[1]) == 'h' else 'medium' if chr(val[1]) == 'm' else 'low'
+        animal_id = val[2]
+        animal_beat = val[3]
+        animal_weight = val[4]
+        animal_bark = val[5]
+        animal_temperature = val[6]
+
+        # Send Food Level
+        print(f'[ARDUINO] Food Level: {food_level}')
+        self.clientMQTT.publish(f'{self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/foods',
+                                f'{food_level}')
+        print(f'[MQTT] Food Level sent to: {self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/foods')
+
+        # Send Water Level
+        print(f'[ARDUINO] Water Level: {water_level}')
+        self.clientMQTT.publish(f'{self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/waters',
+                                f'{water_level}')
+        print(f'[MQTT] Water Level sent to: {self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/waters')
+
+        # Send Animal Beat
+        print(f'[ARDUINO] Animal Beat: {animal_beat}')
+        self.clientMQTT.publish(
+            f'{self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal_id}/beats',
+            f'{animal_beat}')
+        print(
+            f'[MQTT] Animal Beat sent to: {self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal_id}/beats')
+
+        # Send Animal Weight
+        print(f'[ARDUINO] Animal Weight: {animal_weight}')
+        self.clientMQTT.publish(
+            f'{self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal_id}/weights',
+            f'{animal_weight}')
+        print(
+            f'[MQTT] Animal Weight sent to: {self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal_id}/weights')
+
+        # Send Animal Bark
+        print(f'[ARDUINO] Animal Bark: {animal_bark}')
+        self.clientMQTT.publish(
+            f'{self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal_id}/barks',
+            f'{animal_bark}')
+        print(
+            f'[MQTT] Animal Bark sent to: {self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal_id}/barks')
+
+        # Send Animal Temperature
+        print(f'[ARDUINO] Animal Temperature: {animal_temperature}')
+        self.clientMQTT.publish(
+            f'{self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal_id}/temperatures',
+            f'{animal_temperature}')
+        print(
+            f'[MQTT] Animal Temperature sent to: {self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal_id}/temperatures')
 
 
 if __name__ == '__main__':

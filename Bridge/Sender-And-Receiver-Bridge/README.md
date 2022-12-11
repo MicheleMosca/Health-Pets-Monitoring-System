@@ -5,9 +5,9 @@ Listening to MQTT server for new topic's message and send packet with value to s
 ## Data Packet Structure Received
 An example of a data packet received from serial below:
 
-| START | LEN | DATA_1 | DATA_2 | CHECKSUM | END |
-|:-----:|:---:|:------:|:------:|:--------:|:---:|
-|  xFF  |  2  |   20   |   40   |    62    | xFE |
+| START | LEN | FOOD_LEVEL | WATER_LEVEL | ANIMAL_ID | ANIMAL_BEAT | ANIMAL_WEIGHT | ANIMAL_BARK | ANIMAL_TEMPERATURE | CHECKSUM | END |
+|:-----:|:---:|:----------:|:-----------:|:---------:|:-----------:|:-------------:|:-----------:|:------------------:|:--------:|:---:|
+|  xFF  |  2  |     h      |      m      |     1     |     20      |       2       |      1      |         36         |    62    | xFE |
 
 Checksum is calculated from xor of length and data value. In this case is:
 
