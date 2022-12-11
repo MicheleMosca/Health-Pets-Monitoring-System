@@ -7,7 +7,7 @@ An example of a data packet received from serial below:
 
 | START | LEN | FOOD_LEVEL | WATER_LEVEL | ANIMAL_ID | ANIMAL_BEAT | ANIMAL_WEIGHT | ANIMAL_BARK | ANIMAL_TEMPERATURE | CHECKSUM | END |
 |:-----:|:---:|:----------:|:-----------:|:---------:|:-----------:|:-------------:|:-----------:|:------------------:|:--------:|:---:|
-|  xFF  |  2  |     h      |      m      |     1     |     20      |       2       |      1      |         36         |    62    | xFE |
+|  xFF  |  7  |     h      |      m      |     1     |     20      |       2       |      1      |         36         |    48    | xFE |
 
 Checksum is calculated from xor of length and data value. In this case is:
 
