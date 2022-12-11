@@ -106,7 +106,7 @@ def setMeal(username, station_id, animal_id):
 
         -   in: query
             name: time
-            description: Time of the meal (example 17:00:00)
+            description: Time of the meal (example 17:00)
             required: true
 
     responses:
@@ -129,7 +129,7 @@ def setMeal(username, station_id, animal_id):
     if meal_type is None or quantity is None or time is None:
         return "Query Parameters Not Found!", 404
 
-    meal = Meal(meal_type=meal_type, quantity=quantity, time=datetime.strptime(time, '%H:%M:%S'),
+    meal = Meal(meal_type=meal_type, quantity=quantity, time=datetime.strptime(time, '%H:%M'),
                 animal_id=animal_id)
     db.session.add(meal)
     db.session.commit()
@@ -138,7 +138,7 @@ def setMeal(username, station_id, animal_id):
     meal_list = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).all()
     listener.send_message(f'HPMS/users/{username}/stations/{station_id}/animals/{animal_id}/meals',
                           jsonify([{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity,
-                            "time": datetime.strftime(m.time, '%H:%M:%S')} for m in meal_list]).get_data(as_text=True))
+                            "time": datetime.strftime(m.time, '%H:%M')} for m in meal_list]).get_data(as_text=True))
 
     return str(meal.id)
 
@@ -192,7 +192,7 @@ def deleteMeal(username, station_id, animal_id, meal_id):
     # send new configuration to the bridge throw MQTT
     meal_list = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).all()
     json_meal_list = jsonify([{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity,
-                            "time": datetime.strftime(m.time, '%H:%M:%S')} for m in meal_list]).get_data(as_text=True)
+                            "time": datetime.strftime(m.time, '%H:%M')} for m in meal_list]).get_data(as_text=True)
     listener.send_message(f'HPMS/users/{username}/stations/{station_id}/animals/{animal_id}/meals', json_meal_list)
 
     return json_meal_list
@@ -496,7 +496,7 @@ def getMeal(username, station_id, animal_id):
         meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).all()
 
     return jsonify([{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity,
-             "time": datetime.strftime(m.time, '%H:%M:%S')} for m in meal])
+             "time": datetime.strftime(m.time, '%H:%M')} for m in meal])
 
 
 @app.route('/api/users/<username>/stations/<station_id>/foods', methods=['GET'])
