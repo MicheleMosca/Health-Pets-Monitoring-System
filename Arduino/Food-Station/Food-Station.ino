@@ -28,32 +28,33 @@ void setup()
 
 void loop()
 {
-  serialSend();
-  serialReceive();
+  // Serial Send Trial
+  serialSend('h', 'm', 1, 20, 2, 1, 36);
+  // serialReceive();
 }
 
-void serialSend()
+void serialSend(char food_level, char water_level, char animal_id, char animal_beat, char animal_weight, char animal_bark, char animal_temperature)
 {
-  int data_1;
-  int data_2;
   int checksum;
   
   if (millis() - timestamp > SEND_INTERVAL)
   {
-    data_1 = map(analogRead(0),0,1023,0,253);
-    data_2 = map(analogRead(1),0,1023,0,253);
-
     // checksum is calculated by xor of lenght ^ data_1 ^ data_2
-    checksum = 2 ^ data_1 ^ data_2;
+    checksum = 7 ^ food_level ^ water_level ^ animal_id ^ animal_beat ^ animal_weight ^ animal_bark ^ animal_temperature;
     
     // data package: FF 2 data_1 data_2 FE
     
     Serial.write(0xFF); // package start
     
-    Serial.write(2);  // data lenght
+    Serial.write(7);  // data lenght
     
-    Serial.write(data_1);
-    Serial.write(data_2);
+    Serial.write(food_level);
+    Serial.write(water_level);
+    Serial.write(animal_id);
+    Serial.write(animal_beat);
+    Serial.write(animal_weight);
+    Serial.write(animal_bark);
+    Serial.write(animal_temperature);
 
     Serial.write(checksum); // checksum
 
