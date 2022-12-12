@@ -1,11 +1,14 @@
 #define PIN 13
-#define SEND_INTERVAL 15000 // every 15 seconds
+#define SEND_INTERVAL 25000 // every 25 seconds
 
 /* Serial Send variables */
 unsigned long timestamp;
 
 /* Serial Receive variables */
-#define BUFFDIM 5 // header, size, data, checksum, footer
+#define BUFFDIM 7 // header, size, animal_id, meal_type, quantity, checksum, footer
+unsigned char animal_id = 0;
+unsigned char meal_type = 'u';
+unsigned char quantity = 0;
 
 unsigned char ucInBuffer[BUFFDIM];  // Buffer to memorize packet bytes 
 size_t stBufferIndex;     // Index of the buffer
@@ -18,22 +21,26 @@ void setup()
 
   /* Serial Receive setup */
   pinMode(PIN, OUTPUT);
+  digitalWrite(PIN, LOW);
 
   for (stBufferIndex = 0; stBufferIndex < BUFFDIM; stBufferIndex++)
     ucInBuffer[stBufferIndex] = 0;
 
   stBufferIndex = 0;
-  
 }
 
 void loop()
 {
   // Serial Send Trial
   serialSend('h', 'm', 1, 20, 2, 1, 36);
-  // serialReceive();
+  int r = serialReceive(&animal_id, &meal_type, &quantity);
+
+  // if we recived a packet do something (turn on led for example)
+  if (r == 1 && animal_id == 1)
+    digitalWrite(PIN, HIGH);
 }
 
-void serialSend(char food_level, char water_level, char animal_id, char animal_beat, char animal_weight, char animal_bark, char animal_temperature)
+int serialSend(unsigned char food_level, unsigned char water_level, unsigned char animal_id, unsigned char animal_beat, unsigned char animal_weight, unsigned char animal_bark, unsigned char animal_temperature)
 {
   int checksum;
   
@@ -61,10 +68,13 @@ void serialSend(char food_level, char water_level, char animal_id, char animal_b
     Serial.write(0xFE); // package end
     
     timestamp = millis();
+
+    return 1;
   }
+  return 0;
 }
 
-void serialReceive()
+int serialReceive(unsigned char *animal_id, unsigned char *meal_type, unsigned char *quantity)
 {
   // If there are some data from the serial
   if (Serial.available() > 0)
@@ -78,13 +88,15 @@ void serialReceive()
       ucInBuffer[stBufferIndex] = ucData;
       stBufferIndex++;
 
-      useData();
+      int r = useData(&animal_id, &meal_type, &quantity);
 
       // Clear buffer
       for (stBufferIndex = 0; stBufferIndex < BUFFDIM; stBufferIndex++)
         ucInBuffer[stBufferIndex] = 0;
 
       stBufferIndex = 0;
+      if (r == 1)
+        return 1;
     }
     else
     {
@@ -92,17 +104,19 @@ void serialReceive()
       ucInBuffer[stBufferIndex] = ucData;
       stBufferIndex++;
     }
-  }  
+  }
+  
+  return 0;  
 }
 
 /* Elaborate received data */
-void useData()
+int useData(unsigned char **animal_id, unsigned char **meal_type, unsigned char **quantity)
 {
-  if (stBufferIndex < BUFFDIM)  // at least header, size, data, checksum, footer
-    return;
+  if (stBufferIndex < BUFFDIM)  // at least header, size, animal_id, meal_type, quantity, checksum, footer    IL PROBLEMA E' QUI
+    return 0;
 
   if (ucInBuffer[0] != 0xFF)
-    return;
+    return 0;
 
   unsigned char ucNumVal = ucInBuffer[1];
 
@@ -119,14 +133,11 @@ void useData()
   
   // check if checksum is correct
   if (ucChecksum != ucChecksum_received)
-    return;
+    return 0;
    
-  for (size_t i = 0; i < ucNumVal; i++)
-  {
-    // use of values
-    if (ucVal[i] == 'A')
-      digitalWrite(PIN, HIGH);
-    if (ucVal[i] == 'S')
-      digitalWrite(PIN, LOW);
-  }
+  // use of value
+  *(*animal_id) = ucVal[0];
+  *(*meal_type) = ucVal[1];
+  *(*quantity) = ucVal[2];
+  return 1;
 }
