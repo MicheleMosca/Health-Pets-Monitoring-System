@@ -1,6 +1,6 @@
 # Sender And Receiver Bridge
-Read a packet from serial and send data values to MQTT server.
-Listening to MQTT server for new topic's message and send packet with value to serial. 
+Read a packet from Arduino and send station's sensors data values and animal's sensors data value to Flask server over MQTT topics.
+Listening MQTT topics for new animal meals configuration and send packet with value of animal_id, meal_type and quantity as meal input to Arduino. 
 
 ## Data Packet Structure Received
 An example of a data packet received from serial below:
