@@ -4,6 +4,7 @@ import serial
 import serial.tools.list_ports
 import configparser
 import paho.mqtt.client as mqtt
+from datetime import datetime, timezone, timedelta
 
 
 class Bridge:
@@ -125,7 +126,7 @@ class Bridge:
         :return:
         """
 
-        print(f"{msg.topic}: {msg.payload}")
+        # print(f"{msg.topic}: {msg.payload}")
 
         feed_type = msg.topic.split('/')[-1]
         raw_params = msg.topic.split('/')[1:-1]
@@ -142,6 +143,7 @@ class Bridge:
         Infinite loop for managing serial communication
         """
 
+        last_meal = None
         while True:
             # Look for a byte from serial
             if self.serial is not None:
@@ -157,6 +159,30 @@ class Bridge:
                     else:
                         # Append
                         self.inBuffer.append(last_char)
+
+            # Check the time, and send meal input to Serial
+            time_now = datetime.strftime(datetime.now(timezone(timedelta(hours=+1), 'UTC')), '%H:%M')
+            for animal_id, meals in self.HPMS_animals.items():
+                for meal in meals:
+                    if time_now == meal['time'] and time_now != last_meal:
+                        last_meal = time_now
+                        meal_type = 's' if meal["meal_type"] == 'secco' else 'u'
+                        quantity = meal["quantity"]
+
+                        # Send packet to Arduino, with animal_id, meal_type and quantity
+                        numval = 3
+                        checksum = numval ^ animal_id ^ ord(meal_type) ^ quantity
+
+                        self.serial.write(b'\xFF')
+                        self.serial.write(int.to_bytes(numval, length=1, byteorder='little'))
+                        self.serial.write(int.to_bytes(animal_id, length=1, byteorder='little'))
+                        self.serial.write(int.to_bytes(ord(meal_type), length=1, byteorder='little'))
+                        self.serial.write(int.to_bytes(quantity, length=1, byteorder='little'))
+                        self.serial.write(int.to_bytes(checksum, length=1, byteorder='little'))
+                        self.serial.write(b'\xFE')
+
+                        print(f'[ARDUINO] Received meal input for animal_id: {animal_id} meal_type: {meal_type} quantity: {quantity} and checksum: {checksum}')
+
 
     def useData(self):
         """

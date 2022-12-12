@@ -18,9 +18,9 @@ CHECKSUM = LEN ^ DATA_1 ^ DATA_2 = 2 ^ 20 ^ 40 = 62
 ## Data Packet Structure Sent
 An example of a data packet sent to serial below:
 
-| START | LEN | DATA | CHECKSUM | END |
-|:-----:|:---:|:----:|:--------:|:---:|
-|  xFF  |  1  |  A   |    64    | xFE |
+| START | LEN | ANIMAL_ID | MEAL_TYPE | QUANTITY | CHECKSUM | END |
+|:-----:|:---:|:---------:|:---------:|:--------:|:--------:|:---:|
+|  xFF  |  3  |     1     |     s     |    2     |   112    | xFE |
 
 Checksum is calculated from xor of length and data value. In this case is:
 
