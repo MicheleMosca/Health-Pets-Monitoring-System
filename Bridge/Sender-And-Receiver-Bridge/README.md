@@ -9,7 +9,7 @@ An example of a data packet received from serial below:
 |:-----:|:---:|:----------:|:-----------:|:---------:|:-----------:|:-------------:|:-----------:|:------------------:|:--------:|:---:|
 |  xFF  |  7  |     h      |      m      |     1     |     20      |       2       |      1      |         36         |    48    | xFE |
 
-Checksum is calculated from xor of length and data value. In this case is:
+Checksum is calculated from xor of length and data value. An example here:
 
 ```c
 CHECKSUM = LEN ^ DATA_1 ^ DATA_2 = 2 ^ 20 ^ 40 = 62
@@ -22,7 +22,7 @@ An example of a data packet sent to serial below:
 |:-----:|:---:|:---------:|:---------:|:--------:|:--------:|:---:|
 |  xFF  |  3  |     1     |     s     |    2     |   112    | xFE |
 
-Checksum is calculated from xor of length and data value. In this case is:
+Checksum is calculated from xor of length and data value. An example here:
 
 ```c
 CHECKSUM = LEN ^ DATA = 1 ^ ord('A') = 1 ^ 65 = 64
