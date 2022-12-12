@@ -59,10 +59,12 @@ station = 1
 ```
 
 ## MQTT Topics
+### Receive
 - Receive Animals meals:
     ```text
     HPMS/users/{username}/stations/{station_id}/animals/{animal_id}/meals
     ```
+### Send
 - Send Animals beats:
     ```text
     HPMS/users/{username}/stations/{station_id}/animals/{animal_id}/beats
