@@ -6,7 +6,7 @@ prova modifica
 ## TODO
 Lista di funzioni da implementare:
 
-### Arduino
+Arduino:
 [ ] Modulo LoRa tra Food-Station e Collare
 [X] Termometro sul collare
 [ ] Microfono sul collare
@@ -15,17 +15,17 @@ Lista di funzioni da implementare:
 [ ] Montaggio Food-Station
 [ ] Montaggio Collare
 
-### App
+App:
 [ ] Visualizzazione delle informazioni sulle Food-Station e sugli animali
 [ ] Sistema di Login con password
 
-### Bot Telegram
+Bot Telegram:
 [ ] Come App
 
-### Sistema di Allerta
+Sistema di Allerta:
 [ ] Visualizzare le Food-Station con allerta
 [ ] Trovare un modo di visualizzare l'allerta in modo grafico
 
-### Intelligenza artificiale
+Intelligenza artificiale:
 [ ] Telecamera per il riconoscimento dell'animale (opzionale)
 [ ] Predizioni sull'andamento del peso del cane (eventualmente anche su altri valori)
