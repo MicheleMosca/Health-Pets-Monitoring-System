@@ -128,7 +128,10 @@ void loop()
 
   // if we recived a packet do something (turn on led for example)
   if (r == 1 && animal_id == 1)
+  {
     digitalWrite(PIN, HIGH);
+    foodRelease();    // DA SISTEMARE!!!
+  }
 }
 
 int serialSend(unsigned char food_level, unsigned char water_level, unsigned char animal_id, unsigned char animal_beat, unsigned char animal_weight, unsigned char animal_bark, unsigned char animal_temperature)
@@ -203,7 +206,7 @@ int serialReceive(unsigned char *animal_id, unsigned char *meal_type, unsigned c
 /* Elaborate received data */
 int useData(unsigned char **animal_id, unsigned char **meal_type, unsigned char **quantity)
 {
-  if (stBufferIndex < BUFFDIM)  // at least header, size, animal_id, meal_type, quantity, checksum, footer    IL PROBLEMA E' QUI
+  if (stBufferIndex < BUFFDIM)  // at least header, size, animal_id, meal_type, quantity, checksum, footer
     return 0;
 
   if (ucInBuffer[0] != 0xFF)
@@ -236,17 +239,26 @@ int useData(unsigned char **animal_id, unsigned char **meal_type, unsigned char 
 unsigned char waterSystem(){
   waterLevelValue = analogRead(waterLevelSensor);
   if(waterLevelValue < 100){
-    digitalWrite(ledWater, HIGH);
-  }else{
-    digitalWrite(ledWater, LOW);
+    digitalWrite(ledWater, HIGH);   // warning led signal on
+    return 'l';
+  }
+  else if (waterLevelValue >= 100 && waterLevelValue <= 300){
+    digitalWrite(ledWater, LOW);  // warning led signal off
+    return 'm';
+  }
+  else if (waterLevelValue > 300)
+  {
+    digitalWrite(ledWater, LOW);  // warning led signal off
+    return 'h';
   }
 
-  return((unsigned char)waterLevelValue);
+  return 'l';
 }
 
-unsigned char foodSystem(){
+void foodRelease()
+{
   // NOTA: da fare un loop di 5 volte (1 dose di cibo)
-
+  
   long new_timer = millis();
   if(new_timer - servoTimer > 2000 && servoStatus == 0){
     myservo.write(0);
@@ -257,8 +269,21 @@ unsigned char foodSystem(){
     servoStatus = 0;
     servoTimer = millis();
   }
+}
 
-  return((unsigned char)sonar.ping_cm());
+unsigned char foodSystem(){
+  
+  // 20cm low; 9cm medium; 3cm high
+  unsigned char ping = sonar.ping_cm();
+
+  if (ping >= 20)
+    return 'l';
+  else if (ping < 20 && ping > 3)
+    return 'm';
+  else if (ping <= 3)
+    return 'h';
+  
+  return 'l';
 }
 
 unsigned char weightSystem(){  
