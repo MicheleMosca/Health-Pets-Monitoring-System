@@ -8,7 +8,7 @@ Lista di funzioni da implementare:
 
 ### Arduino
 [ ] Modulo LoRa tra Food-Station e Collare
-[x] Termometro sul collare
+[X] Termometro sul collare
 [ ] Microfono sul collare
 [ ] Battito cardiaco sul collare
 [ ] Temporizzare il servo motore in base alla quantità di cibo fornita
