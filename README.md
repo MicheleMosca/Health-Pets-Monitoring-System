@@ -29,3 +29,6 @@ Lista di funzioni da implementare:
 ### Intelligenza artificiale:
 - [ ] Telecamera per il riconoscimento dell'animale (opzionale)
 - [ ] Predizioni sull'andamento del peso del cane (eventualmente anche su altri valori)
+
+### API:
+- [ ] GET informazioni sugli utenti
