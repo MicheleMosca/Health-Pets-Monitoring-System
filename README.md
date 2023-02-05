@@ -31,4 +31,4 @@ Lista di funzioni da implementare:
 - [ ] Predizioni sull'andamento del peso del cane (eventualmente anche su altri valori)
 
 ### API:
-- [ ] GET informazioni sugli utenti
+- [X] GET informazioni sugli utenti
