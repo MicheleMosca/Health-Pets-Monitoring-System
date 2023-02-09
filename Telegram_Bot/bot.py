@@ -31,13 +31,13 @@ async def foodStation(update: Update, context: ContextTypes.DEFAULT_TYPE):
     curs.execute("SELECT * FROM users")
     users = curs.fetchall()
     user = ''
-    headers = {'token': ''}
+    headers = {'X-API-KEY': ''}
 
     #Controllo che sia loggato
     for u in users:
         if(update.effective_chat.id == u[1]):
             user = u[0]
-            headers['token'] = u[2]
+            headers['X-API-KEY'] = u[2]
             break
 
     if(user == ''):
@@ -59,11 +59,13 @@ async def foodStation(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         for f in foods:
             str.append("\t-\tFood %d: %s\n" % (f["id"], f["value"]))
+            break
 
         str.append("\nWaters Level:\n")
 
         for w in waters:
             str.append("\t-\tWater %d: %s\n" % (w["id"], w["value"]))
+            break
 
         await context.bot.send_message(chat_id=update.effective_chat.id, text=''.join(str))
 
@@ -72,13 +74,13 @@ async def petStatus(update: Update, context: ContextTypes.DEFAULT_TYPE):
     curs.execute("SELECT * FROM users")
     users = curs.fetchall()
     user = ''
-    headers = {'token': ''}
+    headers = {'X-API-KEY': ''}
 
     # Controllo che sia loggato
     for u in users:
         if (update.effective_chat.id == u[1]):
             user = u[0]
-            headers['token'] = u[2]
+            headers['X-API-KEY'] = u[2]
             break
 
     if (user == ''):
@@ -141,14 +143,16 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
         'username': username
     }
 
-    token = requests.post(f'http://{config.get("Server", "HOST")}:{config.get("Server", "PORT")}/api/login', json=data)
+    raw_token = requests.post(f'http://{config.get("Server", "HOST")}:{config.get("Server", "PORT")}/api/login', json=data)
+    token = raw_token.content.decode("utf-8")
 
-    if(token.status_code == 401):
+    if(raw_token.status_code == 401):
         await context.bot.send_message(chat_id=update.effective_chat.id, text=loginFailed_message)
         return
 
     curs.execute("SELECT * FROM users")
     users = curs.fetchall()
+    print(users)
 
     #Controllo che il chat_id non sia associato ad altri user
     for u in users:
