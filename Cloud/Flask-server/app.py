@@ -90,17 +90,22 @@ def registerUser():
                     -   name
                 properties:
                     username:
+                        description: Username of the User
                         type: string
                     password:
+                        description: Password of the User
                         type: string
                     name:
+                        description: Name of the User
                         type: string
 
     responses:
         200:
             description: API key
-    """
 
+        409:
+            description: User already exists!
+    """
     username = request.json['username']
     password = request.json['password']
     name = request.json['name']
@@ -134,15 +139,19 @@ def loginUser():
                     -   password
                 properties:
                     username:
+                        description: Username of the User
                         type: string
                     password:
+                        description: Password of the User
                         type: string
 
     responses:
         200:
             description: API key
-    """
 
+        401:
+            description: Login Failed!
+    """
     username = request.json['username']
     password = request.json['password']
 
@@ -201,6 +210,12 @@ def setMeal(username, station_id, animal_id):
     responses:
         200:
             description: Meal id
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
 
     api_key = request.headers.get('X-API-KEY')
@@ -245,6 +260,11 @@ def deleteMeal(username, station_id, animal_id, meal_id):
     Delete a meal of an animal
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -269,10 +289,16 @@ def deleteMeal(username, station_id, animal_id, meal_id):
         200:
             description: New Meals list
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
 
-    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+    if person.api_key != api_key:
+        return "Access Denied!", 403
+
+    if int(station_id) not in [station.id for station in person.stations]:
         return "Station Not Found!", 404
 
     if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
@@ -300,6 +326,11 @@ def setStation(username):
     Set a new Station
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -318,9 +349,21 @@ def setStation(username):
     responses:
         200:
             description: Station id
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     latitude = request.args.get('latitude')
     longitude = request.args.get('longitude')
@@ -341,6 +384,11 @@ def setStationAnimal(username, station_id):
     Set a new Animal served by a station given in input
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -379,9 +427,21 @@ def setStationAnimal(username, station_id):
     responses:
         200:
             description: Animal id
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -551,6 +611,11 @@ def getMeal(username, station_id, animal_id):
     Get meal list of an animal
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -574,9 +639,21 @@ def getMeal(username, station_id, animal_id):
     responses:
         200:
             description: Meal list
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -601,6 +678,11 @@ def getFoodLevel(username, station_id):
     Get food level
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -619,9 +701,21 @@ def getFoodLevel(username, station_id):
     responses:
         200:
             description: List of food level
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -642,6 +736,11 @@ def getWaterLevel(username, station_id):
     Get water level
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -660,9 +759,21 @@ def getWaterLevel(username, station_id):
     responses:
         200:
             description: List of water level
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -683,6 +794,11 @@ def getAnimalWeight(username, station_id, animal_id):
     Get Animal Weight
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -706,9 +822,21 @@ def getAnimalWeight(username, station_id, animal_id):
     responses:
         200:
             description: List of animal weight
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -732,6 +860,11 @@ def getAnimalBeat(username, station_id, animal_id):
     Get Animal Beat
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -755,9 +888,21 @@ def getAnimalBeat(username, station_id, animal_id):
     responses:
         200:
             description: List of animal beats
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -781,6 +926,11 @@ def getStations(username):
     Return stations of one user
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -789,9 +939,21 @@ def getStations(username):
     responses:
         200:
             description: List of stations
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     stations = Station.query.filter_by(person_id=Person.query.filter_by(username=username).first().id)\
         .order_by(Station.id.asc()).all()
@@ -805,6 +967,11 @@ def getStationAnimals(username, station_id):
     Return animals of one user and served by an input station
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -818,9 +985,21 @@ def getStationAnimals(username, station_id):
     responses:
         200:
             description: List of user's animals served by an input station
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
