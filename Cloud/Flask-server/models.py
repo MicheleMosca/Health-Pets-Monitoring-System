@@ -60,14 +60,16 @@ class Person(db.Model):
     name = db.Column(db.String(100))
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(80), nullable=False)
+    api_key = db.Column(db.String(64), nullable=False)
 
     animals = db.relationship('Animal', backref='person')
     stations = db.relationship('Station', backref='person')
 
-    def __init__(self, name, username, password):
+    def __init__(self, name, username, password, api_key):
         self.name = name
         self.username = username
         self.password = password
+        self.api_key = api_key
 
 
 class Station(db.Model):

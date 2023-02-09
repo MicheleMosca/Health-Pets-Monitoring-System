@@ -1,28 +1,28 @@
 import sqlalchemy.exc
 from models import Person, Animal, Station, Meal, Food, Water, Weight, Beat
 from datetime import datetime
-
+import secrets
 
 def populatedb(db):
     """
     Populate db, only for test!
     """
     try:
-        user_1 = Person(name='Michele', username='michele', password='password')
+        user_1 = Person(name='Michele', username='michele', password='password', api_key=secrets.token_urlsafe(64))
         db.session.add(user_1)
         db.session.commit()
     except sqlalchemy.exc.IntegrityError:
         return
 
-    user_2 = Person(name='Elme', username='elme', password='password')
+    user_2 = Person(name='Elme', username='elme', password='password', api_key=secrets.token_urlsafe(64))
     db.session.add(user_2)
     db.session.commit()
 
-    user_3 = Person(name='Giuseppe', username='beppe', password='password')
+    user_3 = Person(name='Giuseppe', username='beppe', password='password', api_key=secrets.token_urlsafe(64))
     db.session.add(user_3)
     db.session.commit()
 
-    user_4 = Person(name='Gaetano', username='tano', password='password')
+    user_4 = Person(name='Gaetano', username='tano', password='password', api_key=secrets.token_urlsafe(64))
     db.session.add(user_4)
     db.session.commit()
 

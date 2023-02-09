@@ -7,6 +7,7 @@ from datetime import datetime
 from models import db, Person, Meal, Station, Food, Water, Weight, Beat, Animal
 from mqtt_listener import MQTTListener
 from test_populatedb import populatedb
+import secrets
 
 config = configparser.ConfigParser()
 if not config.read('config.ini'):
@@ -72,6 +73,89 @@ def doc():
 
     return jsonify(swag)
 
+@app.route('/api/register', methods=['POST'])
+def registerUser():
+    """
+    Registration of a new User
+    ---
+    parameters:
+        -   in: body
+            name: User's Credentials
+            description: New User's Credentials
+            schema:
+                type: json
+                required:
+                    -   username
+                    -   password
+                    -   name
+                properties:
+                    username:
+                        type: string
+                    password:
+                        type: string
+                    name:
+                        type: string
+
+    responses:
+        200:
+            description: API key
+    """
+
+    username = request.json['username']
+    password = request.json['password']
+    name = request.json['name']
+
+    if Person.query.filter_by(username=username).first() is not None:
+        return "User already exists!", 409
+
+    api_key = secrets.token_urlsafe(64)
+
+    # create account
+    person = Person(name=name, username=username, password=password, api_key=api_key)
+    db.session.add(person)
+    db.session.commit()
+
+    return api_key
+
+
+@app.route('/api/login', methods=['POST'])
+def loginUser():
+    """
+    Login of an User
+    ---
+    parameters:
+        -   in: body
+            name: User's Credentials
+            description: User's credentials for login
+            schema:
+                type: json
+                required:
+                    -   username
+                    -   password
+                properties:
+                    username:
+                        type: string
+                    password:
+                        type: string
+
+    responses:
+        200:
+            description: API key
+    """
+
+    username = request.json['username']
+    password = request.json['password']
+
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
+        return "Login Failed!", 401
+
+    if person.password != password:
+        return "Login Failed!", 401
+
+    return person.api_key
+
 
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/meals', methods=['POST'])
 def setMeal(username, station_id, animal_id):
@@ -79,6 +163,11 @@ def setMeal(username, station_id, animal_id):
     Set a meal of an animal
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -113,10 +202,17 @@ def setMeal(username, station_id, animal_id):
         200:
             description: Meal id
     """
-    if Person.query.filter_by(username=username).first() is None:
+
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
 
-    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+    if person.api_key != api_key:
+        return "Access Denied!", 403
+
+    if int(station_id) not in [station.id for station in person.stations]:
         return "Station Not Found!", 404
 
     if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
