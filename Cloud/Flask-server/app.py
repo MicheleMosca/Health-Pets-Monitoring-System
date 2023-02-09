@@ -851,7 +851,10 @@ def getAnimalWeight(username, station_id, animal_id):
     else:
         weights = Weight.query.filter_by(animal_id=animal_id).order_by(Weight.id.desc()).all()
 
-    return jsonify([{"id": w.id, "value": w.value, "timestamp": datetime.strftime(w.timestamp, '%Y-%m-%d %H:%m:%s')} for w in weights])
+    for w in weights:
+        print(w.timestamp)
+
+    return jsonify([{"id": w.id, "value": w.value, "timestamp": datetime.strftime(w.timestamp, '%Y-%m-%d %H:%M:%S')} for w in weights])
 
 
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/beats', methods=['GET'])
