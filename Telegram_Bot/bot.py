@@ -14,6 +14,9 @@ if not config.read('config.ini'):
     print("Please write a config.ini file")
     exit(1)
 
+create_DB = False
+if(os.path.isfile('botDB.db') == False):
+    create_DB = True
 
 #DB Creation
 db = sqlite3.connect('botDB.db')
@@ -220,7 +223,7 @@ def initDB():
     db.commit()
 
 if __name__ == '__main__':
-    if(os.path.isfile('./botDB.db') == False):
+    if(create_DB == True):
         initDB()
 
     startBot()
