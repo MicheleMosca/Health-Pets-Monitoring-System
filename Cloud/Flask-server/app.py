@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.config.update(
     SQLALCHEMY_DATABASE_URI=config.get('SQLAlchemy', 'SQLALCHEMY_DATABASE_URI', fallback='sqlite:///db.sqlite')
 )
-#prova commento da togliere
+
 # Initialize db
 db.init_app(app)
 
@@ -851,7 +851,10 @@ def getAnimalWeight(username, station_id, animal_id):
     else:
         weights = Weight.query.filter_by(animal_id=animal_id).order_by(Weight.id.desc()).all()
 
-    return jsonify([{"id": w.id, "value": w.value, "timestamp": datetime.strftime(w.timestamp, '%Y-%m-%d %H:%m:%s')} for w in weights])
+    for w in weights:
+        print(w.timestamp)
+
+    return jsonify([{"id": w.id, "value": w.value, "timestamp": datetime.strftime(w.timestamp, '%Y-%m-%d %H:%M:%S')} for w in weights])
 
 
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/beats', methods=['GET'])
@@ -1010,6 +1013,24 @@ def getStationAnimals(username, station_id):
                      "animal_type": sa.animal_type, "breed": sa.breed,
                      "temperature": sa.temperature, "bark": sa.bark} for sa in station_animals])
 
+@app.route('/api/alarmedStations', methods=['GET'])
+def getAlarmedStations():
+    """
+    Return all the Alarmed Stations (Stations where at least animal have bark at True and beats over 80)
+    ---
+    responses:
+        200:
+            description: Json with locations of the Alarmed Stations
+    """
+    stations = None
+
+    animal_with_beat = [row.animal_id for row in Beat.query.filter(Beat.value >= 80)]
+    animal_with_bark = Animal.query.filter_by(bark = True)
+
+    stations_id = [animal.station_id for animal in animal_with_bark if animal.id in animal_with_beat]
+    stations = Station.query.all()
+
+    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude} for s in stations if s.id in stations_id])
 
 def on_message_action(feed_type, params, payload):
     """

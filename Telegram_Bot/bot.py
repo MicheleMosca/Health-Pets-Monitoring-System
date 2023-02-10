@@ -1,3 +1,4 @@
+import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 from messages import start_message, help_message, \
@@ -13,6 +14,9 @@ if not config.read('config.ini'):
     print("Please write a config.ini file")
     exit(1)
 
+create_DB = False
+if(os.path.isfile('botDB.db') == False):
+    create_DB = True
 
 #DB Creation
 db = sqlite3.connect('botDB.db')
@@ -219,8 +223,7 @@ def initDB():
     db.commit()
 
 if __name__ == '__main__':
-    if(config.get('SQLite DB', 'FIRST_TIME') == 'True'):
-        config.set('SQLite DB', 'FIRST_TIME', 'False')
+    if(create_DB == True):
         initDB()
 
     startBot()
