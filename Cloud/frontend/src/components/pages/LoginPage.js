@@ -10,34 +10,17 @@ const [password, setPassword] = useState/*<string>*/("");
 const [data,setData]=useState(""); 
 const [authenticated, setauthenticated] = useState(localStorage.getItem(localStorage.getItem("authenticated")|| false));
 const navigate = useNavigate();
-/* 
-componentDidMount() {
+
+ 
+  window.onload= () => {
     console.log("Pulisco storage");
     localStorage.clear(); //pulisco local storage
-  } */
-
+  }
 
 
 const handleLogin = () => {
  
     console.log("Dentro Handle Login");
-   /*  if (!email) {
-        setMessage("Per favore inserisci un formato di email valida");
-        setIserror(true);
-        return;
-    }
-    if (validateEmail(email) === false) {
-        setMessage("La tua email non è valida");
-        setIserror(true);
-        return;
-    }
-
-    if (!password || password.length < 6) {
-        setMessage("Per favore inserisci la password");
-        setIserror(true);
-        return;
-    }
-    */
 
     const loginData = {
         "username": username,
@@ -52,18 +35,17 @@ const handleLogin = () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(loginData)
       }).then( (response) => { 
-        //localStorage.setItem("code",response.status);
         if(!response.ok) throw new Error(response.status);
         else {
             localStorage.setItem("authenticated", true);
-            //useEffect(() => { setauthenticated(true) }, [])
             setauthenticated(true)
             return response.text();
         }
       })  //fixare con status code 
       .then((res) => { 
          console.log("Risposta data" + res);
-         localStorage.setItem("auth_token",res);   
+         localStorage.setItem("auth_token",res);
+         localStorage.setItem("username",username)   
          setData(res)
          if(localStorage.getItem("authenticated"))
             navigate("/home");
@@ -72,27 +54,7 @@ const handleLogin = () => {
       });
       console.log("finito richiesta");
       console.log("Ecco il token trovato " + data)
-    
-    /*
-    const api = axios.create({
-        baseURL: environment.site_url_authenticate
-    })
-    api.post("", loginData)
-        .then(res => {   
-          console.log("resss",res)
-          localStorage.setItem("auth_token",res.data.auth_token);
-          localStorage.setItem("company_id",res.data.company_id);
-          localStorage.setItem("driver_id",res.data.driver_id);
-          localStorage.setItem("driver_email",email);
-          localStorage.setItem("driver_name",res.data.driver_name);
 
-          console.log("resss",localStorage.getItem("auth_token"));         
-           history.push("/Rides");
-         })
-         .catch(error=>{
-            setMessage("Autenticazione fallita! Per favore riprova");
-            setIserror(true);
-         }) */
   };
 
 
