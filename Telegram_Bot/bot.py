@@ -1,3 +1,4 @@
+import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 from messages import start_message, help_message, \
@@ -219,8 +220,7 @@ def initDB():
     db.commit()
 
 if __name__ == '__main__':
-    if(config.get('SQLite DB', 'FIRST_TIME') == 'True'):
-        config.set('SQLite DB', 'FIRST_TIME', 'False')
+    if(os.path.isfile('./botDB.db') == False):
         initDB()
 
     startBot()
