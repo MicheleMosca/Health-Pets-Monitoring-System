@@ -1,5 +1,5 @@
 import os
-from telegram import Update
+from telegram import Update, ReplyKeyboardRemove, ReplyKeyboardMarkup
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 from messages import start_message, help_message, \
     loginParametersError_message, loginFailed_message, loginSuccess_message, alreadyLogged_message, \
@@ -59,16 +59,16 @@ async def foodStation(update: Update, context: ContextTypes.DEFAULT_TYPE):
                              f'{user}/stations/{elem["id"]}/waters', headers=headers).json()
 
         str.append("ID: %d, Latitude: %f, Longitude: %f\n" % (elem["id"], elem["latitude"], elem["longitude"]))
-        str.append("\nFoods Level:\n")
+        str.append("\nFood Level: ")
 
         for f in foods:
-            str.append("\t-\tFood %d: %s\n" % (f["id"], f["value"]))
+            str.append("%s\n" % f["value"])
             break
 
-        str.append("\nWaters Level:\n")
+        str.append("\nWater Level: ")
 
         for w in waters:
-            str.append("\t-\tWater %d: %s\n" % (w["id"], w["value"]))
+            str.append("%s\n" % w["value"])
             break
 
         await context.bot.send_message(chat_id=update.effective_chat.id, text=''.join(str))
@@ -167,7 +167,14 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
     curs.execute("INSERT INTO users VALUES ('%s', %d, '%s')" % (username, update.effective_chat.id, token))
     db.commit()
     await context.bot.send_message(chat_id=update.effective_chat.id, text=loginSuccess_message)
-
+    reply_keyboard = [['/FoodStation', '/PetStatus'],
+                       ['/help', '/logout']]
+    await update.message.reply_text(
+        "What do you want to do?",
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard, one_time_keyboard=False, input_field_placeholder="Please select:"
+        ),
+    )
 
 
 async def logout(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -178,7 +185,9 @@ async def logout(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if (update.effective_chat.id == u[1]):
             curs.execute("DELETE FROM users WHERE chat_id=%d" % u[1])
             db.commit()
-            await context.bot.send_message(chat_id=update.effective_chat.id, text=logoutSuccess_message)
+            await update.message.reply_text(
+                logoutSuccess_message, reply_markup=ReplyKeyboardRemove()
+            )
             return
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=logoutFailed_message)
