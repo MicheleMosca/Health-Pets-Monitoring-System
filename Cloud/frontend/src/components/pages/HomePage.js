@@ -6,7 +6,7 @@ export default function HomePage() {
 
     useEffect(()=>{
         console.log("Sono dentro homepage e localstorage vale" + localStorage.getItem("authenticated"))
-        if(localStorage.getItem("authenticated") !== true){
+        if(localStorage.getItem("authenticated") !== 'true'){
             console.log("devo tornare in login")
             navigate("/login");
             console.log("fatto")
@@ -20,7 +20,7 @@ export default function HomePage() {
     return (
         <div className="text-center">
             <h1 className="main-title home-page-title">welcome to our app</h1>
-            <Link to="/">
+            <Link to="/login">
                 <button className="primary-button">Log out</button>
             </Link>
         </div>
