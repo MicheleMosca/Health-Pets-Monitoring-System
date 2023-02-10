@@ -58,17 +58,17 @@ async def foodStation(update: Update, context: ContextTypes.DEFAULT_TYPE):
         waters = requests.get(f'http://{config.get("Server", "HOST")}:{config.get("Server", "PORT")}/api/users/'
                              f'{user}/stations/{elem["id"]}/waters', headers=headers).json()
 
-        str.append("ID: %d, Latitude: %f, Longitude: %f\n" % (elem["id"], elem["latitude"], elem["longitude"]))
+        str.append("Station #%d\nLatitude: %f\nLongitude: %f\n" % (elem["id"], elem["latitude"], elem["longitude"]))
         str.append("\nFood Level: ")
 
         for f in foods:
-            str.append("%s\n" % f["value"])
+            str.append("%s\n" % f["value"].upper())
             break
 
-        str.append("\nWater Level: ")
+        str.append("Water Level: ")
 
         for w in waters:
-            str.append("%s\n" % w["value"])
+            str.append("%s\n" % w["value"].upper())
             break
 
         await context.bot.send_message(chat_id=update.effective_chat.id, text=''.join(str))
@@ -99,7 +99,7 @@ async def petStatus(update: Update, context: ContextTypes.DEFAULT_TYPE):
         animals = requests.get(f'http://{config.get("Server", "HOST")}:{config.get("Server", "PORT")}/api/users/'
                             f'{user}/stations/{elem["id"]}/animals', headers=headers).json()
 
-        str.append("Station %d:\n" % elem["id"])
+        str.append("Station #%d\n" % elem["id"])
 
         for a in animals:
             meals = requests.get(f'http://{config.get("Server", "HOST")}:{config.get("Server", "PORT")}/api/users/'
@@ -114,10 +114,10 @@ async def petStatus(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if a["temperature"] == None:
                 str.append("\t-\tTemperature: null\n")
             else:
-                str.append("\t-\tTemperature: %d\n" % a["temperature"])
+                str.append("\t-\tTemperature: %d°C\n" % a["temperature"])
 
             for b in beats:
-                str.append("\t-\tBeats: %d\n" % b['value'])
+                str.append("\t-\tBeats: %dbpm\n" % b['value'])
                 break
 
             for w in weights:
@@ -129,7 +129,7 @@ async def petStatus(update: Update, context: ContextTypes.DEFAULT_TYPE):
             for m in meals:
                 str.append("\t-\tTime: %s\n" % m['time'])
                 str.append("\t-\tMeal type: %s\n" % m['meal_type'])
-                str.append("\t-\tQuantity: %d\n\n" % m['quantity'])
+                str.append("\t-\tQuantity: %dg\n\n" % m['quantity'])
 
         await context.bot.send_message(chat_id=update.effective_chat.id, text=''.join(str))
 
@@ -167,8 +167,7 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
     curs.execute("INSERT INTO users VALUES ('%s', %d, '%s')" % (username, update.effective_chat.id, token))
     db.commit()
     await context.bot.send_message(chat_id=update.effective_chat.id, text=loginSuccess_message)
-    reply_keyboard = [['/FoodStation', '/PetStatus'],
-                       ['/help', '/logout']]
+    reply_keyboard = [['/FoodStation', '/PetStatus'], ['/help', '/logout']]
     await update.message.reply_text(
         "What do you want to do?",
         reply_markup=ReplyKeyboardMarkup(
