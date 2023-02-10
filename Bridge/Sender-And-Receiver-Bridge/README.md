@@ -55,6 +55,7 @@ Feed = HPMS
 server = localhost
 port = 9000
 username = michele
+password = password
 station = 1
 ```
 

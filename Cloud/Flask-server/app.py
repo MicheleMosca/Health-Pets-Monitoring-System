@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.config.update(
     SQLALCHEMY_DATABASE_URI=config.get('SQLAlchemy', 'SQLALCHEMY_DATABASE_URI', fallback='sqlite:///db.sqlite')
 )
-#prova commento da togliere
+
 # Initialize db
 db.init_app(app)
 
@@ -1013,6 +1013,24 @@ def getStationAnimals(username, station_id):
                      "animal_type": sa.animal_type, "breed": sa.breed,
                      "temperature": sa.temperature, "bark": sa.bark} for sa in station_animals])
 
+@app.route('/api/alarmedStations', methods=['GET'])
+def getAlarmedStations():
+    """
+    Return all the Alarmed Stations (Stations where at least animal have bark at True and beats over 80)
+    ---
+    responses:
+        200:
+            description: Json with locations of the Alarmed Stations
+    """
+    stations = None
+
+    animal_with_beat = [row.animal_id for row in Beat.query.filter(Beat.value >= 80)]
+    animal_with_bark = Animal.query.filter_by(bark = True)
+
+    stations_id = [animal.station_id for animal in animal_with_bark if animal.id in animal_with_beat]
+    stations = Station.query.all()
+
+    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude} for s in stations if s.id in stations_id])
 
 def on_message_action(feed_type, params, payload):
     """
