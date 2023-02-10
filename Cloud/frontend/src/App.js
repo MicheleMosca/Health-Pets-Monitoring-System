@@ -6,6 +6,7 @@ import LoginPage from './components/pages/LoginPage'
 import RegisterPage from './components/pages/RegisterPage'
 import ForgetPasswordPage from './components/pages/ForgetPasswordPage'
 import HomePage from './components/pages/HomePage'
+import AlarmedStations from './components/pages/AlarmedStations'
 
 import './App.css'
 
@@ -19,6 +20,7 @@ export default function App() {
                     <Route path="/register" element={ <RegisterPage/> } />
                     <Route path="/forget-password" element={ <ForgetPasswordPage/> } />
                     <Route path="/home" element={ <HomePage/> } />
+                    <Route path="/alarmedStations" element={ <AlarmedStations/> } />
                 </Routes>
                 <Footer />
             </div>
