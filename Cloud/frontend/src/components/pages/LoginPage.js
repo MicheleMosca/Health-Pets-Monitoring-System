@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'
+import { Link , useNavigate } from 'react-router-dom'
 
 import '../../App.css'
 
@@ -8,6 +8,15 @@ export default function SignInPage() {
 const [username, setUsername] = useState/*<string>*/("");       
 const [password, setPassword] = useState/*<string>*/(""); 
 const [data,setData]=useState(""); 
+const [authenticated, setauthenticated] = useState(localStorage.getItem(localStorage.getItem("authenticated")|| false));
+const navigate = useNavigate();
+/* 
+componentDidMount() {
+    console.log("Pulisco storage");
+    localStorage.clear(); //pulisco local storage
+  } */
+
+
 
 const handleLogin = () => {
  
@@ -34,17 +43,30 @@ const handleLogin = () => {
         "username": username,
         "password": password
     }
+    console.log("Ecco i dati del login " + JSON.stringify(loginData))
+    console.log("Ecco data  " + JSON.stringify(data))
+
 
       fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(loginData)
-      }).then((response) => response.json())
+      }).then( (response) => { 
+        //localStorage.setItem("code",response.status);
+        if(!response.ok) throw new Error(response.status);
+        else {
+            localStorage.setItem("authenticated", true);
+            //useEffect(() => { setauthenticated(true) }, [])
+            setauthenticated(true)
+            return response.text();
+        }
+      })  //fixare con status code 
       .then((res) => { 
-         //const dataParsed=JSON.parse(data);
          console.log("Risposta data" + res);
-        // console.log("Dentro i campi " + JSON.stringify(data["latitude"]));
+         localStorage.setItem("auth_token",res);   
          setData(res)
+         if(localStorage.getItem("authenticated"))
+            navigate("/home");
       }).catch((err) => {
          console.log(err.message);
       });
@@ -79,7 +101,7 @@ const handleLogin = () => {
     return (
         <div className="text-center m-5-auto">
             <h2>Sign in to us</h2>
-            <p /*action="/home"*/>
+            <div id='loginForm' /*onSubmit={handleLogin}*/>
                 <p>
                     <label>Username</label><br/>
                     <input value={username}  type="text" name="first_name" required onChange={event => setUsername(event.target.value)} />
@@ -91,9 +113,9 @@ const handleLogin = () => {
                     <input value={password} type="password" name="password" required onChange={event => setPassword(event.target.value)} />
                 </p>
                 <p>
-                    <button id="sub_btn" /*type="submit" */ onClick={handleLogin} >Login</button>
+                    <button id="sub_btn" type="submit"  onClick={handleLogin} >Login</button>
                 </p>
-            </p>
+            </div>
             <footer>
                 <p>First time? <Link to="/register">Create an account</Link>.</p>
                 <p><Link to="/">Back to Homepage</Link>.</p>
