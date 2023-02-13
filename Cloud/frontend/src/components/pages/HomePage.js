@@ -10,6 +10,9 @@ export default function HomePage() {
     const navigate = useNavigate();
     const [stations, setStations] = useState();
     const [animals, setAnimals] = useState([]);
+    const [foods, setFoods] = useState([]);
+    const [waters, setWaters] = useState([]);
+    const [beats, setBeats] = useState([]);
 
     useEffect(()=>{
         console.log("Sono dentro homepage e localstorage vale" + localStorage.getItem("authenticated"))
@@ -36,8 +39,6 @@ export default function HomePage() {
       }, []);
 
     useEffect(() => {
-        console.log('ciao');
-
         for (let i = 0; i < stations?.length; i++)
         {
             fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stations[i]['id'] + '/animals',
@@ -57,8 +58,123 @@ export default function HomePage() {
         }
     }, [stations])
 
+    useEffect(() => {
+        for (let i = 0; i < stations?.length; i++)
+        {
+            fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stations[i]['id'] + '/foods?limit=1',
+                {
+                    method: 'GET',
+                    headers:
+                        {
+                            'X-API-KEY' : localStorage.getItem('auth_token'),
+                            'Content-Type' : 'application/json'
+                        }
+                }).then((response) => {
+                if(!response.ok) throw new Error(response.status);
+                return response.json();
+            }).then((myJson) => {
+                setFoods([...foods, myJson]);
+            })
+        }
+    }, [stations])
+
+    useEffect(() => {
+        for (let i = 0; i < stations?.length; i++)
+        {
+            fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stations[i]['id'] + '/waters?limit=1',
+                {
+                    method: 'GET',
+                    headers:
+                        {
+                            'X-API-KEY' : localStorage.getItem('auth_token'),
+                            'Content-Type' : 'application/json'
+                        }
+                }).then((response) => {
+                if(!response.ok) throw new Error(response.status);
+                return response.json();
+            }).then((myJson) => {
+                setWaters([...waters, myJson]);
+            })
+        }
+    }, [stations])
+
+    useEffect(() => {
+        for (let i = 0; i < stations?.length; i++)
+        {
+            for (let j = 0; j < animals[i]?.length; j++)
+            {
+                fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stations[i]['id'] + '/animals/' + animals[i][j]['id'] + '/beats?limit=1',
+                    {
+                        method: 'GET',
+                        headers:
+                            {
+                                'X-API-KEY' : localStorage.getItem('auth_token'),
+                                'Content-Type' : 'application/json'
+                            }
+                    }).then((response) => {
+                    if(!response.ok) throw new Error(response.status);
+                    return response.json();
+                }).then((myJson) => {
+                    setBeats([...beats, myJson]);
+                })
+            }
+        }
+    }, [animals])
+
     const styleCard = {
         width: '18rem'
+    }
+
+    function getStations()
+    {
+        const html = [];
+        for (let i = 0; i < stations?.length; i++)
+        {
+            html.push(
+                <div className="col">
+                    <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
+                        <img className="card-img-top" src={homeImage} alt="Station"/>
+                        <div className="card-body">
+                            <h5 className="card-title text-center"> Station #{stations[i]['id']} </h5>
+                            <br/>
+                            <h5 className="card-text"> Food Level: {foods[i]?.map(food => (food['value'].toUpperCase()))} </h5>
+                            <h5 className="card-text"> Water Level: {waters[i]?.map(water => (water['value'].toUpperCase()))} </h5>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
+        return html;
+    }
+
+    function getAnimals()
+    {
+        const html = []
+
+        animals?.map( animalArray => {
+            for (let i = 0; i < animalArray.length; i++)
+            {
+                html.push(
+                    <div className="col">
+                        <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
+                            {animalArray[i]['animal_type'] === 'dog' ?
+                                <img className="card-img-top" src={dogImage} alt="Station"/> :
+                                <img className="card-img-top" src={catImage} alt="Station"/>}
+                            <div className="card-body">
+                                <h5 className="card-title text-center"> {animalArray[i]['name']} </h5>
+                                <br/>
+                                <h5 className="card-text"> Temperature: {animalArray[i]['temperature']} °C</h5>
+                                <h5 className="card-text"> Bark: {String(animalArray[i]['bark']).toUpperCase()}</h5>
+                                <h5 className="card-text"> Beats: {beats[i]?.map(beat => (beat['value']))} bpm</h5>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        })
+
+        return html;
     }
 
     return (
@@ -69,34 +185,14 @@ export default function HomePage() {
                 <div className="container">
                     <h3>Stations</h3>
                     <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
-                        {stations?.map( station => (
-                            <div className="col">
-                                <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
-                                    <img className="card-img-top" src={homeImage} alt="Station"/>
-                                    <div className="card-body">
-                                        <h5 className="card-title text-center"> Station #{station['id']} </h5>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                        {getStations()}
                     </div>
                 </div>
                 <br/>
                 <div className="container">
                     <h3>Animals</h3>
                     <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
-                        {animals?.map( animalArray => (
-                            animalArray.map( animal => (
-                                <div className="col">
-                                    <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
-                                        { animal['animal_type'] === 'dog' ? <img className="card-img-top" src={dogImage} alt="Station"/> : <img className="card-img-top" src={catImage} alt="Station"/>}
-                                        <div className="card-body">
-                                            <h5 className="card-title text-center"> {animal['name']} </h5>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        ))}
+                        {getAnimals()}
                     </div>
                 </div>
             </Container>
