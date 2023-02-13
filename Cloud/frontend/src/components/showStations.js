@@ -1,6 +1,14 @@
 import React from 'react';
-import {MapContainer, Marker, Popup, TileLayer, Circle} from "react-leaflet";
+import {MapContainer, Marker, Popup, TileLayer, Circle, useMapEvent} from "react-leaflet";
 import L from 'leaflet';
+
+function SetViewOnClick() {
+    const map = useMapEvent('click', (e) => {
+        map.setView(e.latlng, map.getZoom())
+    })
+
+    return null
+}
 
 export class ShowStations extends React.Component
 {
@@ -86,6 +94,7 @@ export class ShowStations extends React.Component
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
+                <SetViewOnClick/>
                 {markers}
             </MapContainer>
         );
