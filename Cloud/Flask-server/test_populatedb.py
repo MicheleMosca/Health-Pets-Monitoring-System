@@ -42,7 +42,7 @@ def populatedb(db):
     db.session.add(station_4)
     db.session.commit()
 
-    animal_1 = Animal(name='pippo', age=2, gender='M', animal_type='dog',
+    animal_1 = Animal(name='Pluto', age=2, gender='M', animal_type='dog',
                    breed='alano', person_id=user_1.id, station_id=station_1.id)
     animal_1.temperature = 36
     animal_1.bark = True
@@ -85,13 +85,13 @@ def populatedb(db):
     db.session.commit()
 
     animal_7 = Animal(name='rex', age=8, gender='M', animal_type='dog',
-                      breed='beagle', person_id=user_1.id, station_id=station_1.id)
+                      breed='beagle', person_id=user_2.id, station_id=station_2.id)
     animal_7.temperature = 36
     db.session.add(animal_7)
     db.session.commit()
 
-    animal_8 = Animal(name='alice', age=1, gender='F', animal_type='cat',
-                      breed='persiano', person_id=user_2.id, station_id=station_2.id)
+    animal_8 = Animal(name='Alice', age=1, gender='F', animal_type='cat',
+                      breed='persiano', person_id=user_1.id, station_id=station_1.id)
     animal_8.temperature = 36
     db.session.add(animal_8)
     db.session.commit()
@@ -174,6 +174,10 @@ def populatedb(db):
 
     beats_8 = Beat(value=150, animal_id=animal_7.id)
     db.session.add(beats_8)
+    db.session.commit()
+
+    beats_9 = Beat(value=120, animal_id=animal_8.id)
+    db.session.add(beats_9)
     db.session.commit()
 
     return str(user_1.id)
