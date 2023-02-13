@@ -5,6 +5,7 @@ import NavBarComponent from './NavBarComponent';
 import homeImage from "../../assets/images/home.jpg";
 import dogImage from "../../assets/images/dog.jpg";
 import catImage from "../../assets/images/cat.jpg";
+import BackgroundImage from '../../assets/images/pattern.jpg'
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -125,6 +126,13 @@ export default function HomePage() {
         width: '18rem'
     }
 
+    const styleBack = {
+        background: `url(${BackgroundImage})`,
+        backgroundPosition: "25% - 25%",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover"
+    }
+
     function getStations()
     {
         const html = [];
@@ -178,25 +186,26 @@ export default function HomePage() {
     }
 
     return (
-        <div>
-            <NavBarComponent/>
-            <br></br>
-            <Container>
-                <div className="container">
-                    <h3>Stations</h3>
-                    <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
-                        {getStations()}
+        <header style={styleBack}>
+            <div>
+                <NavBarComponent/>
+                <br></br>
+                <Container>
+                    <div className="container">
+                        <h3>Stations</h3>
+                        <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
+                            {getStations()}
+                        </div>
                     </div>
-                </div>
-                <br/>
-                <div className="container">
-                    <h3>Animals</h3>
-                    <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
-                        {getAnimals()}
+                    <br/>
+                    <div className="container">
+                        <h3>Animals</h3>
+                        <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
+                            {getAnimals()}
+                        </div>
                     </div>
-                </div>
-            </Container>
-        </div>
-        
+                </Container>
+            </div>
+        </header>
     )
 }
