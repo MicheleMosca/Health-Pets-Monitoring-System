@@ -1,0 +1,8 @@
+{
+  "appId": "io.ionic.hpmsmobileapp",
+  "appName": "HPMS-MobileApp",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "build",
+  "cordova": {}
+}
