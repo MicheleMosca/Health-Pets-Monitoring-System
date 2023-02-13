@@ -2,7 +2,7 @@ import {React, useEffect, useState} from 'react'
 import { Link,useNavigate } from 'react-router-dom'
 import { Button,Container,Row,Col } from 'react-bootstrap';
 import NavBarComponent from './NavBarComponent';
-import homeImage from "../../assets/images/home.svg";
+import homeImage from "../../assets/images/home.jpg";
 import dogImage from "../../assets/images/dog.jpg";
 import catImage from "../../assets/images/cat.jpg";
 
