@@ -30,7 +30,7 @@ export default function App() {
 
 const Footer = () => {
     return (
-        <p className="text-center" style={ FooterStyle }>Designed & coded by <a href="https://izemspot.netlify.com" target="_blank" rel="noopener noreferrer">IZEMSPOT</a></p>
+        <p className="text-center" style={ FooterStyle }>HPMS: Health Pets Monitoring System</p>
     )
 }
 
@@ -38,7 +38,7 @@ const FooterStyle = {
     background: "#222",
     fontSize: ".8rem",
     color: "#fff",
-    position: "absolute",
+    position: "bottom",
     bottom: 0,
     padding: "1rem",
     margin: 0,
