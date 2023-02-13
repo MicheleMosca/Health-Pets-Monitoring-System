@@ -1010,10 +1010,10 @@ def getStationAnimals(username, station_id):
                      "animal_type": sa.animal_type, "breed": sa.breed,
                      "temperature": sa.temperature, "bark": sa.bark} for sa in station_animals])
 
-@app.route('/api/alarmedStations', methods=['GET'])
-def getAlarmedStations():
+@app.route('/api/allStations', methods=['GET'])
+def getAllStations():
     """
-    Return all the Alarmed Stations (Stations where at least animal have bark at True and beats over 80)
+    Return all the Stations and signal the Alarmed Stations with a parameter (Stations where at least animal have bark at True and beats over 80)
     ---
     responses:
         200:
@@ -1027,7 +1027,7 @@ def getAlarmedStations():
     stations_id = [animal.station_id for animal in animal_with_bark if animal.id in animal_with_beat]
     stations = Station.query.all()
 
-    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude} for s in stations if s.id in stations_id])
+    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude, "alarmed": "True" if s.id in stations_id else "False" } for s in stations])
 
 def on_message_action(feed_type, params, payload):
     """
