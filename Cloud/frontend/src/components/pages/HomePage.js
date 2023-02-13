@@ -69,27 +69,33 @@ export default function HomePage() {
 
                 <br></br>
             <Container>
-
-
-                {stations?.map( station => (
-                    <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
-                        <img className="card-img-top" src={homeImage} alt="Station"/>
-                        <div className="card-body">
-                            <h5 className="card-title"> Station #{station['id']} </h5>
-                        </div>
-                    </div>
-                ))}
-
-                {animals?.map( animalArray => (
-                    animalArray.map( animal => (
-                        <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
-                            <img className="card-img-top" src={dogImage} alt="Station"/>
-                            <div className="card-body">
-                                <h5 className="card-title"> {animal['name']} </h5>
+                <div className="container">
+                    <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
+                        {stations?.map( station => (
+                            <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
+                                <img className="card-img-top" src={homeImage} alt="Station"/>
+                                <div className="card-body">
+                                    <h5 className="card-title"> Station #{station['id']} </h5>
+                                </div>
                             </div>
-                        </div>
-                    ))
-                ))}
+                        ))}
+                    </div>
+                </div>
+                <br/>
+                <div className="container">
+                    <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
+                        {animals?.map( animalArray => (
+                            animalArray.map( animal => (
+                                <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
+                                    { animal['animal_type'] === 'dog' ? <img className="card-img-top" src={dogImage} alt="Station"/> : <img className="card-img-top" src={catImage} alt="Station"/>}
+                                    <div className="card-body">
+                                        <h5 className="card-title"> {animal['name']} </h5>
+                                    </div>
+                                </div>
+                            ))
+                        ))}
+                    </div>
+                </div>
 
                 {/*<Row>*/}
                 {/*<Col>1 of 2</Col>*/}
