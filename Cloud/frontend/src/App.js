@@ -6,7 +6,7 @@ import LoginPage from './components/pages/LoginPage'
 import RegisterPage from './components/pages/RegisterPage'
 import ForgetPasswordPage from './components/pages/ForgetPasswordPage'
 import HomePage from './components/pages/HomePage'
-import AllStations from './components/pages/allStations'
+import AllStations from './components/pages/AllStations'
 
 import './App.css'
 
@@ -20,7 +20,7 @@ export default function App() {
                     <Route path="/register" element={ <RegisterPage/> } />
                     <Route path="/forget-password" element={ <ForgetPasswordPage/> } />
                     <Route path="/home" element={ <HomePage/> } />
-                    <Route path="/AllStations" element={ <AllStations/> } />
+                    <Route path="/allStations" element={ <AllStations/> } />
                 </Routes>
                 <Footer />
             </div>
