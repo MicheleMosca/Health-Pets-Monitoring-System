@@ -63,19 +63,19 @@ export default function HomePage() {
 
     return (
         <div>
-            <NavBarComponent></NavBarComponent>
-            <div className="text-center">
-                <h1 className="main-title home-page-title">welcome to our app</h1>
-
-                <br></br>
+            <NavBarComponent/>
+            <br></br>
             <Container>
                 <div className="container">
+                    <h3>Stations</h3>
                     <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
                         {stations?.map( station => (
-                            <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
-                                <img className="card-img-top" src={homeImage} alt="Station"/>
-                                <div className="card-body">
-                                    <h5 className="card-title"> Station #{station['id']} </h5>
+                            <div className="col">
+                                <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
+                                    <img className="card-img-top" src={homeImage} alt="Station"/>
+                                    <div className="card-body">
+                                        <h5 className="card-title text-center"> Station #{station['id']} </h5>
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -83,33 +83,23 @@ export default function HomePage() {
                 </div>
                 <br/>
                 <div className="container">
+                    <h3>Animals</h3>
                     <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
                         {animals?.map( animalArray => (
                             animalArray.map( animal => (
-                                <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
-                                    { animal['animal_type'] === 'dog' ? <img className="card-img-top" src={dogImage} alt="Station"/> : <img className="card-img-top" src={catImage} alt="Station"/>}
-                                    <div className="card-body">
-                                        <h5 className="card-title"> {animal['name']} </h5>
+                                <div className="col">
+                                    <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
+                                        { animal['animal_type'] === 'dog' ? <img className="card-img-top" src={dogImage} alt="Station"/> : <img className="card-img-top" src={catImage} alt="Station"/>}
+                                        <div className="card-body">
+                                            <h5 className="card-title text-center"> {animal['name']} </h5>
+                                        </div>
                                     </div>
                                 </div>
                             ))
                         ))}
                     </div>
                 </div>
-
-                {/*<Row>*/}
-                {/*<Col>1 of 2</Col>*/}
-                {/*<Col>2 of 2</Col>*/}
-                {/*</Row>*/}
-                {/*<Row>*/}
-                {/*<Col>1 of 3</Col>*/}
-                {/*<Col>2 of 3</Col>*/}
-                {/*<Col>3 of 3</Col>*/}
-                {/*</Row>*/}
-                {/*{JSON.stringify(stations)}*/}
-                {/*{JSON.stringify(animals)}*/}
             </Container>
-            </div>
         </div>
         
     )
