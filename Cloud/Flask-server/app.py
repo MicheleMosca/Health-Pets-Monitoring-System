@@ -1109,7 +1109,7 @@ def getStationAnimals(username, station_id):
 
     return jsonify([{"id": sa.id, "name": sa.name, "age": sa.age, "gender": sa.gender,
                      "animal_type": sa.animal_type, "breed": sa.breed,
-                     "temperature": sa.temperature, "bark": sa.bark} for sa in station_animals])
+                     "temperature": sa.temperature, "bark": sa.bark, "station_id": station_id} for sa in station_animals])
 
 @app.route('/api/allStations', methods=['GET'])
 def getAllStations():
