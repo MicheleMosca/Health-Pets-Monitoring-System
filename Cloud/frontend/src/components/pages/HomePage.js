@@ -14,13 +14,26 @@ export default function HomePage() {
     const [foods, setFoods] = useState([]);
     const [waters, setWaters] = useState([]);
     const [beats, setBeats] = useState([]);
+    
+    /*Station's things*/
     const [latitude, setLatitude] = useState/*float*/("");
     const [longitude, setLongitude] = useState/*float*/("");
-    const [data, setData] = useState("");
-    const [show, setShow] = useState(false);
+    
+    /*Animal's things*/
+    const [name, setName] = useState/*string*/("");
+    const [age, setAge] = useState/*int*/("");
+    const [gender, setGender] = useState/*string*/("");
+    const [animalType, setAnimalType] = useState/*string*/("");
+    const [breed, setBreed] = useState/*string*/("");
+    const [station_id, setStationID] = useState/*int*/("");
 
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+    /*Form's things*/
+    const [showFS, setShowFS] = useState(false);
+    const [showA, setShowA] = useState(false);
+    const handleCloseFS = () => setShowFS(false);
+    const handleShowFS = () => setShowFS(true);
+    const handleCloseA = () => setShowA(false);
+    const handleShowA = () => setShowA(true);
 
     useEffect(()=>{
         console.log("Sono dentro homepage e localstorage vale" + localStorage.getItem("authenticated"))
@@ -201,9 +214,41 @@ export default function HomePage() {
             "longitude": parseFloat(longitude)
         }
         console.log("Ecco i dati della station " + JSON.stringify(stationData))
-        console.log("Ecco data " + JSON.stringify(data))
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations?latitude=' + stationData['latitude'] + '&longitude=' + stationData['longitude'], {
+            method: 'POST',
+            headers: {
+                'X-API-KEY' : localStorage.getItem('auth_token'),
+            },
+        }).then( (response) => {
+            if(!response.ok) throw new Error(response.status);
+            else {
+                return response.text();
+            }
+        }).then( (res) => {
+            console.log("Risposta data: " + res);
+            window.location.reload(true);
+        }).catch( (err) => {
+            console.log(err.message);
+        });
+        console.log("finito richiesta");
+    }
+
+    const handleAddAnimal = (e) => {
+        e.preventDefault();
+        console.log("Dentro handle add station");
+
+        const animalData = {
+            "name": name,
+            "age": parseInt(age),
+            "gender": gender,
+            "animal_type": animalType,
+            "breed": breed,
+            "station_id": station_id
+        }
+        console.log("Ecco i dati della station " + JSON.stringify(animalData))
+
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals?name=' + animalData['name'] + '&age=' + animalData['age'] + '&gender=' + animalData['gender'] + '&animal_type=' + animalData['animal_type'] + '&breed=' + animalData['breed'], {
             method: 'POST',
             headers: {
                 'X-API-KEY' : localStorage.getItem('auth_token'),
@@ -231,13 +276,13 @@ export default function HomePage() {
                     <div className="container">
                         <h3>
                             Stations
-                            <Button className="m-3" variant="warning" size="lg" onClick={handleShow}>
+                            <Button className="m-3" variant="warning" size="lg" onClick={handleShowFS}>
                                 +
                             </Button>
                                 <Modal
                                     className="text-center"
-                                    show={show}
-                                    onHide={handleClose}
+                                    show={showFS}
+                                    onHide={handleCloseFS}
                                     backdrop="static"
                                     keyboard={false}
                                 >
@@ -267,7 +312,7 @@ export default function HomePage() {
                                         </Form>
                                     </Modal.Body>
                                     <Modal.Footer>
-                                        <Button variant="secondary" onClick={handleClose}>
+                                        <Button variant="secondary" onClick={handleCloseFS}>
                                             Close
                                         </Button>
                                         <Button variant="primary" onClick={handleAddStation}>Add</Button>
@@ -280,7 +325,85 @@ export default function HomePage() {
                     </div>
                     <br/>
                     <div className="container">
-                        <h3>Animals</h3>
+                        <div>
+                        <h3>
+                            Animals
+                            <Button className="m-3" variant="warning" size="lg" onClick={handleShowA}>
+                                +
+                            </Button>
+                                <Modal
+                                    className="text-center"
+                                    show={showA}
+                                    onHide={handleCloseA}
+                                    backdrop="static"
+                                    keyboard={false}
+                                >
+                                    <Modal.Header closeButton>
+                                        <Modal.Title>Add new animal</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        Please insert the necessary data:
+                                        <Form>
+                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                <Form.Label>Name</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="es. Mariangiongiangela"
+                                                    autofocus
+                                                    onChange={event => setName(event.target.value)}
+                                                />
+                                            </Form.Group>
+                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                <Form.Label>Age</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="es. 3"
+                                                    onChange={event => setAge(event.target.value)}
+                                                />
+                                            </Form.Group>
+                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                <Form.Label>Gender</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="M/F"
+                                                    onChange={event => setGender(event.target.value)}
+                                                />
+                                            </Form.Group>
+                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                <Form.Label>Type</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="dog/cat"
+                                                    onChange={event => setAnimalType(event.target.value)}
+                                                />
+                                            </Form.Group>
+                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                <Form.Label>Breed</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="es. German Shepherd"
+                                                    onChange={event => setBreed(event.target.value)}
+                                                />
+                                            </Form.Group>
+                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                <Form.Label>Station ID</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="es. 5"
+                                                    onChange={event => setStationID(event.target.value)}
+                                                />
+                                            </Form.Group>
+                                        </Form>
+                                    </Modal.Body>
+                                    <Modal.Footer>
+                                        <Button variant="secondary" onClick={handleCloseA}>
+                                            Close
+                                        </Button>
+                                        <Button variant="primary" onClick={handleAddAnimal}>Add</Button>
+                                    </Modal.Footer>
+                                </Modal>
+                        </h3>
+                        </div>
                         <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
                             {getAnimals()}
                         </div>
