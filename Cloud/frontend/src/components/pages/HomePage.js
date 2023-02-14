@@ -18,6 +18,7 @@ export default function HomePage() {
     /*Station's things*/
     const [latitude, setLatitude] = useState/*float*/("");
     const [longitude, setLongitude] = useState/*float*/("");
+    const [delete_station_id, setDeleteStationID] = useState/*int*/("");
     
     /*Animal's things*/
     const [name, setName] = useState/*string*/("");
@@ -26,14 +27,23 @@ export default function HomePage() {
     const [animalType, setAnimalType] = useState/*string*/("");
     const [breed, setBreed] = useState/*string*/("");
     const [station_id, setStationID] = useState/*int*/("");
+    const [remove_animal_station, setRemoveAnimalStation] = useState/*int*/("");
+    const [remove_animal_id, setRemoveAnimalID] = useState/*int*/("");
 
     /*Form's things*/
     const [showFS, setShowFS] = useState(false);
     const [showA, setShowA] = useState(false);
+    const [showSR, setShowSR] = useState(false);
+    const [showRA, setShowRA] = useState(false);
+
     const handleCloseFS = () => setShowFS(false);
     const handleShowFS = () => setShowFS(true);
     const handleCloseA = () => setShowA(false);
     const handleShowA = () => setShowA(true);
+    const handleCloseSR = () => setShowSR(false);
+    const handleShowSR = () => setShowSR(true);
+    const handleCloseRA = () => setShowRA(false);
+    const handleShowRA = () => setShowRA(true);
 
     function goToStation( station){
         console.log("Hai cliccato e mi hai passto questo id " +JSON.stringify(station))
@@ -289,6 +299,63 @@ export default function HomePage() {
         console.log("finito richiesta");
     }
 
+    const handleRemoveStation = (e) => {
+        e.preventDefault();
+        console.log("Dentro handle remove station");
+    
+        const stationData = {
+            "station_id": parseInt(delete_station_id)
+        }
+        console.log("Ecco i dati della station " + JSON.stringify(stationData))
+
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stationData["station_id"], {
+            method: 'DELETE',
+            headers: {
+            'X-API-KEY' : localStorage.getItem('auth_token'),
+            },
+        }).then( (response) => {
+            if(!response.ok) throw new Error(response.status);
+            else {
+                return response.text();
+            }
+        }).then( (res) => {
+            console.log("Risposta data: " + res);
+            window.location.reload(true);
+        }).catch( (err) => {
+            console.log(err.message);
+        });
+        console.log("finito richiesta");
+    }
+
+    const handleRemoveAnimal = (e) => {
+        e.preventDefault();
+        console.log("Dentro handle add station");
+
+        const animalData = {
+            "station_id": remove_animal_station,
+            "animal_id": remove_animal_id
+        }
+        console.log("Ecco i dati dell'animale' " + JSON.stringify(animalData))
+
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals/' + animalData["animal_id"], {
+            method: 'DELETE',
+            headers: {
+                'X-API-KEY' : localStorage.getItem('auth_token'),
+            },
+        }).then( (response) => {
+            if(!response.ok) throw new Error(response.status);
+            else {
+                return response.text();
+            }
+        }).then( (res) => {
+            console.log("Risposta data: " + res);
+            window.location.reload(true);
+        }).catch( (err) => {
+            console.log(err.message);
+        });
+        console.log("finito richiesta");
+    }
+
     return (
         <header style={styleBack.header}>
             <div style={styleBack.content}>
@@ -338,6 +405,38 @@ export default function HomePage() {
                                             Close
                                         </Button>
                                         <Button variant="primary" onClick={handleAddStation}>Add</Button>
+                                    </Modal.Footer>
+                                </Modal>
+                                <Button className="m-1" variant="danger" size="lg" onClick={handleShowSR}>
+                                --
+                                </Button>
+                                <Modal
+                                    className="text-center"
+                                    show={showSR}
+                                    onHide={handleCloseSR}
+                                    backdrop="static"
+                                    keyboard={false}
+                                >
+                                    <Modal.Header closeButton>
+                                        <Modal.Title>Remove a station</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        Please insert the necessary data:
+                                        <Form>
+                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                <Form.Label>Station ID</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="es. 4"
+                                                    autoFocus
+                                                    onChange={event => setDeleteStationID(event.target.value)}
+                                                />
+                                            </Form.Group>
+                                        </Form>
+                                    </Modal.Body>
+                                    <Modal.Footer>
+                                        <Button variant="secondary" onClick={handleCloseSR}>Close</Button>
+                                        <Button variant="danger" onClick={handleRemoveStation}>Remove</Button>
                                     </Modal.Footer>
                                 </Modal>
                         </h3>
@@ -423,6 +522,48 @@ export default function HomePage() {
                                             Close
                                         </Button>
                                         <Button variant="primary" onClick={handleAddAnimal}>Add</Button>
+                                    </Modal.Footer>
+                                </Modal>
+                                <Button className="m-1" variant="danger" size="lg" onClick={handleShowRA}>
+                                --
+                                </Button>
+                                <Modal
+                                    className="text-center"
+                                    show={showRA}
+                                    onHide={handleCloseRA}
+                                    backdrop="static"
+                                    keyboard={false}
+                                >
+                                    <Modal.Header closeButton>
+                                        <Modal.Title>Remove an animal</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        Please insert the necessary data:
+                                        <Form>
+                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                <Form.Label>Station ID</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="es. 7"
+                                                    autoFocus
+                                                    onChange={event => setRemoveAnimalStation(event.target.value)}
+                                                />
+                                            </Form.Group>
+                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                <Form.Label>Animal ID</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="es. 3"
+                                                    onChange={event => setRemoveAnimalID(event.target.value)}
+                                                />
+                                            </Form.Group>
+                                        </Form>
+                                    </Modal.Body>
+                                    <Modal.Footer>
+                                        <Button variant="secondary" onClick={handleCloseRA}>
+                                            Close
+                                        </Button>
+                                        <Button variant="danger" onClick={handleRemoveAnimal}>Remove</Button>
                                     </Modal.Footer>
                                 </Modal>
                         </h3>
