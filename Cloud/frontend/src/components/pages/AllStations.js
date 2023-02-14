@@ -10,7 +10,7 @@ export default function AllStations()
         e.preventDefault();
         console.log("Dentro handle back button");
 
-        if(localStorage.length == 0)
+        if(localStorage.length === 0)
             navigate("/");
         else
             navigate("/home");

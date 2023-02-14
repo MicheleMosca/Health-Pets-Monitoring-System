@@ -35,6 +35,14 @@ export default function HomePage() {
     const handleCloseA = () => setShowA(false);
     const handleShowA = () => setShowA(true);
 
+    function goToStation( station){
+        console.log("Hai cliccato e mi hai passto questo id " +JSON.stringify(station))
+        const stat={ id:station['id'],latitude:station['latitude'],longitude:station['longitude']}
+        navigate("/station",{state:stat})
+    } 
+
+ 
+
     useEffect(()=>{
         console.log("Sono dentro homepage e localstorage vale" + localStorage.getItem("authenticated"))
         if(localStorage.getItem("authenticated") !== 'true'){
@@ -153,9 +161,7 @@ export default function HomePage() {
         backgroundSize: "cover"
     }
 
-    function goToStation( /*stationId*/){
-        console.log("Hai cliccato e mi hai passto questo id " /*+ stationId*/)
-    }
+
 
     function getStations()
     {
@@ -166,7 +172,8 @@ export default function HomePage() {
                 <div className="col"  >
                     
                     <div className="card mb-3 shadow bg-white rounded" style={styleCard}  >
-                    <Card as="a" onClick={goToStation(/*stations[i]['id']*/)} style={{ cursor: "pointer" }}   >
+                    
+                    <Card  onClick={() => goToStation(stations[i])} style={{ cursor: "pointer" }} >
                         <img className="card-img-top" src={homeImage} alt="Station"/>
                         <div className="card-body">
                             <h5 className="card-title text-center"> Station #{stations[i]['id']} </h5>
@@ -174,6 +181,7 @@ export default function HomePage() {
                             <h5 className="card-text"> Food Level: {foods[i]?.map(food => (food['value'].toUpperCase()))} </h5>
                             <h5 className="card-text"> Water Level: {waters[i]?.map(water => (water['value'].toUpperCase()))} </h5>
                         </div>
+                       {/*  <Button  > vai</Button> */}
                     </Card>
                     </div>
                     
