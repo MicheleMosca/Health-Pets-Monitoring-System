@@ -215,7 +215,7 @@ export default function HomePage() {
             }
         }).then( (res) => {
             console.log("Risposta data: " + res);
-            navigate("/home");
+            window.location.reload(true);
         }).catch( (err) => {
             console.log(err.message);
         });
