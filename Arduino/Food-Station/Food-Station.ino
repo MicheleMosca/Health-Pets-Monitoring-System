@@ -6,12 +6,29 @@ unsigned long timestamp;
 
 /* Serial Receive variables */
 #define BUFFDIM 7 // header, size, animal_id, meal_type, quantity, checksum, footer
-unsigned char animal_id = 0;
+unsigned char animal_id_received = 0;
 unsigned char meal_type = 'u';
 unsigned char quantity = 0;
 
 unsigned char ucInBuffer[BUFFDIM];  // Buffer to memorize packet bytes 
 size_t stBufferIndex;     // Index of the buffer
+
+/* LoRa Receive variables */
+#include <LoRa.h>
+#define BUFFDIM_LoRa 8 // header, size, animal_id, temperature, beats, bark, checksum, footer
+
+unsigned char animal_id = 0;
+unsigned char temperature = 0;
+unsigned char beats = 0;
+unsigned char bark = 0;
+int distance = 0;
+
+unsigned char ucInBufferLoRa[BUFFDIM_LoRa];  // Buffer to memorize packet bytes 
+size_t stBufferIndexLoRa;     // Index of the buffer
+
+#define LORA_SS 53
+#define LORA_RST 9
+#define LORA_DIO0 8
 
 /* Water system */
 int waterLevelSensor = A0;
@@ -113,6 +130,19 @@ void setup()
   /* display */
   lcd.begin(16, 2);
   /* ------- */
+
+  /* LoRa Setup */
+  //setup LoRa transceiver module
+  LoRa.setPins(LORA_SS, LORA_RST, LORA_DIO0);
+
+  while (!LoRa.begin(433E6)) {
+    Serial.println("LoRa doesn't begin!");
+    delay(500);
+  }
+
+  // The sync word assures you don't get LoRa messages from other LoRa transceivers
+  // ranges from 0-0xFF
+  LoRa.setSyncWord(0xF3);
 }
 
 void loop()
@@ -122,12 +152,15 @@ void loop()
   unsigned char weight = weightSystem();
   menu(water, food, weight);
 
+  // LoRa Receive
+  LoRaReceive(&animal_id, &temperature, &beats, &bark, &distance);
+
   // Serial Send Trial
-  serialSend(food, water, 1, 20, weight, 1, 36);
-  int r = serialReceive(&animal_id, &meal_type, &quantity);
+  serialSend(food, water, animal_id, beats, weight, bark, temperature);
+  int r = serialReceive(&animal_id_received, &meal_type, &quantity);
 
   // if we recived a packet do something (turn on led for example)
-  if (r == 1 && animal_id == 1)
+  if (r == 1 && animal_id_received == 1)
   {
     digitalWrite(PIN, HIGH);
     foodRelease();    // DA SISTEMARE!!!
@@ -339,4 +372,78 @@ void menu(char water, char food, char weight){
     lcd.print((int)food);
     statusKey = 0;
   }
+}
+
+int LoRaReceive(unsigned char *animal_id, unsigned char *temperature, unsigned char *beats, unsigned char *bark, int *distance)
+{
+  int packetSize = LoRa.parsePacket();
+  if (packetSize) 
+  {
+    // If there are some data from the serial
+    while (LoRa.available() > 0)
+    {
+      unsigned char ucData;
+      ucData = LoRa.read(); // read a byte
+      if (ucData == 0xFE) // EOF
+      {
+        // Append last byte
+        ucInBufferLoRa[stBufferIndexLoRa] = ucData;
+        stBufferIndexLoRa++;
+  
+        int r = LoRaUseData(&animal_id, &temperature, &beats, &bark);
+  
+        // Clear buffer
+        for (stBufferIndexLoRa = 0; stBufferIndexLoRa < BUFFDIM_LoRa; stBufferIndexLoRa++)
+          ucInBufferLoRa[stBufferIndexLoRa] = 0;
+  
+        stBufferIndexLoRa = 0;
+        if (r == 1)
+          return 1;
+      }
+      else
+      {
+        // Append
+        ucInBufferLoRa[stBufferIndexLoRa] = ucData;
+        stBufferIndexLoRa++;
+      }
+    }
+
+    // print RSSI of packet
+    *distance = LoRa.packetRssi();
+  }
+  
+  return 0;  
+}
+
+int LoRaUseData(unsigned char **animal_id, unsigned char **temperature, unsigned char **beats, unsigned char **bark)
+{
+  if (stBufferIndexLoRa < BUFFDIM_LoRa)  // at least header, size, animal_id, meal_type, quantity, checksum, footer
+    return 0;
+    
+  if (ucInBufferLoRa[0] != 0xFF)
+    return 0;
+    
+  unsigned char ucNumVal = ucInBufferLoRa[1];
+
+  // calculate checksum and getting values
+  unsigned char ucChecksum = ucNumVal;
+  unsigned char ucVal[ucNumVal];
+  for (size_t i = 0; i < ucNumVal; i++)
+  {
+    ucVal[i] = ucInBufferLoRa[i + 2];
+    ucChecksum = ucChecksum ^ ucVal[i]; 
+  }
+  
+  unsigned char ucChecksum_received = ucInBufferLoRa[BUFFDIM_LoRa - 2];
+
+  // check if checksum is correct
+  if (ucChecksum != ucChecksum_received)
+    return 0;
+  
+  // use of value
+  *(*animal_id) = ucVal[0];
+  *(*temperature) = ucVal[1];
+  *(*beats) = ucVal[2];
+  *(*bark) = ucVal[3];
+  return 1;
 }
