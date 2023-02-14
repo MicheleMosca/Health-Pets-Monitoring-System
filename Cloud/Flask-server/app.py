@@ -319,6 +319,107 @@ def deleteMeal(username, station_id, animal_id, meal_id):
 
     return json_meal_list
 
+@app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>', methods=['DELETE'])
+def deleteAnimal(username, station_id, animal_id):
+    """
+    Delete an animal from a station
+    ---
+    parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+        -   in: path
+            name: animal_id
+            description: Animal identification id
+            required: true
+
+    responses:
+        200:
+            description: New Animals list
+    """
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
+        return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
+
+    if int(station_id) not in [station.id for station in person.stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    animal = Animal.query.filter_by(id=animal_id).first()
+    db.session.delete(animal)
+    db.session.commit()
+
+    animals_list = Animal.query.filter_by(station_id=int(station_id)).order_by(Animal.id.desc()).all()
+    json_animals_list = jsonify([{"id": a.id, "name": a.name, "animal_type": a.animal_type, "age": a.age, "gender": a.gender, "breed": a.breed,
+                                  "temperature": a.temperature, "bark": a.bark} for a in animals_list]).get_data(as_text=True)
+
+    return json_animals_list
+
+@app.route('/api/users/<username>/stations/<station_id>', methods=['DELETE'])
+def deleteStation(username, station_id):
+    """
+    Delete a station of a user
+    ---
+    parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+    responses:
+        200:
+            description: New Stations list
+    """
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
+        return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
+
+    if int(station_id) not in [station.id for station in person.stations]:
+        return "Station Not Found!", 404
+
+    station = Station.query.filter_by(id=station_id).first()
+    db.session.delete(station)
+    db.session.commit()
+
+    # send new configuration to the bridge throw MQTT
+    stations_list = Station.query.filter_by(person_id=Person.query.filter_by(username=username).first().id).order_by(Station.id.desc()).all()
+    json_stations_list = jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude} for s in stations_list]).get_data(as_text=True)
+
+    return json_stations_list
 
 @app.route('/api/users/<username>/stations', methods=['POST'])
 def setStation(username):

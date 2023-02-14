@@ -19,10 +19,10 @@ class Animal(db.Model):
     bark = db.Column(db.Boolean, default=False)
 
     person_id = db.Column(db.Integer, db.ForeignKey('person.id'), nullable=False)
-    meals = db.relationship('Meal', backref='animal')
+    meals = db.relationship('Meal', cascade='all, delete', backref='animal')
     station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable=False)
-    weights = db.relationship('Weight', backref='animal')
-    beats = db.relationship('Beat', backref='animal')
+    weights = db.relationship('Weight', cascade='all, delete', backref='animal')
+    beats = db.relationship('Beat', cascade='all, delete', backref='animal')
 
     def __init__(self, name, age, gender, animal_type, breed, person_id, station_id):
         self.name = name
