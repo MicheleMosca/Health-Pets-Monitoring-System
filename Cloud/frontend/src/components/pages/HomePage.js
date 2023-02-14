@@ -1,6 +1,6 @@
 import {React, useEffect, useState} from 'react'
 import { Link,useNavigate } from 'react-router-dom'
-import { Button,Container,Row,Col,Modal,Form } from 'react-bootstrap';
+import { Button,Container,Row,Col,Modal,Form, Card } from 'react-bootstrap';
 import NavBarComponent from './NavBarComponent';
 import homeImage from "../../assets/images/home.jpg";
 import dogImage from "../../assets/images/dog.jpg";
@@ -153,14 +153,20 @@ export default function HomePage() {
         backgroundSize: "cover"
     }
 
+    function goToStation( /*stationId*/){
+        console.log("Hai cliccato e mi hai passto questo id " /*+ stationId*/)
+    }
+
     function getStations()
     {
         const html = [];
         for (let i = 0; i < stations?.length; i++)
         {
             html.push(
-                <div className="col">
-                    <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
+                <div className="col"  >
+                    
+                    <div className="card mb-3 shadow bg-white rounded" style={styleCard}  >
+                    <Card as="a" onClick={goToStation(/*stations[i]['id']*/)} style={{ cursor: "pointer" }}   >
                         <img className="card-img-top" src={homeImage} alt="Station"/>
                         <div className="card-body">
                             <h5 className="card-title text-center"> Station #{stations[i]['id']} </h5>
@@ -168,7 +174,9 @@ export default function HomePage() {
                             <h5 className="card-text"> Food Level: {foods[i]?.map(food => (food['value'].toUpperCase()))} </h5>
                             <h5 className="card-text"> Water Level: {waters[i]?.map(water => (water['value'].toUpperCase()))} </h5>
                         </div>
+                    </Card>
                     </div>
+                    
                 </div>
             )
         }
@@ -297,7 +305,7 @@ export default function HomePage() {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. 44.647129"
-                                                    autofocus
+                                                    autoFocus
                                                     onChange={event => setLatitude(event.target.value)}
                                                 />
                                             </Form.Group>
@@ -340,6 +348,7 @@ export default function HomePage() {
                                 >
                                     <Modal.Header closeButton>
                                         <Modal.Title>Add new animal</Modal.Title>
+                                       {/*  <Button variant="light"> X</Button> */}
                                     </Modal.Header>
                                     <Modal.Body>
                                         Please insert the necessary data:
@@ -349,7 +358,7 @@ export default function HomePage() {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. Mariangiongiangela"
-                                                    autofocus
+                                                    autoFocus
                                                     onChange={event => setName(event.target.value)}
                                                 />
                                             </Form.Group>
