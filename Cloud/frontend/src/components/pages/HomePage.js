@@ -147,10 +147,16 @@ export default function HomePage() {
     }
 
     const styleBack = {
-        background: `url(${BackgroundImage})`,
-        backgroundPosition: "25% - 25%",
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "cover"
+        header: {
+            /*backgroundImage: `url(${BackgroundImage})`,*/
+            backgroundPosition: "25% - 25%",
+            backgroundRepeat: "no-repeat",
+            backgroundSize: "cover"
+        },
+
+        content: {
+            backgroundColor: 'rgba(0, 0, 0, 0.05)'
+        }
     }
 
     function goToStation( /*stationId*/){
@@ -276,8 +282,8 @@ export default function HomePage() {
     }
 
     return (
-        <header style={styleBack}>
-            <div>
+        <header style={styleBack.header}>
+            <div style={styleBack.content}>
                 <NavBarComponent/>
                 <br></br>
                 <Container>
