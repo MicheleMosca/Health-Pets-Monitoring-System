@@ -1,6 +1,6 @@
 import {React, useEffect, useState} from 'react'
 import { Link,useNavigate } from 'react-router-dom'
-import { Button,Container,Row,Col } from 'react-bootstrap';
+import { Button,Container,Row,Col,Modal,Form } from 'react-bootstrap';
 import NavBarComponent from './NavBarComponent';
 import homeImage from "../../assets/images/home.jpg";
 import dogImage from "../../assets/images/dog.jpg";
@@ -14,6 +14,13 @@ export default function HomePage() {
     const [foods, setFoods] = useState([]);
     const [waters, setWaters] = useState([]);
     const [beats, setBeats] = useState([]);
+    const [latitude, setLatitude] = useState/*float*/("");
+    const [longitude, setLongitude] = useState/*float*/("");
+    const [data, setData] = useState("");
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
     useEffect(()=>{
         console.log("Sono dentro homepage e localstorage vale" + localStorage.getItem("authenticated"))
@@ -185,6 +192,36 @@ export default function HomePage() {
         return html;
     }
 
+    const handleAddStation = (e) => {
+        e.preventDefault();
+        console.log("Dentro handle add station");
+
+        const stationData = {
+            "latitude": parseFloat(latitude),
+            "longitude": parseFloat(longitude)
+        }
+        console.log("Ecco i dati della station " + JSON.stringify(stationData))
+        console.log("Ecco data " + JSON.stringify(data))
+
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations?latitude=' + stationData['latitude'] + '&longitude=' + stationData['longitude'], {
+            method: 'POST',
+            headers: {
+                'X-API-KEY' : localStorage.getItem('auth_token'),
+            },
+        }).then( (response) => {
+            if(!response.ok) throw new Error(response.status);
+            else {
+                return response.text();
+            }
+        }).then( (res) => {
+            console.log("Risposta data: " + res);
+            navigate("/home");
+        }).catch( (err) => {
+            console.log(err.message);
+        });
+        console.log("finito richiesta");
+    }
+
     return (
         <header style={styleBack}>
             <div>
@@ -192,7 +229,51 @@ export default function HomePage() {
                 <br></br>
                 <Container>
                     <div className="container">
-                        <h3>Stations</h3>
+                        <h3>
+                            Stations
+                            <Button className="m-3" variant="warning" size="lg" onClick={handleShow}>
+                                +
+                            </Button>
+                                <Modal
+                                    className="text-center"
+                                    show={show}
+                                    onHide={handleClose}
+                                    backdrop="static"
+                                    keyboard={false}
+                                >
+                                    <Modal.Header closeButton>
+                                        <Modal.Title>Add new station</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                        Please insert the necessary data:
+                                        <Form>
+                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                <Form.Label>Latitude</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="es. 44.647129"
+                                                    autofocus
+                                                    onChange={event => setLatitude(event.target.value)}
+                                                />
+                                            </Form.Group>
+                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                                <Form.Label>Longitude</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="es. 10.925227"
+                                                    onChange={event => setLongitude(event.target.value)}
+                                                />
+                                            </Form.Group>
+                                        </Form>
+                                    </Modal.Body>
+                                    <Modal.Footer>
+                                        <Button variant="secondary" onClick={handleClose}>
+                                            Close
+                                        </Button>
+                                        <Button variant="primary" onClick={handleAddStation}>Add</Button>
+                                    </Modal.Footer>
+                                </Modal>
+                        </h3>
                         <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
                             {getStations()}
                         </div>
