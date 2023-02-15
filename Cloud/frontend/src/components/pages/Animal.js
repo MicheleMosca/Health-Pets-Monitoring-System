@@ -3,7 +3,7 @@ import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
 import {ListGroup,Card} from 'react-bootstrap';
 
-export default function Station()
+export default function Animal()
 {
     const navigate = useNavigate();
     const location = useLocation();  //ora in location.state.id trovo l'id della stazione 

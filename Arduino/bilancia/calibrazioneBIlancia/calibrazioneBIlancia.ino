@@ -55,7 +55,7 @@ void loop() {
   Serial.print(" calibration_factor: ");
   Serial.print(calibration_factor);
   Serial.println();
-
+  
   //comandi per calibrare la bilancia e per tararla
   if(Serial.available())
   {
