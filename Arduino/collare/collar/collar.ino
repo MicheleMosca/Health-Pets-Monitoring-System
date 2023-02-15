@@ -18,7 +18,7 @@ int micPort = A0;
 
 /* LoRa Sender variables */
 #include <LoRa.h>
-#define SEND_INTERVAL 10000 // every 10 seconds
+#define SEND_INTERVAL 1000 // every 10 seconds
 
 unsigned long timestamp;
 
@@ -65,7 +65,7 @@ unsigned char getTemperature(){
 unsigned char getBark(){
   int loudness = analogRead(micPort);
 
-  if(loudness < 400)
+  if(loudness < 100)
     return 0;
   else
     return 1;
