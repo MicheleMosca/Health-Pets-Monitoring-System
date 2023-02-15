@@ -46,8 +46,10 @@ void setup() {
 }
 
 void loop() {
+
+  unsigned char distance = 3;
   
-  if (LoRaReceive(&animal_id, &temperature, &beats, &bark) == 1)
+  if (LoRaReceive(&animal_id, &temperature, &beats, &bark, &distance) == 1)
   {
     Serial.print("animal_id: ");
     Serial.print(animal_id);
@@ -56,15 +58,18 @@ void loop() {
     Serial.print("beats: ");
     Serial.print(beats);
     Serial.print("bark: ");
-    Serial.print(bark);  
+    Serial.print(bark);
+    Serial.print("Distance: ");
+    Serial.println(distance);  
   }
 }
 
-int LoRaReceive(unsigned char *animal_id, unsigned char *temperature, unsigned char *beats, unsigned char *bark)
+int LoRaReceive(unsigned char *animal_id, unsigned char *temperature, unsigned char *beats, unsigned char *bark, unsigned char *distance)
 {
   int packetSize = LoRa.parsePacket();
   if (packetSize) 
   {
+    Serial.println("qualcosa c'è");
     // If there are some data from the serial
     while (LoRa.available() > 0)
     {
@@ -84,7 +89,13 @@ int LoRaReceive(unsigned char *animal_id, unsigned char *temperature, unsigned c
   
         stBufferIndexLoRa = 0;
         if (r == 1)
+        {
+          // print RSSI of packet
+          Serial.print("RSSI ");
+          Serial.println(LoRa.packetRssi());
+          *distance = (unsigned char) abs(LoRa.packetRssi()) / 100;
           return 1;
+        }
       }
       else
       {
@@ -93,10 +104,6 @@ int LoRaReceive(unsigned char *animal_id, unsigned char *temperature, unsigned c
         stBufferIndexLoRa++;
       }
     }
-
-    // print RSSI of packet
-    Serial.print("RSSI ");
-    Serial.println(LoRa.packetRssi());
   }
   
   return 0;  

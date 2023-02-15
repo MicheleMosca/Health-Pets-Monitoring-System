@@ -699,6 +699,9 @@ def setAnimalWeight(username, station_id, animal_id, value):
     if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
         return "Animal Not Found!", 404
 
+    if value == 0:
+        return "Animal weight not registered", 200
+
     weight = Weight(value=int(value), animal_id=int(animal_id))
     db.session.add(weight)
     db.session.commit()
