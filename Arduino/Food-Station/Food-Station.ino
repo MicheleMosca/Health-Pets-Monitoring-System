@@ -1,4 +1,3 @@
-#define PIN 13
 #define SEND_INTERVAL 25000 // every 25 seconds
 
 /* Serial Send variables */
@@ -40,7 +39,7 @@ int waterLevelValue = 0;
 #include <Servo.h>
 #include "NewPing.h"
 
-#define servo 2
+#define servo 30
 
 #define TRIGGER 3
 #define ECHO 4
@@ -68,7 +67,7 @@ float calibration_factor = 7050;
 /* display */
 #include <LiquidCrystal.h>
 
-LiquidCrystal lcd (8, 9, 10, 11, 12, 13);
+LiquidCrystal lcd (32, 33, 34, 35, 36, 38);
 
 /* ------- */
 
@@ -101,9 +100,6 @@ void setup()
   timestamp = millis();
 
   /* Serial Receive setup */
-  pinMode(PIN, OUTPUT);
-  digitalWrite(PIN, LOW);
-
   for (stBufferIndex = 0; stBufferIndex < BUFFDIM; stBufferIndex++)
     ucInBuffer[stBufferIndex] = 0;
 
@@ -162,7 +158,6 @@ void loop()
   // if we recived a packet do something (turn on led for example)
   if (r == 1 && animal_id_received == 1)
   {
-    digitalWrite(PIN, HIGH);
     foodRelease();    // DA SISTEMARE!!!
   }
 }
@@ -309,9 +304,9 @@ unsigned char foodSystem(){
   // 20cm low; 9cm medium; 3cm high
   unsigned char ping = sonar.ping_cm();
 
-  if (ping >= 20)
+  if (ping >= 7)
     return 'l';
-  else if (ping < 20 && ping > 3)
+  else if (ping < 7 && ping > 3)
     return 'm';
   else if (ping <= 3)
     return 'h';
@@ -322,54 +317,58 @@ unsigned char foodSystem(){
 unsigned char weightSystem(){  
   scale.set_scale(calibration_factor);
 
-  return((unsigned char)scale.get_units(),0);
+  return (unsigned char)scale.get_units();
 }
 
 void menu(char water, char food, char weight){
   char customKey = customKeypad.getKey();
   
-  if(customKey == 'A'){
+  if(customKey == 'A' || (statusKey == 0 && customKey == 0)){
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("Menu");
     lcd.setCursor(0,1);
-    lcd.print("1: weight = ");
+    lcd.print("weight = ");
     lcd.print((float)weight);
+    lcd.print("kg");
     statusKey = 0;
-  }else if(customKey == '8' && statusKey == 0){
+  }else if((customKey == '8' && statusKey == 0) || (statusKey == 1 && customKey == 0)){
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print("1: weight = ");
+    lcd.print("weight = ");
+    lcd.print((float)weight);
+    lcd.print("kg");
+    lcd.setCursor(0,1);
+    lcd.print("food = ");
+    lcd.print(food);
+    statusKey = 1;
+  }else if((customKey == '8' && statusKey == 1) || (statusKey == 2 && customKey == 0)){
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("food = ");
+    lcd.print(food);
+    lcd.setCursor(0,1);
+    lcd.print("water = ");
+    lcd.print(water);
+    statusKey = 2;
+  }else if((customKey == '2' && statusKey == 2) || (statusKey == 2 && customKey == 0)){
+    lcd.clear();
+    lcd.setCursor(0,0);
+    lcd.print("weight = ");
+    lcd.print("kg");
     lcd.print((float)weight);
     lcd.setCursor(0,1);
-    lcd.print("2: food = ");
-    lcd.print((int)food);
+    lcd.print("food = ");
+    lcd.print(food);
     statusKey = 1;
-  }else if(customKey == '8' && statusKey == 1){
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("2: food = ");
-    lcd.print((int)food);
-    lcd.setCursor(0,1);
-    lcd.print("3: water = ");
-    lcd.print((int)water);
-    statusKey = 2;
-  }else if(customKey == '2' && statusKey == 1){
+  }else if((customKey == '2' && statusKey == 1) || (statusKey == 1 && customKey == 0)){
     lcd.clear();
     lcd.setCursor(0,0);
     lcd.print("Menu");
     lcd.setCursor(0,1);
-    lcd.print("1: weight = ");
+    lcd.print("weight = ");
     lcd.print((float)weight);
-    statusKey = 1;
-  }else if(customKey == '2' && statusKey == 2){
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("1: weight = ");
-    lcd.print((float)weight);
-    lcd.setCursor(0,1);
-    lcd.print("2: food = ");
-    lcd.print((int)food);
+    lcd.print("kg");
     statusKey = 0;
   }
 }
