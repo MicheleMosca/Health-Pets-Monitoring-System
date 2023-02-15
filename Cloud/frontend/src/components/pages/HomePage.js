@@ -284,7 +284,7 @@ export default function HomePage() {
             "breed": breed,
             "station_id": station_id
         }
-        console.log("Ecco i dati della station " + JSON.stringify(animalData))
+        console.log("Ecco i dati dell'animale " + JSON.stringify(animalData))
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals?name=' + animalData['name'] + '&age=' + animalData['age'] + '&gender=' + animalData['gender'] + '&animal_type=' + animalData['animal_type'] + '&breed=' + animalData['breed'], {
             method: 'POST',
@@ -341,7 +341,7 @@ export default function HomePage() {
             "station_id": remove_animal_station,
             "animal_id": remove_animal_id
         }
-        console.log("Ecco i dati dell'animale' " + JSON.stringify(animalData))
+        console.log("Ecco i dati dell'animale " + JSON.stringify(animalData))
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals/' + animalData["animal_id"], {
             method: 'DELETE',

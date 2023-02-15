@@ -21,10 +21,7 @@ export default function Animal()
     const [meal_quantity, setMealQuantity] = useState/*int*/("");
     const [meal_time, setMealTime] = useState/*string*/("");
     const [meal_type, setMealType] = useState/*string*/("");
-    const radios = [
-        { name: 'Secco', value: 'secco' },
-        { name: 'Umido', value: 'umido' },
-      ];
+    
     
     const handleBackButton = (e) => {
         e.preventDefault();
@@ -54,12 +51,35 @@ export default function Animal()
         
     }, [])
 
-
     const handleAddMeal = (e) => {
-        return
-    }
+        e.preventDefault();
+        console.log("Dentro handle add station");
 
-    
+        const mealData = {
+            "meal_quantity": meal_quantity,
+            "meal_type": meal_type,
+            "meal_time": meal_time
+        }
+        console.log("Ecco i dati del pasto " + JSON.stringify(mealData))
+
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/meals?meal_type=' + mealData["meal_type"] + '&quantity=' + mealData["meal_quantity"] + '&time=' + mealData["meal_time"], {
+            method: 'POST',
+            headers: {
+                'X-API-KEY' : localStorage.getItem('auth_token'),
+            },
+        }).then( (response) => {
+            if(!response.ok) throw new Error(response.status);
+            else {
+                return response.text();
+            }
+        }).then( (res) => {
+            console.log("Risposta data: " + res);
+            window.location.reload(true);
+        }).catch( (err) => {
+            console.log(err.message);
+        });
+        console.log("finito richiesta");
+    }
 
     return(
         <div className="text-center">
@@ -113,34 +133,14 @@ export default function Animal()
                                     onChange={event => setMealQuantity(event.target.value)}
                                 />
                             </Form.Group>
-                            {/* <ButtonGroup>
-                                {radios.map((radio, idx) => (
-                                <ToggleButton
-                                    key={idx}
-                                    id={`radio-${idx}`}
-                                    type="radio"
-                                    name="radio"
-                                    variant="secondary"
-                                    value={radio.value}
-                                    checked={meal_type === radio.value}
-                                    onChange={(e) => setMealType(e.currentTarget.value)}
-                                >
-                                    {radio.name}
-                                </ToggleButton>
-                                ))}
-                            </ButtonGroup> */}
-                            {/* <div class="form-check">
-                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                            <label class="form-check-label" for="flexRadioDefault1">
-                                Default radio
-                            </label>
-                            </div>
-                            <div class="form-check">
-                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
-                            <label class="form-check-label" for="flexRadioDefault2">
-                                Default checked radio
-                            </label>
-                            </div> */}
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>Meal type</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="secco/umido"
+                                    onChange={event => setMealType(event.target.value)}
+                                />
+                            </Form.Group>
                             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
                                 <Form.Label>Time</Form.Label>
                                 <Form.Control
