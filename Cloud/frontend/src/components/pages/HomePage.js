@@ -52,8 +52,8 @@ export default function HomePage() {
     } 
     function goToAnimal( animal){
         console.log("Hai cliccato e mi hai passto questo id " +JSON.stringify(animal))
-        //const stat={ id:animal['id'],latitude:station['latitude'],longitude:station['longitude']}
-        //navigate("/animal",{state:stat})
+        const stat={ id:animal['id'],station_id:animal['station_id']}
+        navigate("/animal",{state:stat})
     } 
  
 
