@@ -40,7 +40,11 @@ export default function HomePage() {
         const stat={ id:station['id'],latitude:station['latitude'],longitude:station['longitude']}
         navigate("/station",{state:stat})
     } 
-
+    function goToAnimal( animal){
+        console.log("Hai cliccato e mi hai passto questo id " +JSON.stringify(animal))
+        //const stat={ id:animal['id'],latitude:station['latitude'],longitude:station['longitude']}
+        //navigate("/animal",{state:stat})
+    } 
  
 
     useEffect(()=>{
@@ -208,6 +212,7 @@ export default function HomePage() {
                 html.push(
                     <div className="col">
                         <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
+                            <Card onClick={() => goToAnimal(animalArray[i])} style={{ cursor: "pointer" }}>
                             {animalArray[i]['animal_type'] === 'dog' ?
                                 <img className="card-img-top" src={dogImage} alt="Station"/> :
                                 <img className="card-img-top" src={catImage} alt="Station"/>}
@@ -218,6 +223,7 @@ export default function HomePage() {
                                 <h5 className="card-text"> Bark: {String(animalArray[i]['bark']).toUpperCase()}</h5>
                                 <h5 className="card-text"> Beats: {beats[i]?.map(beat => (beat['value']))} bpm</h5>
                             </div>
+                            </Card>
                         </div>
                     </div>
                 )
