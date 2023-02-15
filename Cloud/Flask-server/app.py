@@ -368,7 +368,7 @@ def getAnimal(username, station_id, animal_id):
 
     return jsonify({"id": animal.id, "name": animal.name, "animal_type": animal.animal_type, "age": animal.age,
                     "gender": animal.gender, "breed": animal.breed, "temperature": animal.temperature,
-                    "bark": animal.bark}).get_data(as_text=True)
+                    "bark": animal.bark, "distance": animal.distance}).get_data(as_text=True)
 
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>', methods=['DELETE'])
 def deleteAnimal(username, station_id, animal_id):
@@ -421,7 +421,7 @@ def deleteAnimal(username, station_id, animal_id):
 
     animals_list = Animal.query.filter_by(station_id=int(station_id)).order_by(Animal.id.desc()).all()
     json_animals_list = jsonify([{"id": a.id, "name": a.name, "animal_type": a.animal_type, "age": a.age, "gender": a.gender, "breed": a.breed,
-                                  "temperature": a.temperature, "bark": a.bark} for a in animals_list]).get_data(as_text=True)
+                                  "temperature": a.temperature, "bark": a.bark, "distance": a.distance} for a in animals_list]).get_data(as_text=True)
 
     return json_animals_list
 
@@ -774,6 +774,30 @@ def setAnimalBark(username, station_id, animal_id, value):
     db.session.commit()
 
     return str(animal.bark)
+
+def setAnimalDistance(username, station_id, animal_id, value):
+    """
+    Set the distance of an animal given in input
+    :param username: username of the user
+    :param station_id: station identification id
+    :param animal_id: animal identification id
+    :param value: value of distance
+    :return: new value of distance
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    animal = Animal.query.filter_by(id=animal_id).first()
+    animal.distance = int(value)
+    db.session.commit()
+
+    return animal.distance
 
 
 def setAnimalTemperature(username, station_id, animal_id, value):
@@ -1204,7 +1228,7 @@ def getStationAnimals(username, station_id):
 
     return jsonify([{"id": sa.id, "name": sa.name, "age": sa.age, "gender": sa.gender,
                      "animal_type": sa.animal_type, "breed": sa.breed,
-                     "temperature": sa.temperature, "bark": sa.bark, "station_id": station_id} for sa in station_animals])
+                     "temperature": sa.temperature, "bark": sa.bark, "distance": sa.distance, "station_id": station_id} for sa in station_animals])
 
 @app.route('/api/allStations', methods=['GET'])
 def getAllStations():
@@ -1244,6 +1268,9 @@ def on_message_action(feed_type, params, payload):
         elif feed_type == 'temperatures':
             print(f"[DATABASE] Animal with id: {params['animals']} set temperature on: "
                   f"{setAnimalTemperature(params['users'], params['stations'], params['animals'], payload)}")
+        elif feed_type == 'distances':
+            print(f"[DATABASE] Animal with id: {params['animals']} set distance on: "
+                  f"{setAnimalDistance(params['users'], params['stations'], params['animals'], payload)}")
 
 
 # Run MQTT Listener

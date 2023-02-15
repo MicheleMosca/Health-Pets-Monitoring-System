@@ -16,6 +16,7 @@ class Animal(db.Model):
     animal_type = db.Column(db.String(100))
     breed = db.Column(db.String(100))
     temperature = db.Column(db.Integer)
+    distance = db.Column(db.Integer)
     bark = db.Column(db.Boolean, default=False)
 
     person_id = db.Column(db.Integer, db.ForeignKey('person.id'), nullable=False)

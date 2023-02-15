@@ -237,7 +237,14 @@ class Bridge:
         animal_bark = val[5]
         animal_temperature = val[6]
         animal_distance = val[7]
-        print(f"Distanza: {animal_distance}")
+
+        # Send Distance
+        print(f'[ARDUINO] Animal Distance: {animal_distance}')
+        self.clientMQTT.publish(
+            f'{self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal_id}/distances',
+            f'{animal_distance}')
+        print(
+            f'[MQTT] Animal Distance sent to: {self.feed}/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal_id}/distances')
 
         # Send Food Level
         print(f'[ARDUINO] Food Level: {food_level}')
