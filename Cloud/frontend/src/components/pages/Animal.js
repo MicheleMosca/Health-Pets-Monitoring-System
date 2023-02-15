@@ -1,7 +1,8 @@
 import {React,useEffect,useState} from 'react';
 import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
-import {ListGroup,Card} from 'react-bootstrap';
+import {ListGroup,Card,Button,Modal,ButtonGroup,ToggleButton} from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
 
 export default function Animal()
 {
@@ -12,7 +13,18 @@ export default function Animal()
     const latLong=[];
     
     const [animal, setAnimal] = useState();
-    
+
+    const [showAM, setShowAM] = useState(false);
+    const handleCloseAM = () => setShowAM(false);
+    const handleShowAM = () => setShowAM(true);
+
+    const [meal_quantity, setMealQuantity] = useState/*int*/("");
+    const [meal_time, setMealTime] = useState/*string*/("");
+    const [meal_type, setMealType] = useState/*string*/("");
+    const radios = [
+        { name: 'Secco', value: 'secco' },
+        { name: 'Umido', value: 'umido' },
+      ];
     
     const handleBackButton = (e) => {
         e.preventDefault();
@@ -43,7 +55,9 @@ export default function Animal()
     }, [])
 
 
-
+    const handleAddMeal = (e) => {
+        return
+    }
 
     
 
@@ -73,8 +87,80 @@ export default function Animal()
 
                 </ListGroup>
             </Card>
+            <div>{JSON.stringify(animal)}</div>
+            
+            <div className = "buttons text-center">
+                <Button className="m-3" variant="primary" onClick={handleShowAM}>Add new meal</Button>
+                <Modal
+                    className="text-center"
+                    show={showAM}
+                    onHide={handleCloseAM}
+                    backdrop="static"
+                    keyboard={false}
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add new meal</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        Please insert the necessary data:
+                        <Form>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>Quantity (grams)</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="es. 100"
+                                    autoFocus
+                                    onChange={event => setMealQuantity(event.target.value)}
+                                />
+                            </Form.Group>
+                            {/* <ButtonGroup>
+                                {radios.map((radio, idx) => (
+                                <ToggleButton
+                                    key={idx}
+                                    id={`radio-${idx}`}
+                                    type="radio"
+                                    name="radio"
+                                    variant="secondary"
+                                    value={radio.value}
+                                    checked={meal_type === radio.value}
+                                    onChange={(e) => setMealType(e.currentTarget.value)}
+                                >
+                                    {radio.name}
+                                </ToggleButton>
+                                ))}
+                            </ButtonGroup> */}
+                            {/* <div class="form-check">
+                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                            <label class="form-check-label" for="flexRadioDefault1">
+                                Default radio
+                            </label>
+                            </div>
+                            <div class="form-check">
+                            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked>
+                            <label class="form-check-label" for="flexRadioDefault2">
+                                Default checked radio
+                            </label>
+                            </div> */}
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>Time</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="es. 17:00"
+                                    onChange={event => setMealTime(event.target.value)}
+                                />
+                            </Form.Group>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={handleCloseAM}>
+                            Close
+                        </Button>
+                        <Button variant="primary" onClick={handleAddMeal}>Add</Button>
+                    </Modal.Footer>
+                </Modal>
+                <Button className="m-3" variant="danger">Delete a meal</Button>
+            </div>
 
-            <div>{JSON.stringify(animal)}</div> 
         </div>
     )
 }
