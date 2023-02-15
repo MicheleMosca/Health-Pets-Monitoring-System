@@ -1,10 +1,12 @@
-#define SEND_INTERVAL 25000 // every 25 seconds
+#define SEND_INTERVAL 10000 // every 10 seconds
+
+unsigned char weight = 3;
 
 /* Serial Send variables */
 unsigned long timestamp;
 
 /* Serial Receive variables */
-#define BUFFDIM 7 // header, size, animal_id, meal_type, quantity, checksum, footer
+#define BUFFDIM 8 // header, size, animal_id, meal_type, quantity, distance, checksum, footer
 unsigned char animal_id_received = 0;
 unsigned char meal_type = 'u';
 unsigned char quantity = 0;
@@ -20,7 +22,7 @@ unsigned char animal_id = 0;
 unsigned char temperature = 0;
 unsigned char beats = 0;
 unsigned char bark = 0;
-int distance = 0;
+unsigned char distance = 3;
 
 unsigned char ucInBufferLoRa[BUFFDIM_LoRa];  // Buffer to memorize packet bytes 
 size_t stBufferIndexLoRa;     // Index of the buffer
@@ -152,14 +154,15 @@ void loop()
 {
   unsigned char water = waterSystem();
   unsigned char food = foodSystem();
-  unsigned char weight = weightSystem();
+  if (distance == 1)
+    weight = weightSystem();
   menu(water, food, weight);
 
   // LoRa Receive
   LoRaReceive(&animal_id, &temperature, &beats, &bark, &distance);
 
   // Serial Send Trial
-  serialSend(food, water, animal_id, beats, weight, bark, temperature);
+  serialSend(food, water, animal_id, beats, weight, bark, temperature, distance);
   int r = serialReceive(&animal_id_received, &meal_type, &quantity);
 
   // if we recived a packet do something (turn on led for example)
@@ -171,20 +174,20 @@ void loop()
   foodRelease();
 }
 
-int serialSend(unsigned char food_level, unsigned char water_level, unsigned char animal_id, unsigned char animal_beat, unsigned char animal_weight, unsigned char animal_bark, unsigned char animal_temperature)
+int serialSend(unsigned char food_level, unsigned char water_level, unsigned char animal_id, unsigned char animal_beat, unsigned char animal_weight, unsigned char animal_bark, unsigned char animal_temperature, unsigned char distance)
 {
   int checksum;
   
   if (millis() - timestamp > SEND_INTERVAL)
   {
     // checksum is calculated by xor of lenght ^ data_1 ^ data_2
-    checksum = 7 ^ food_level ^ water_level ^ animal_id ^ animal_beat ^ animal_weight ^ animal_bark ^ animal_temperature;
+    checksum = 8 ^ food_level ^ water_level ^ animal_id ^ animal_beat ^ animal_weight ^ animal_bark ^ animal_temperature ^ distance;
     
     // data package: FF 2 data_1 data_2 FE
     
     Serial.write(0xFF); // package start
     
-    Serial.write(7);  // data lenght
+    Serial.write(8);  // data lenght
     
     Serial.write(food_level);
     Serial.write(water_level);
@@ -193,6 +196,7 @@ int serialSend(unsigned char food_level, unsigned char water_level, unsigned cha
     Serial.write(animal_weight);
     Serial.write(animal_bark);
     Serial.write(animal_temperature);
+    Serial.write(distance);
 
     Serial.write(checksum); // checksum
 
@@ -294,19 +298,6 @@ unsigned char waterSystem(){
 
 void foodRelease()
 {
-  // NOTA: da fare un loop di 5 volte (1 dose di cibo)
-  /*
-  long new_timer = millis();
-  if(new_timer - servoTimer > 2000 && servoStatus == 0){
-    myservo.write(0);
-    servoStatus = 1;
-    servoTimer = millis();
-  }else if(new_timer - servoTimer > 2000 && servoStatus == 1){
-    myservo.write(90);
-    servoStatus = 0;
-    servoTimer = millis();
-  }*/
-
   if(quantity_food >= 0)
   {
       if(state_food == 0 && millis() - timer_food > 2000)
@@ -401,7 +392,7 @@ void menu(char water, char food, char weight){
   }
 }
 
-int LoRaReceive(unsigned char *animal_id, unsigned char *temperature, unsigned char *beats, unsigned char *bark, int *distance)
+int LoRaReceive(unsigned char *animal_id, unsigned char *temperature, unsigned char *beats, unsigned char *bark, unsigned char *distance)
 {
   int packetSize = LoRa.parsePacket();
   if (packetSize) 
@@ -425,7 +416,11 @@ int LoRaReceive(unsigned char *animal_id, unsigned char *temperature, unsigned c
   
         stBufferIndexLoRa = 0;
         if (r == 1)
+        {
+          // print RSSI of packet
+          *distance = (unsigned char) abs(LoRa.packetRssi() / 100);
           return 1;
+        }
       }
       else
       {
@@ -434,9 +429,6 @@ int LoRaReceive(unsigned char *animal_id, unsigned char *temperature, unsigned c
         stBufferIndexLoRa++;
       }
     }
-
-    // print RSSI of packet
-    *distance = LoRa.packetRssi();
   }
   
   return 0;  

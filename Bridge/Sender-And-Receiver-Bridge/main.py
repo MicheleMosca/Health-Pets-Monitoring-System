@@ -226,7 +226,7 @@ class Bridge:
             return False
 
         # Extract data
-        if numval != 7:
+        if numval != 8:
             return False
 
         food_level = 'high' if chr(val[0]) == 'h' else 'medium' if chr(val[0]) == 'm' else 'low'
@@ -236,6 +236,8 @@ class Bridge:
         animal_weight = val[4]
         animal_bark = val[5]
         animal_temperature = val[6]
+        animal_distance = val[7]
+        print(f"Distanza: {animal_distance}")
 
         # Send Food Level
         print(f'[ARDUINO] Food Level: {food_level}')
