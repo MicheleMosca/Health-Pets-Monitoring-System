@@ -6,12 +6,13 @@ import {ListGroup,Card} from 'react-bootstrap';
 export default function Animal()
 {
     const navigate = useNavigate();
-    const location = useLocation();  //ora in location.state.id trovo l'id della stazione 
+    const location = useLocation();  //ora in location.state.id trovo l'id dell'animale'  e in location.state.station_id trovo l'id della stazione
+    console.log("Ora in location.state ho " + JSON.stringify(location.state))
     //const [latLong,setLatLong]=useState([]);
     const latLong=[];
     
-    const [foods, setFoods] = useState([]);
-    const [waters, setWaters] = useState([]);
+    const [animal, setAnimal] = useState();
+    
     
     const handleBackButton = (e) => {
         e.preventDefault();
@@ -23,7 +24,7 @@ export default function Animal()
     }
 
     useEffect(() => {
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.id+ '/foods?limit=1',
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id,
                 {
                     method: 'GET',
                     headers:
@@ -35,59 +36,45 @@ export default function Animal()
                 if(!response.ok) throw new Error(response.status);
                 return response.json();
             }).then((myJson) => {
-                setFoods([...foods, myJson]);
-                console.log("Ecco foods"+ JSON.stringify(foods));
-            })
-        
-    }, [])
-
-    useEffect(() => {
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.id+ '/waters?limit=1',
-                {
-                    method: 'GET',
-                    headers:
-                        {
-                            'X-API-KEY' : localStorage.getItem('auth_token'),
-                            'Content-Type' : 'application/json'
-                        }
-                }).then((response) => {
-                if(!response.ok) throw new Error(response.status);
-                return response.json();
-            }).then((myJson) => {
-                setWaters([...waters, myJson]);
-                console.log("Ecco foods"+ JSON.stringify(foods));
+                setAnimal(myJson);
+                console.log("Ecco animals"+ JSON.stringify(animal));
             })
         
     }, [])
 
 
-    const position=[location.state.latitude,location.state.longitude]
+
+
+    
 
     return(
         <div className="text-center">
             <div className='text-left mt-3 ml-5'>
                 <button className="text-right" type="button" class="btn btn-secondary" onClick={handleBackButton}>Back</button>
             </div>
-            <h1 className="title home-page-title">Station #{location.state.id}</h1>
+            <h1 className="title home-page-title">Animal #{animal?.name}</h1>
             <Card style={{}}>
                 {/* <Card.Img variant="top" src="holder.js/100px180?text=Image cap" /> */}
-                <ShowStations center={position} zoom = "18" />
+                {/* <ShowStations  /> */}
                 <Card.Body>
-                    <Card.Title>Station data</Card.Title>
+                    <Card.Title>Animal data</Card.Title>
                     <Card.Text>
-                    This is the levels of your station
+                    This is the info of your pet
                     </Card.Text>
                 </Card.Body>
                 <ListGroup className="list-group-flush">
-                    <ListGroup.Item>FOOD: {/* foods.map(food => ( food.map( f => f.toUpperCase() )))*/}</ListGroup.Item>
-                    <ListGroup.Item>Dapibus ac facilisis in</ListGroup.Item>
-                    <ListGroup.Item>Vestibulum at eros</ListGroup.Item>
+                    <ListGroup.Item>NAME: {  animal?.name }</ListGroup.Item>
+                    <ListGroup.Item>Type: {  animal?.animal_type }</ListGroup.Item>
+                    <ListGroup.Item>Breed: {  animal?.breed }</ListGroup.Item>
+                    <ListGroup.Item>Gender: {  animal?.gender }</ListGroup.Item>
+                    <ListGroup.Item>Age: { animal?.age }</ListGroup.Item>
+                    <ListGroup.Item>Bark: { animal?.bark? "true": "false" }</ListGroup.Item>
+                    <ListGroup.Item>Temperature: { animal?.temperature }</ListGroup.Item>
+
                 </ListGroup>
             </Card>
 
-            <div>{JSON.stringify(foods)}</div> 
-            <div>{JSON.stringify(waters)}</div>
-           {/*  <ShowStations center={position} zoom = "18" /> */}
+            <div>{JSON.stringify(animal)}</div> 
         </div>
     )
 }

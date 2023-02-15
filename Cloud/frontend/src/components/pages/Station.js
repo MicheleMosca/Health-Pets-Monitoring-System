@@ -1,7 +1,7 @@
 import {React,useEffect,useState} from 'react';
 import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
-import {ListGroup,Card} from 'react-bootstrap';
+import {ListGroup,Card, Table} from 'react-bootstrap';
 
 export default function Station()
 {
@@ -23,7 +23,7 @@ export default function Station()
     }
 
     useEffect(() => {
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.id+ '/foods?limit=1',
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.id+ '/foods?limit=3',
                 {
                     method: 'GET',
                     headers:
@@ -35,14 +35,15 @@ export default function Station()
                 if(!response.ok) throw new Error(response.status);
                 return response.json();
             }).then((myJson) => {
-                setFoods([...foods, myJson]);
+                console.log("myJSON ha tornato"+ JSON.stringify(myJson));
+                setFoods(...foods, myJson);
                 console.log("Ecco foods"+ JSON.stringify(foods));
             })
         
     }, [])
 
     useEffect(() => {
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.id+ '/waters?limit=1',
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.id+ '/waters?limit=3',
                 {
                     method: 'GET',
                     headers:
@@ -54,8 +55,8 @@ export default function Station()
                 if(!response.ok) throw new Error(response.status);
                 return response.json();
             }).then((myJson) => {
-                setWaters([...waters, myJson]);
-                console.log("Ecco foods"+ JSON.stringify(foods));
+                setWaters(...waters, myJson);
+                console.log("Ecco waters"+ JSON.stringify(waters));
             })
         
     }, [])
@@ -79,14 +80,50 @@ export default function Station()
                     </Card.Text>
                 </Card.Body>
                 <ListGroup className="list-group-flush">
-                    <ListGroup.Item>FOOD: {/* foods.map(food => ( food.map( f => f.toUpperCase() )))*/}</ListGroup.Item>
-                    <ListGroup.Item>Dapibus ac facilisis in</ListGroup.Item>
-                    <ListGroup.Item>Vestibulum at eros</ListGroup.Item>
+                    <ListGroup.Item>FOOD: 
+                        
+                    <Table striped>
+                        <thead>
+                            <tr>
+                            <th>Time</th>
+                            <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        { foods.map(food => ( /*food.value*/
+                            <tr>
+                                <td>{food.timestamp}</td>
+                                <td>{food.value}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </Table>                      
+                    
+                    </ListGroup.Item>
+                    <ListGroup.Item>WATER: 
+                        <Table striped>
+                            <thead>
+                                <tr>
+                                <th>Time</th>
+                                <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            { waters.map(water => ( /*food.value*/
+                                <tr>
+                                    <td>{water.timestamp}</td>
+                                    <td>{water.value}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </Table>           
+
+                    </ListGroup.Item>
+                    {console.log("Foods vale "+ JSON.stringify(foods))}
+                    {console.log("waters vale "+ JSON.stringify(waters))}
                 </ListGroup>
             </Card>
 
-            <div>{JSON.stringify(foods)}</div> 
-            <div>{JSON.stringify(waters)}</div>
            {/*  <ShowStations center={position} zoom = "18" /> */}
         </div>
     )
