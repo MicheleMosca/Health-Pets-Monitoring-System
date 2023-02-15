@@ -319,6 +319,57 @@ def deleteMeal(username, station_id, animal_id, meal_id):
 
     return json_meal_list
 
+@app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>', methods=['GET'])
+def getAnimal(username, station_id, animal_id):
+    """
+    Get animal from a station
+    ---
+    parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+        -   in: path
+            name: animal_id
+            description: Animal identification id
+            required: true
+
+    responses:
+        200:
+            description: JSON with Animal fields
+    """
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
+        return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
+
+    if int(station_id) not in [station.id for station in person.stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    animal = Animal.query.filter_by(id=animal_id).first()
+
+    return jsonify({"id": animal.id, "name": animal.name, "animal_type": animal.animal_type, "age": animal.age,
+                    "gender": animal.gender, "breed": animal.breed, "temperature": animal.temperature,
+                    "bark": animal.bark}).get_data(as_text=True)
+
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>', methods=['DELETE'])
 def deleteAnimal(username, station_id, animal_id):
     """
