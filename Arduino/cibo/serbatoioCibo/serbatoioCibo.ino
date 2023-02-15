@@ -28,8 +28,10 @@ Servo myservo;
 #define TRIGGER 3
 #define ECHO 4
 
+int portion;  //Quantità di volte in cui il servomotore deve aprirsi e chiudersi affinché eroghi 10 grammi di cibo 
+int quantity; //Quantità di volte per cui il servomotore deve variare il suo stato (Chiuso-Aperto)
 long timer;
-int stato = 0;
+int state; //0: Chiuso (0°), 1: Aperto (90°)
 
 NewPing sonar(TRIGGER, ECHO, 400);
 
@@ -37,27 +39,41 @@ void setup() {
   Serial.begin(9600);
 
   myservo.attach(pin);
+  myservo.write(0);
 
   timer = millis();
+  state = 0;
+  portion = 5;
+  quantity = -1;
 }
 
 void loop() {
-  //da fare un loop di 5 volte (1 dose di cibo)
+  /*Ricava la quantità di volte necessaria affinché il
+   servomotore eroghi la corretta quantità di cibo*/    
+  if(Serial.available() > 0 && quantity == -1)
+  {
+    quantity = (Serial.read() * portion) / 10;
+    Serial.println(quantity);
+  }
 
-  //attiva e disattiva il servomotore  
-  long new_timer = millis();
-  if (new_timer - timer > 2000 && stato == 0)
+  if(quantity >= 0)
   {
+      if(state == 0 && millis() - timer > 2000)
+      {
+        myservo.write(90);
+        quantity--;
+        timer = millis();
+        state = 1;
+      }
+      if(state == 1 && millis() - timer > 2000)
+      {
+        myservo.write(0);
+        timer = millis();
+        state = 0;
+      }
+  }
+  else
     myservo.write(0);
-    stato = 1;
-    timer = millis();
-  }
-  else if (new_timer - timer > 2000 && stato == 1)
-  {
-    myservo.write(90);
-    stato = 0;
-    timer = millis();
-  }
 
   //stampa del livello di cibo (sensore ultrasuoni)
   Serial.println(sonar.ping_cm());

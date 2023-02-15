@@ -23,6 +23,8 @@ class Bridge:
         self.HPMS_server = None
         self.HPMS_port = None
         self.HPMS_username = None
+        self.HPMS_password = None
+        self.HPMS_api_key = None
         self.HPMS_station = None
         self.HPMS_animals = dict
         self.setupHPMS()
@@ -36,13 +38,23 @@ class Bridge:
         self.HPMS_server = self.config.get("HPMS", "server")
         self.HPMS_port = self.config.get("HPMS", "port")
         self.HPMS_username = self.config.get("HPMS", "username")
+        self.HPMS_password = self.config.get("HPMS", "password")
         self.HPMS_station = self.config.get("HPMS", "station")
+
+        # Get API-KEY with login to the platform
+        result = requests.post(f'http://{self.HPMS_server}:{self.HPMS_port}/api/login',
+                                          json={'username':self.HPMS_username, 'password':self.HPMS_password})
+        if result.status_code != 200:
+            print('Authentication Error!')
+            exit(2)
+
+        self.HPMS_api_key = result.content
 
         # Create a dictionary of animals, where the key is the animal id and the item is a json object list of animal meals
         animals = requests.get(f'http://{self.HPMS_server}:{self.HPMS_port}/api/users/'
-                               f'{self.HPMS_username}/stations/{self.HPMS_station}/animals').json()
+                               f'{self.HPMS_username}/stations/{self.HPMS_station}/animals', headers={'X-API-KEY':self.HPMS_api_key}).json()
 
-        self.HPMS_animals = {animal['id']: requests.get(f'http://{self.HPMS_server}:{self.HPMS_port}/api/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal["id"]}/meals').json() for animal in animals}
+        self.HPMS_animals = {animal['id']: requests.get(f'http://{self.HPMS_server}:{self.HPMS_port}/api/users/{self.HPMS_username}/stations/{self.HPMS_station}/animals/{animal["id"]}/meals', headers={'X-API-KEY':self.HPMS_api_key}).json() for animal in animals}
 
     def setupSerial(self):
         """

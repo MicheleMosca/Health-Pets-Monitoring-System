@@ -1,0 +1,7 @@
+{
+    "name": "HPMS-MobileApp",
+    "integrations": {
+      "capacitor": {}
+    },
+    "type": "react"
+  }

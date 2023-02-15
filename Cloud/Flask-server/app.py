@@ -7,6 +7,7 @@ from datetime import datetime
 from models import db, Person, Meal, Station, Food, Water, Weight, Beat, Animal
 from mqtt_listener import MQTTListener
 from test_populatedb import populatedb
+import secrets
 
 config = configparser.ConfigParser()
 if not config.read('config.ini'):
@@ -18,7 +19,7 @@ app = Flask(__name__)
 app.config.update(
     SQLALCHEMY_DATABASE_URI=config.get('SQLAlchemy', 'SQLALCHEMY_DATABASE_URI', fallback='sqlite:///db.sqlite')
 )
-#prova commento da togliere
+
 # Initialize db
 db.init_app(app)
 
@@ -72,6 +73,98 @@ def doc():
 
     return jsonify(swag)
 
+@app.route('/api/register', methods=['POST'])
+def registerUser():
+    """
+    Registration of a new User
+    ---
+    parameters:
+        -   in: body
+            name: User's Credentials
+            description: New User's Credentials
+            schema:
+                type: json
+                required:
+                    -   username
+                    -   password
+                    -   name
+                properties:
+                    username:
+                        description: Username of the User
+                        type: string
+                    password:
+                        description: Password of the User
+                        type: string
+                    name:
+                        description: Name of the User
+                        type: string
+
+    responses:
+        200:
+            description: API key
+
+        409:
+            description: User already exists!
+    """
+    username = request.json['username']
+    password = request.json['password']
+    name = request.json['name']
+
+    if Person.query.filter_by(username=username).first() is not None:
+        return "User already exists!", 409
+
+    api_key = secrets.token_urlsafe(64)
+
+    # create account
+    person = Person(name=name, username=username, password=password, api_key=api_key)
+    db.session.add(person)
+    db.session.commit()
+
+    return api_key
+
+
+@app.route('/api/login', methods=['POST'])
+def loginUser():
+    """
+    Login of an User
+    ---
+    parameters:
+        -   in: body
+            name: User's Credentials
+            description: User's credentials for login
+            schema:
+                type: json
+                required:
+                    -   username
+                    -   password
+                properties:
+                    username:
+                        description: Username of the User
+                        type: string
+                    password:
+                        description: Password of the User
+                        type: string
+
+    responses:
+        200:
+            description: API key
+
+        401:
+            description: Login Failed!
+    """
+    username = request.json['username']
+    password = request.json['password']
+
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
+        return "Login Failed!", 401
+
+    if person.password != password:
+        return "Login Failed!", 401
+
+    return person.api_key
+
 
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/meals', methods=['POST'])
 def setMeal(username, station_id, animal_id):
@@ -79,6 +172,11 @@ def setMeal(username, station_id, animal_id):
     Set a meal of an animal
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -112,11 +210,24 @@ def setMeal(username, station_id, animal_id):
     responses:
         200:
             description: Meal id
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
 
-    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+    if person.api_key != api_key:
+        return "Access Denied!", 403
+
+    if int(station_id) not in [station.id for station in person.stations]:
         return "Station Not Found!", 404
 
     if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
@@ -149,6 +260,11 @@ def deleteMeal(username, station_id, animal_id, meal_id):
     Delete a meal of an animal
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -173,10 +289,16 @@ def deleteMeal(username, station_id, animal_id, meal_id):
         200:
             description: New Meals list
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
 
-    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+    if person.api_key != api_key:
+        return "Access Denied!", 403
+
+    if int(station_id) not in [station.id for station in person.stations]:
         return "Station Not Found!", 404
 
     if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
@@ -197,6 +319,107 @@ def deleteMeal(username, station_id, animal_id, meal_id):
 
     return json_meal_list
 
+@app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>', methods=['DELETE'])
+def deleteAnimal(username, station_id, animal_id):
+    """
+    Delete an animal from a station
+    ---
+    parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+        -   in: path
+            name: animal_id
+            description: Animal identification id
+            required: true
+
+    responses:
+        200:
+            description: New Animals list
+    """
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
+        return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
+
+    if int(station_id) not in [station.id for station in person.stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    animal = Animal.query.filter_by(id=animal_id).first()
+    db.session.delete(animal)
+    db.session.commit()
+
+    animals_list = Animal.query.filter_by(station_id=int(station_id)).order_by(Animal.id.desc()).all()
+    json_animals_list = jsonify([{"id": a.id, "name": a.name, "animal_type": a.animal_type, "age": a.age, "gender": a.gender, "breed": a.breed,
+                                  "temperature": a.temperature, "bark": a.bark} for a in animals_list]).get_data(as_text=True)
+
+    return json_animals_list
+
+@app.route('/api/users/<username>/stations/<station_id>', methods=['DELETE'])
+def deleteStation(username, station_id):
+    """
+    Delete a station of a user
+    ---
+    parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+    responses:
+        200:
+            description: New Stations list
+    """
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
+        return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
+
+    if int(station_id) not in [station.id for station in person.stations]:
+        return "Station Not Found!", 404
+
+    station = Station.query.filter_by(id=station_id).first()
+    db.session.delete(station)
+    db.session.commit()
+
+    # send new configuration to the bridge throw MQTT
+    stations_list = Station.query.filter_by(person_id=Person.query.filter_by(username=username).first().id).order_by(Station.id.desc()).all()
+    json_stations_list = jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude} for s in stations_list]).get_data(as_text=True)
+
+    return json_stations_list
 
 @app.route('/api/users/<username>/stations', methods=['POST'])
 def setStation(username):
@@ -204,6 +427,11 @@ def setStation(username):
     Set a new Station
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -222,9 +450,21 @@ def setStation(username):
     responses:
         200:
             description: Station id
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     latitude = request.args.get('latitude')
     longitude = request.args.get('longitude')
@@ -245,6 +485,11 @@ def setStationAnimal(username, station_id):
     Set a new Animal served by a station given in input
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -283,9 +528,21 @@ def setStationAnimal(username, station_id):
     responses:
         200:
             description: Animal id
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -455,6 +712,11 @@ def getMeal(username, station_id, animal_id):
     Get meal list of an animal
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -478,9 +740,21 @@ def getMeal(username, station_id, animal_id):
     responses:
         200:
             description: Meal list
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -505,6 +779,11 @@ def getFoodLevel(username, station_id):
     Get food level
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -523,9 +802,21 @@ def getFoodLevel(username, station_id):
     responses:
         200:
             description: List of food level
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -546,6 +837,11 @@ def getWaterLevel(username, station_id):
     Get water level
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -564,9 +860,21 @@ def getWaterLevel(username, station_id):
     responses:
         200:
             description: List of water level
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -587,6 +895,11 @@ def getAnimalWeight(username, station_id, animal_id):
     Get Animal Weight
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -610,9 +923,21 @@ def getAnimalWeight(username, station_id, animal_id):
     responses:
         200:
             description: List of animal weight
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -627,7 +952,7 @@ def getAnimalWeight(username, station_id, animal_id):
     else:
         weights = Weight.query.filter_by(animal_id=animal_id).order_by(Weight.id.desc()).all()
 
-    return jsonify([{"id": w.id, "value": w.value, "timestamp": w.timestamp} for w in weights])
+    return jsonify([{"id": w.id, "value": w.value, "timestamp": datetime.strftime(w.timestamp, '%Y-%m-%d %H:%M:%S')} for w in weights])
 
 
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/beats', methods=['GET'])
@@ -636,6 +961,11 @@ def getAnimalBeat(username, station_id, animal_id):
     Get Animal Beat
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -659,9 +989,21 @@ def getAnimalBeat(username, station_id, animal_id):
     responses:
         200:
             description: List of animal beats
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -685,6 +1027,11 @@ def getStations(username):
     Return stations of one user
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -693,9 +1040,21 @@ def getStations(username):
     responses:
         200:
             description: List of stations
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     stations = Station.query.filter_by(person_id=Person.query.filter_by(username=username).first().id)\
         .order_by(Station.id.asc()).all()
@@ -709,6 +1068,11 @@ def getStationAnimals(username, station_id):
     Return animals of one user and served by an input station
     ---
     parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
         -   in: path
             name: username
             description: Username of the User
@@ -722,9 +1086,21 @@ def getStationAnimals(username, station_id):
     responses:
         200:
             description: List of user's animals served by an input station
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
     """
-    if Person.query.filter_by(username=username).first() is None:
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
         return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
 
     if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
         return "Station Not Found!", 404
@@ -733,8 +1109,26 @@ def getStationAnimals(username, station_id):
 
     return jsonify([{"id": sa.id, "name": sa.name, "age": sa.age, "gender": sa.gender,
                      "animal_type": sa.animal_type, "breed": sa.breed,
-                     "temperature": sa.temperature, "bark": sa.bark} for sa in station_animals])
+                     "temperature": sa.temperature, "bark": sa.bark, "station_id": station_id} for sa in station_animals])
 
+@app.route('/api/allStations', methods=['GET'])
+def getAllStations():
+    """
+    Return all the Stations and signal the Alarmed Stations with a parameter (Stations where at least animal have bark at True and beats over 80)
+    ---
+    responses:
+        200:
+            description: Json with locations of the Alarmed Stations
+    """
+    stations = None
+
+    animal_with_beat = [row.animal_id for row in Beat.query.filter(Beat.value >= 80)]
+    animal_with_bark = Animal.query.filter_by(bark = True)
+
+    stations_id = [animal.station_id for animal in animal_with_bark if animal.id in animal_with_beat]
+    stations = Station.query.all()
+
+    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude, "alarmed": "True" if s.id in stations_id else "False" } for s in stations])
 
 def on_message_action(feed_type, params, payload):
     """
