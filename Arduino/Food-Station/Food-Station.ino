@@ -46,8 +46,10 @@ int waterLevelValue = 0;
 
 Servo myservo;
 
-long servoTimer;
-int servoStatus = 0;
+int portion_food;  //Quantità di volte in cui il servomotore deve aprirsi e chiudersi affinché eroghi 10 grammi di cibo 
+int quantity_food; //Quantità di volte per cui il servomotore deve variare il suo stato (Chiuso-Aperto)
+long timer_food;
+int state_food; //0: Chiuso (0°), 1: Aperto (90°)
 
 NewPing sonar(TRIGGER,ECHO, 400);
 /* ----------- */
@@ -111,7 +113,12 @@ void setup()
 
   /* Food system */
   myservo.attach(servo);
-  servoTimer = millis();
+  myservo.write(0);
+
+  timer_food = millis();
+  state_food = 0;
+  portion_food = 5;
+  quantity_food = -1;
   /* ----------- */
 
   /* weight system */
@@ -156,10 +163,12 @@ void loop()
   int r = serialReceive(&animal_id_received, &meal_type, &quantity);
 
   // if we recived a packet do something (turn on led for example)
-  if (r == 1 && animal_id_received == 1)
+  if (r == 1)
   {
-    foodRelease();    // DA SISTEMARE!!!
+    quantity_food = (quantity * portion_food) / 10;
   }
+
+  foodRelease();
 }
 
 int serialSend(unsigned char food_level, unsigned char water_level, unsigned char animal_id, unsigned char animal_beat, unsigned char animal_weight, unsigned char animal_bark, unsigned char animal_temperature)
@@ -286,7 +295,7 @@ unsigned char waterSystem(){
 void foodRelease()
 {
   // NOTA: da fare un loop di 5 volte (1 dose di cibo)
-  
+  /*
   long new_timer = millis();
   if(new_timer - servoTimer > 2000 && servoStatus == 0){
     myservo.write(0);
@@ -296,7 +305,26 @@ void foodRelease()
     myservo.write(90);
     servoStatus = 0;
     servoTimer = millis();
+  }*/
+
+  if(quantity_food >= 0)
+  {
+      if(state_food == 0 && millis() - timer_food > 2000)
+      {
+        myservo.write(90);
+        quantity_food--;
+        timer_food = millis();
+        state_food = 1;
+      }
+      if(state_food == 1 && millis() - timer_food > 2000)
+      {
+        myservo.write(0);
+        timer_food = millis();
+        state_food = 0;
+      }
   }
+  else
+    myservo.write(0);
 }
 
 unsigned char foodSystem(){
