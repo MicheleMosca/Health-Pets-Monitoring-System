@@ -5,7 +5,7 @@ import NavBarComponent from './NavBarComponent';
 import homeImage from "../../assets/images/home.jpg";
 import dogImage from "../../assets/images/dog.jpg";
 import catImage from "../../assets/images/cat.jpg";
-import BackgroundImage from '../../assets/images/pattern.jpg'
+import BackgroundImage from '../../assets/images/pattern.png'
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -169,10 +169,10 @@ export default function HomePage() {
 
     const styleBack = {
         header: {
-            /*backgroundImage: `url(${BackgroundImage})`,*/
-            backgroundPosition: "25% - 25%",
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "cover"
+            backgroundImage: `url(${BackgroundImage})`,
+            backgroundPosition: "0% - 0%",
+            backgroundRepeat: "repeat",
+            backgroundSize: "contain"
         },
 
         content: {
