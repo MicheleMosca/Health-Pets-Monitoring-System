@@ -104,9 +104,10 @@ class Weight(db.Model):
 
     animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)
 
-    def __init__(self, value, animal_id):
+    def __init__(self, value, animal_id, timestamp=datetime.utcnow()):
         self.value = value
         self.animal_id = animal_id
+        self.timestamp = timestamp
 
 
 class Water(db.Model):
@@ -119,9 +120,10 @@ class Water(db.Model):
 
     station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable=False)
 
-    def __init__(self, value, station_id):
+    def __init__(self, value, station_id, timestamp=datetime.utcnow()):
         self.value = value
         self.station_id = station_id
+        self.timestamp = timestamp
 
 
 class Food(db.Model):
@@ -134,9 +136,10 @@ class Food(db.Model):
 
     station_id = db.Column(db.Integer, db.ForeignKey('station.id'), nullable=False)
 
-    def __init__(self, value, station_id):
+    def __init__(self, value, station_id, timestamp=datetime.utcnow()):
         self.value = value
         self.station_id = station_id
+        self.timestamp = timestamp
 
 
 class Beat(db.Model):
@@ -149,6 +152,7 @@ class Beat(db.Model):
 
     animal_id = db.Column(db.Integer, db.ForeignKey('animal.id'), nullable=False)
 
-    def __init__(self, value, animal_id):
+    def __init__(self, value, animal_id, timestamp=datetime.utcnow()):
         self.value = value
         self.animal_id = animal_id
+        self.timestamp = timestamp
