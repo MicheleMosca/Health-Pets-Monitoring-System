@@ -17,7 +17,6 @@ export default function HomePage() {
     
     /*Station's things*/
     const [address, setAddress] = useState/*string*/("");
-    const [delete_station_id, setDeleteStationID] = useState/*int*/("");
     
     /*Animal's things*/
     const [name, setName] = useState/*string*/("");
@@ -26,8 +25,24 @@ export default function HomePage() {
     const [animalType, setAnimalType] = useState/*string*/("");
     const [breed, setBreed] = useState/*string*/("");
     const [station_id, setStationID] = useState/*int*/("");
-    const [remove_animal_station, setRemoveAnimalStation] = useState/*int*/("");
-    const [remove_animal_id, setRemoveAnimalID] = useState/*int*/("");
+
+    /*Validate form*/
+    const [form, setForm] = useState({});
+    const [errors, setErrors] = useState({});
+    const setField = (field, value) => {
+        setForm({
+            ...form,
+            [field]: value
+        })
+
+        if(!!errors[field])
+        {
+            setErrors({
+                ...errors,
+                [field]: null
+            })
+        }
+    }
 
     /*Form's things*/
     const [showFS, setShowFS] = useState(false);
@@ -242,6 +257,7 @@ export default function HomePage() {
         return html;
     }
 
+
     const handleAddStation = (e) => {
         e.preventDefault();
         console.log("Dentro handle add station");
@@ -305,14 +321,49 @@ export default function HomePage() {
         console.log("finito richiesta");
     }
 
+    const validateIDStationRemove = () => {
+        const { removeStationID } = form;
+        const newErrors = {}
+
+        if(!removeStationID || removeStationID === '')
+        {
+            newErrors.removeStationID = "Please enter the station ID";
+            return newErrors;
+        }
+        
+        const id = parseInt(removeStationID);
+
+        for(let i = 0; i < stations?.length; i++)
+        {
+            if(id === stations[i]["id"])
+            {
+                break;
+            }
+            if(i === (stations?.length - 1))
+            {
+                newErrors.removeStationID = "ID not found";
+            }
+        }
+
+        console.log(newErrors);
+        return newErrors;
+    }
+
     const handleRemoveStation = (e) => {
         e.preventDefault();
         console.log("Dentro handle remove station");
-    
+
         const stationData = {
-            "station_id": parseInt(delete_station_id)
+            "station_id": parseInt(form.removeStationID)
         }
         console.log("Ecco i dati della station " + JSON.stringify(stationData))
+
+        const formErrors = validateIDStationRemove();
+        if(Object.keys(formErrors).length > 0)
+        {
+            setErrors(formErrors);
+            return;
+        }
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stationData["station_id"], {
             method: 'DELETE',
@@ -334,15 +385,72 @@ export default function HomePage() {
         console.log("finito richiesta");
     }
 
+
+    const validateIDAnimalRemove = () => {
+        const { removeAnimalStationID, removeAnimalID } = form;
+        const newErrors = {}
+
+        console.log("Valore " + removeAnimalStationID);
+        console.log(typeof(removeAnimalStationID));
+        console.log("Valore " + removeAnimalID);
+
+        if((removeAnimalStationID === undefined && removeAnimalID === undefined) || (removeAnimalStationID === '' && removeAnimalID === ''))
+        {
+            newErrors.removeAnimalStationID = "Please enter the station ID";
+            newErrors.removeAnimalID = "Please enter the animal ID";
+            return newErrors;
+        }
+        
+        if(removeAnimalStationID === undefined || removeAnimalStationID === '')
+        {
+            newErrors.removeAnimalStationID = "Please enter the station ID";
+            return newErrors;
+        }
+
+        if(removeAnimalID === undefined || removeAnimalID === '')
+        {
+            newErrors.removeAnimalID = "Please enter the animal ID";
+            return newErrors;
+        }
+
+        const station_id = removeAnimalStationID;
+        const animal_id = parseInt(removeAnimalID);
+        
+        animals?.map( animalArray => {
+            for(let i = 0; i < animalArray.length; i++)
+            {
+                if(station_id === animalArray[i]["station_id"] && animal_id === animalArray[i]["id"])
+                {
+                    break;
+                }
+                if(i === (animalArray.length - 1))
+                {
+                    newErrors.removeAnimalStationID = "Station ID or animal ID not found";
+                    newErrors.removeAnimalID = "Station ID or animal ID not found";
+                }
+            }
+        });
+
+        console.log(newErrors);
+        return newErrors;
+    }
+
+
     const handleRemoveAnimal = (e) => {
         e.preventDefault();
         console.log("Dentro handle add station");
 
         const animalData = {
-            "station_id": remove_animal_station,
-            "animal_id": remove_animal_id
+            "station_id": form.removeAnimalStationID,
+            "animal_id": form.removeAnimalID
         }
-        console.log("Ecco i dati dell'animale " + JSON.stringify(animalData))
+        
+        const formErrors = validateIDAnimalRemove();
+        if(Object.keys(formErrors).length > 0)
+        {
+            setErrors(formErrors);
+            return;
+        }
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals/' + animalData["animal_id"], {
             method: 'DELETE',
@@ -423,14 +531,19 @@ export default function HomePage() {
                                     <Modal.Body>
                                         Please insert the necessary data:
                                         <Form>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="removeStationID">
                                                 <Form.Label>Station ID</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. 4"
                                                     autoFocus
-                                                    onChange={event => setDeleteStationID(event.target.value)}
-                                                />
+                                                    value={form.removeStationID}
+                                                    onChange={event => setField("removeStationID", event.target.value)}
+                                                    isInvalid={!!errors.removeStationID}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.removeStationID}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
                                         </Form>
                                     </Modal.Body>
@@ -540,22 +653,33 @@ export default function HomePage() {
                                     <Modal.Body>
                                         Please insert the necessary data:
                                         <Form>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                                <Form.Label>Station ID</Form.Label>
+                                            <Form.Group className="mb-3" controlId="removeAnimalStationID">
+                                            <Form.Label>Station ID</Form.Label>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="es. 7"
+                                                    placeholder="es. 4"
                                                     autoFocus
-                                                    onChange={event => setRemoveAnimalStation(event.target.value)}
-                                                />
+                                                    value={form.removeAnimalStationID}
+                                                    onChange={event => setField("removeAnimalStationID", event.target.value)}
+                                                    isInvalid={!!errors.removeAnimalStationID}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.removeAnimalStationID}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="removeAnimalID">
                                                 <Form.Label>Animal ID</Form.Label>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="es. 3"
-                                                    onChange={event => setRemoveAnimalID(event.target.value)}
-                                                />
+                                                    placeholder="es. 4"
+                                                    autoFocus
+                                                    value={form.removeAnimalID}
+                                                    onChange={event => setField("removeAnimalID", event.target.value)}
+                                                    isInvalid={!!errors.removeAnimalID}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.removeAnimalID}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
                                         </Form>
                                     </Modal.Body>
