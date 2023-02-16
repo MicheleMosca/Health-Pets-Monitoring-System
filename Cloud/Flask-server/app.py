@@ -9,6 +9,9 @@ from mqtt_listener import MQTTListener
 from test_populatedb import populatedb
 import secrets
 from geopy.geocoders import Nominatim
+from forecast import predict
+import requests
+
 
 config = configparser.ConfigParser()
 if not config.read('config.ini'):
@@ -1023,6 +1026,60 @@ def getWaterLevel(username, station_id):
     return jsonify([{"id": w.id, "value": w.value, "timestamp": w.timestamp} for w in waters])
 
 
+@app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/weights/prediction', methods=['GET'])
+def getAnimalWeightPrediction(username, station_id, animal_id):
+    """
+    Get Animal Weight Prediction
+    ---
+    parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+        -   in: path
+            name: animal_id
+            description: Animal identification id
+            required: true
+
+    responses:
+        200:
+            description: List of animal weight
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
+    """
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
+        return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    return predict(username, station_id, animal_id, api_key, False)
+
+
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/weights', methods=['GET'])
 def getAnimalWeight(username, station_id, animal_id):
     """
@@ -1065,6 +1122,7 @@ def getAnimalWeight(username, station_id, animal_id):
             description: Not Found!
     """
     api_key = request.headers.get('X-API-KEY')
+    print(api_key)
     person = Person.query.filter_by(username=username).first()
 
     if person is None:
