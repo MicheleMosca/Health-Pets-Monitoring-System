@@ -16,8 +16,7 @@ export default function HomePage() {
     const [beats, setBeats] = useState([]);
     
     /*Station's things*/
-    const [latitude, setLatitude] = useState/*float*/("");
-    const [longitude, setLongitude] = useState/*float*/("");
+    const [address, setAddress] = useState/*string*/("");
     const [delete_station_id, setDeleteStationID] = useState/*int*/("");
     
     /*Animal's things*/
@@ -248,12 +247,11 @@ export default function HomePage() {
         console.log("Dentro handle add station");
 
         const stationData = {
-            "latitude": parseFloat(latitude),
-            "longitude": parseFloat(longitude)
+            "address": address
         }
         console.log("Ecco i dati della station " + JSON.stringify(stationData))
 
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations?latitude=' + stationData['latitude'] + '&longitude=' + stationData['longitude'], {
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations?address=' + stationData['address'], {
             method: 'POST',
             headers: {
                 'X-API-KEY' : localStorage.getItem('auth_token'),
@@ -266,6 +264,7 @@ export default function HomePage() {
         }).then( (res) => {
             console.log("Risposta data: " + res);
             window.location.reload(true);
+            // this.forceUpdate();
         }).catch( (err) => {
             console.log(err.message);
         });
@@ -299,6 +298,7 @@ export default function HomePage() {
         }).then( (res) => {
             console.log("Risposta data: " + res);
             window.location.reload(true);
+            //this.forceUpdate();
         }).catch( (err) => {
             console.log(err.message);
         });
@@ -327,6 +327,7 @@ export default function HomePage() {
         }).then( (res) => {
             console.log("Risposta data: " + res);
             window.location.reload(true);
+            //this.forceUpdate();
         }).catch( (err) => {
             console.log(err.message);
         });
@@ -356,6 +357,7 @@ export default function HomePage() {
         }).then( (res) => {
             console.log("Risposta data: " + res);
             window.location.reload(true);
+            //this.forceUpdate();
         }).catch( (err) => {
             console.log(err.message);
         });
@@ -388,20 +390,12 @@ export default function HomePage() {
                                         Please insert the necessary data:
                                         <Form>
                                             <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                                <Form.Label>Latitude</Form.Label>
+                                                <Form.Label>Address</Form.Label>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="es. 44.647129"
+                                                    placeholder="es. via Emilia Est, 456, Modena, Italia"
                                                     autoFocus
-                                                    onChange={event => setLatitude(event.target.value)}
-                                                />
-                                            </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                                <Form.Label>Longitude</Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    placeholder="es. 10.925227"
-                                                    onChange={event => setLongitude(event.target.value)}
+                                                    onChange={event => setAddress(event.target.value)}
                                                 />
                                             </Form.Group>
                                         </Form>
