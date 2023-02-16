@@ -8,6 +8,7 @@ from models import db, Person, Meal, Station, Food, Water, Weight, Beat, Animal
 from mqtt_listener import MQTTListener
 from test_populatedb import populatedb
 import secrets
+from geopy.geocoders import Nominatim
 
 config = configparser.ConfigParser()
 if not config.read('config.ini'):
@@ -30,6 +31,7 @@ cors.init_app(app)
 SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
 API_URL = '/api/doc'  # Our API url (can of course be a local resource)
 
+locator = Nominatim(user_agent="HPMS")
 
 @app.errorhandler(404)
 def pageNotFound(error):
@@ -539,6 +541,11 @@ def setStation(username):
             description: longitude coordination of the Station
             required: true
 
+        -   in: query
+            name: address
+            description: address of the Station
+            required: false
+
     responses:
         200:
             description: Station id
@@ -560,11 +567,19 @@ def setStation(username):
 
     latitude = request.args.get('latitude')
     longitude = request.args.get('longitude')
+    address = request.args.get('address')
+    location = locator.geocode(address)
 
     if latitude is None or longitude is None:
-        return "Query Parameters Not Found!", 404
+        if address is not None and location is not None:
+            latitude = location.latitude
+            longitude = location.longitude
+        else:
+            return "Query Parameters Not Found!", 404
+    else:
+        address = str(locator.reverse((location.latitude, location.longitude)))
 
-    station = Station(latitude=latitude, longitude=longitude, person_id=Person.query.filter_by(username=username).first().id)
+    station = Station(latitude=latitude, longitude=longitude, address=address, person_id=Person.query.filter_by(username=username).first().id)
     db.session.add(station)
     db.session.commit()
 
@@ -1178,7 +1193,7 @@ def getStations(username):
     stations = Station.query.filter_by(person_id=Person.query.filter_by(username=username).first().id)\
         .order_by(Station.id.asc()).all()
 
-    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude} for s in stations])
+    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude, "address": s.address} for s in stations])
 
 
 @app.route('/api/users/<username>/stations/<station_id>/animals', methods=['GET'])

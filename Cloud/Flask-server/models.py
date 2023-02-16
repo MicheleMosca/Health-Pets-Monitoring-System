@@ -80,15 +80,17 @@ class Station(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
+    address = db.Column(db.String(200))
 
     animals = db.relationship('Animal', backref='station')
     person_id = db.Column(db.Integer, db.ForeignKey("person.id"), nullable=False)
     waters = db.relationship('Water', backref='station')
     foods = db.relationship('Food', backref='station')
 
-    def __init__(self, latitude, longitude, person_id):
+    def __init__(self, latitude, longitude, address, person_id):
         self.latitude = latitude
         self.longitude = longitude
+        self.address = address
         self.person_id = person_id
 
 
