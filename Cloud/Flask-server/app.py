@@ -8,6 +8,10 @@ from models import db, Person, Meal, Station, Food, Water, Weight, Beat, Animal
 from mqtt_listener import MQTTListener
 from test_populatedb import populatedb
 import secrets
+from geopy.geocoders import Nominatim
+from forecast import predict
+import requests
+
 
 config = configparser.ConfigParser()
 if not config.read('config.ini'):
@@ -30,6 +34,7 @@ cors.init_app(app)
 SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
 API_URL = '/api/doc'  # Our API url (can of course be a local resource)
 
+locator = Nominatim(user_agent="HPMS")
 
 @app.errorhandler(404)
 def pageNotFound(error):
@@ -368,7 +373,7 @@ def getAnimal(username, station_id, animal_id):
 
     return jsonify({"id": animal.id, "name": animal.name, "animal_type": animal.animal_type, "age": animal.age,
                     "gender": animal.gender, "breed": animal.breed, "temperature": animal.temperature,
-                    "bark": animal.bark}).get_data(as_text=True)
+                    "bark": animal.bark, "distance": animal.distance}).get_data(as_text=True)
 
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>', methods=['DELETE'])
 def deleteAnimal(username, station_id, animal_id):
@@ -421,7 +426,7 @@ def deleteAnimal(username, station_id, animal_id):
 
     animals_list = Animal.query.filter_by(station_id=int(station_id)).order_by(Animal.id.desc()).all()
     json_animals_list = jsonify([{"id": a.id, "name": a.name, "animal_type": a.animal_type, "age": a.age, "gender": a.gender, "breed": a.breed,
-                                  "temperature": a.temperature, "bark": a.bark} for a in animals_list]).get_data(as_text=True)
+                                  "temperature": a.temperature, "bark": a.bark, "distance": a.distance} for a in animals_list]).get_data(as_text=True)
 
     return json_animals_list
 
@@ -539,6 +544,11 @@ def setStation(username):
             description: longitude coordination of the Station
             required: true
 
+        -   in: query
+            name: address
+            description: address of the Station
+            required: false
+
     responses:
         200:
             description: Station id
@@ -560,11 +570,19 @@ def setStation(username):
 
     latitude = request.args.get('latitude')
     longitude = request.args.get('longitude')
+    address = request.args.get('address')
+    location = locator.geocode(address)
 
     if latitude is None or longitude is None:
-        return "Query Parameters Not Found!", 404
+        if address is not None and location is not None:
+            latitude = location.latitude
+            longitude = location.longitude
+        else:
+            return "Query Parameters Not Found!", 404
+    else:
+        address = str(locator.reverse((location.latitude, location.longitude)))
 
-    station = Station(latitude=latitude, longitude=longitude, person_id=Person.query.filter_by(username=username).first().id)
+    station = Station(latitude=latitude, longitude=longitude, address=address, person_id=Person.query.filter_by(username=username).first().id)
     db.session.add(station)
     db.session.commit()
 
@@ -775,6 +793,30 @@ def setAnimalBark(username, station_id, animal_id, value):
 
     return str(animal.bark)
 
+def setAnimalDistance(username, station_id, animal_id, value):
+    """
+    Set the distance of an animal given in input
+    :param username: username of the user
+    :param station_id: station identification id
+    :param animal_id: animal identification id
+    :param value: value of distance
+    :return: new value of distance
+    """
+    if Person.query.filter_by(username=username).first() is None:
+        return "User Not Found!", 404
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    animal = Animal.query.filter_by(id=animal_id).first()
+    animal.distance = int(value)
+    db.session.commit()
+
+    return animal.distance
+
 
 def setAnimalTemperature(username, station_id, animal_id, value):
     """
@@ -984,6 +1026,60 @@ def getWaterLevel(username, station_id):
     return jsonify([{"id": w.id, "value": w.value, "timestamp": w.timestamp} for w in waters])
 
 
+@app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/weights/prediction', methods=['GET'])
+def getAnimalWeightPrediction(username, station_id, animal_id):
+    """
+    Get Animal Weight Prediction
+    ---
+    parameters:
+        -   in: header
+            name: X-API-KEY
+            description: Api Key of the User
+            required: true
+
+        -   in: path
+            name: username
+            description: Username of the User
+            required: true
+
+        -   in: path
+            name: station_id
+            description: Station identification id
+            required: true
+
+        -   in: path
+            name: animal_id
+            description: Animal identification id
+            required: true
+
+    responses:
+        200:
+            description: List of animal weight
+
+        403:
+            description: Access Denied!
+
+        404:
+            description: Not Found!
+    """
+    api_key = request.headers.get('X-API-KEY')
+    person = Person.query.filter_by(username=username).first()
+
+    if person is None:
+        return "User Not Found!", 404
+
+    if person.api_key != api_key:
+        return "Access Denied!", 403
+
+    if int(station_id) not in [station.id for station in Person.query.filter_by(username=username).first().stations]:
+        return "Station Not Found!", 404
+
+    if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
+        return "Animal Not Found!", 404
+
+    return predict(username, station_id, animal_id, api_key, False)
+
+
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/weights', methods=['GET'])
 def getAnimalWeight(username, station_id, animal_id):
     """
@@ -1026,6 +1122,7 @@ def getAnimalWeight(username, station_id, animal_id):
             description: Not Found!
     """
     api_key = request.headers.get('X-API-KEY')
+    print(api_key)
     person = Person.query.filter_by(username=username).first()
 
     if person is None:
@@ -1154,7 +1251,7 @@ def getStations(username):
     stations = Station.query.filter_by(person_id=Person.query.filter_by(username=username).first().id)\
         .order_by(Station.id.asc()).all()
 
-    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude} for s in stations])
+    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude, "address": s.address} for s in stations])
 
 
 @app.route('/api/users/<username>/stations/<station_id>/animals', methods=['GET'])
@@ -1204,7 +1301,7 @@ def getStationAnimals(username, station_id):
 
     return jsonify([{"id": sa.id, "name": sa.name, "age": sa.age, "gender": sa.gender,
                      "animal_type": sa.animal_type, "breed": sa.breed,
-                     "temperature": sa.temperature, "bark": sa.bark, "station_id": station_id} for sa in station_animals])
+                     "temperature": sa.temperature, "bark": sa.bark, "distance": sa.distance, "station_id": station_id} for sa in station_animals])
 
 @app.route('/api/allStations', methods=['GET'])
 def getAllStations():
@@ -1244,6 +1341,9 @@ def on_message_action(feed_type, params, payload):
         elif feed_type == 'temperatures':
             print(f"[DATABASE] Animal with id: {params['animals']} set temperature on: "
                   f"{setAnimalTemperature(params['users'], params['stations'], params['animals'], payload)}")
+        elif feed_type == 'distances':
+            print(f"[DATABASE] Animal with id: {params['animals']} set distance on: "
+                  f"{setAnimalDistance(params['users'], params['stations'], params['animals'], payload)}")
 
 
 # Run MQTT Listener

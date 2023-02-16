@@ -1,7 +1,8 @@
 import {React,useEffect,useState} from 'react';
 import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
-import {ListGroup,Card} from 'react-bootstrap';
+import {ListGroup,Card,Button,Modal,ButtonGroup,ToggleButton} from 'react-bootstrap';
+import Form from 'react-bootstrap/Form';
 
 export default function Animal()
 {
@@ -12,6 +13,14 @@ export default function Animal()
     const latLong=[];
     
     const [animal, setAnimal] = useState();
+
+    const [showAM, setShowAM] = useState(false);
+    const handleCloseAM = () => setShowAM(false);
+    const handleShowAM = () => setShowAM(true);
+
+    const [meal_quantity, setMealQuantity] = useState/*int*/("");
+    const [meal_time, setMealTime] = useState/*string*/("");
+    const [meal_type, setMealType] = useState/*string*/("");
     
     
     const handleBackButton = (e) => {
@@ -42,10 +51,35 @@ export default function Animal()
         
     }, [])
 
+    const handleAddMeal = (e) => {
+        e.preventDefault();
+        console.log("Dentro handle add station");
 
+        const mealData = {
+            "meal_quantity": meal_quantity,
+            "meal_type": meal_type,
+            "meal_time": meal_time
+        }
+        console.log("Ecco i dati del pasto " + JSON.stringify(mealData))
 
-
-    
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/meals?meal_type=' + mealData["meal_type"] + '&quantity=' + mealData["meal_quantity"] + '&time=' + mealData["meal_time"], {
+            method: 'POST',
+            headers: {
+                'X-API-KEY' : localStorage.getItem('auth_token'),
+            },
+        }).then( (response) => {
+            if(!response.ok) throw new Error(response.status);
+            else {
+                return response.text();
+            }
+        }).then( (res) => {
+            console.log("Risposta data: " + res);
+            window.location.reload(true);
+        }).catch( (err) => {
+            console.log(err.message);
+        });
+        console.log("finito richiesta");
+    }
 
     return(
         <div className="text-center">
@@ -73,8 +107,60 @@ export default function Animal()
 
                 </ListGroup>
             </Card>
+            <div>{JSON.stringify(animal)}</div>
+            
+            <div className = "buttons text-center">
+                <Button className="m-3" variant="primary" onClick={handleShowAM}>Add new meal</Button>
+                <Modal
+                    className="text-center"
+                    show={showAM}
+                    onHide={handleCloseAM}
+                    backdrop="static"
+                    keyboard={false}
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add new meal</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        Please insert the necessary data:
+                        <Form>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>Quantity (grams)</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="es. 100"
+                                    autoFocus
+                                    onChange={event => setMealQuantity(event.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>Meal type</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="secco/umido"
+                                    onChange={event => setMealType(event.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                <Form.Label>Time</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="es. 17:00"
+                                    onChange={event => setMealTime(event.target.value)}
+                                />
+                            </Form.Group>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={handleCloseAM}>
+                            Close
+                        </Button>
+                        <Button variant="primary" onClick={handleAddMeal}>Add</Button>
+                    </Modal.Footer>
+                </Modal>
+                <Button className="m-3" variant="danger">Delete a meal</Button>
+            </div>
 
-            <div>{JSON.stringify(animal)}</div> 
         </div>
     )
 }

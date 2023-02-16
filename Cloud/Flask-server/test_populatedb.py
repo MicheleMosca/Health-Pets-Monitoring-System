@@ -26,19 +26,19 @@ def populatedb(db):
     db.session.add(user_4)
     db.session.commit()
 
-    station_1 = Station(latitude=44.63099, longitude=10.94709, person_id=user_1.id)
+    station_1 = Station(latitude=44.63099, longitude=10.94709, address="66, Via Giorgio Bartolomasi, Punta, Buon Pastore-Sant'Agnese-San Damaso, Modena, Emilia-Romagna, 41125, Italia", person_id=user_1.id)
     db.session.add(station_1)
     db.session.commit()
 
-    station_2 = Station(latitude=44.63164, longitude=10.94739, person_id=user_2.id)
+    station_2 = Station(latitude=44.63164, longitude=10.94739, address="15, Via Barbato Zanoni, Punta, Buon Pastore-Sant'Agnese-San Damaso, Modena, Emilia-Romagna, 41125, Italia", person_id=user_2.id)
     db.session.add(station_2)
     db.session.commit()
 
-    station_3 = Station(latitude=44.63057, longitude=10.95168, person_id=user_3.id)
+    station_3 = Station(latitude=44.63057, longitude=10.95168, address="48, Via Aurelio Saffi, Punta, Buon Pastore-Sant'Agnese-San Damaso, Modena, Emilia-Romagna, 41125, Italia", person_id=user_3.id)
     db.session.add(station_3)
     db.session.commit()
 
-    station_4 = Station(latitude=44.63075, longitude=10.94859, person_id=user_4.id)
+    station_4 = Station(latitude=44.63075, longitude=10.94859, address="94, Via Barbato Zanoni, Punta, Buon Pastore-Sant'Agnese-San Damaso, Modena, Emilia-Romagna, 41125, Italia", person_id=user_4.id)
     db.session.add(station_4)
     db.session.commit()
 
