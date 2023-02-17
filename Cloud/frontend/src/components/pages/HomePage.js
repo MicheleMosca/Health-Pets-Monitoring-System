@@ -14,17 +14,6 @@ export default function HomePage() {
     const [foods, setFoods] = useState([]);
     const [waters, setWaters] = useState([]);
     const [beats, setBeats] = useState([]);
-    
-    /*Station's things*/
-    const [address, setAddress] = useState/*string*/("");
-    
-    /*Animal's things*/
-    const [name, setName] = useState/*string*/("");
-    const [age, setAge] = useState/*int*/("");
-    const [gender, setGender] = useState/*string*/("");
-    const [animalType, setAnimalType] = useState/*string*/("");
-    const [breed, setBreed] = useState/*string*/("");
-    const [station_id, setStationID] = useState/*int*/("");
 
     /*Validate form*/
     const [form, setForm] = useState({});
