@@ -4,7 +4,7 @@ import {ShowStations} from "../showStations";
 import {ListGroup,Card, Table} from 'react-bootstrap';
 //import { XYPlot, XAxis, YAxis, HorizontalGridLines, VerticalGridLines, LineSeries ,LineMarkSeries } from 'react-vis'
 import {XYPlot, XAxis, YAxis, VerticalGridLines, HorizontalGridLines, LineSeries, LineMarkSeries} from 'react-vis';
-import {curveCatmullRom} from 'd3-shape';
+// import {curveCatmullRom} from 'd3-shape';
 import moment from 'moment';
 export default function Station()
 {
@@ -240,7 +240,7 @@ export default function Station()
         style={{mark:{stroke: 'white'}}}
       />  }
     </XYPlot> */}
-     FOODS: <br></br>
+      FOODS: <br></br>
     <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
     <HorizontalGridLines />
     <VerticalGridLines />
@@ -253,8 +253,6 @@ export default function Station()
     <VerticalGridLines />
     <LineMarkSeries data={waterDict} />
     </XYPlot>
-
-
 
         </div>
     )

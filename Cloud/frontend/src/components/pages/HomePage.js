@@ -5,7 +5,7 @@ import NavBarComponent from './NavBarComponent';
 import homeImage from "../../assets/images/home.jpg";
 import dogImage from "../../assets/images/dog.jpg";
 import catImage from "../../assets/images/cat.jpg";
-import BackgroundImage from '../../assets/images/pattern.jpg'
+import BackgroundImage from '../../assets/images/pattern.png'
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -14,20 +14,24 @@ export default function HomePage() {
     const [foods, setFoods] = useState([]);
     const [waters, setWaters] = useState([]);
     const [beats, setBeats] = useState([]);
-    
-    /*Station's things*/
-    const [address, setAddress] = useState/*string*/("");
-    const [delete_station_id, setDeleteStationID] = useState/*int*/("");
-    
-    /*Animal's things*/
-    const [name, setName] = useState/*string*/("");
-    const [age, setAge] = useState/*int*/("");
-    const [gender, setGender] = useState/*string*/("");
-    const [animalType, setAnimalType] = useState/*string*/("");
-    const [breed, setBreed] = useState/*string*/("");
-    const [station_id, setStationID] = useState/*int*/("");
-    const [remove_animal_station, setRemoveAnimalStation] = useState/*int*/("");
-    const [remove_animal_id, setRemoveAnimalID] = useState/*int*/("");
+
+    /*Validate form*/
+    const [form, setForm] = useState({});
+    const [errors, setErrors] = useState({});
+    const setField = (field, value) => {
+        setForm({
+            ...form,
+            [field]: value
+        })
+
+        if(!!errors[field])
+        {
+            setErrors({
+                ...errors,
+                [field]: null
+            })
+        }
+    }
 
     /*Form's things*/
     const [showFS, setShowFS] = useState(false);
@@ -169,10 +173,10 @@ export default function HomePage() {
 
     const styleBack = {
         header: {
-            /*backgroundImage: `url(${BackgroundImage})`,*/
-            backgroundPosition: "25% - 25%",
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "cover"
+            backgroundImage: `url(${BackgroundImage})`,
+            backgroundPosition: "0% - 0%",
+            backgroundRepeat: "repeat",
+            backgroundSize: "contain"
         },
 
         content: {
@@ -242,14 +246,37 @@ export default function HomePage() {
         return html;
     }
 
+
+    const validateAddStation = () => {
+        const { station_address } = form;
+        const newErrors = {}
+        console.log("Dentro validate add station");
+        if(!station_address || station_address === '')
+        {
+            newErrors.station_address = "Please enter the station address";
+            return newErrors;
+        }
+
+        console.log(newErrors);
+        return newErrors;
+    }
+
+
     const handleAddStation = (e) => {
         e.preventDefault();
         console.log("Dentro handle add station");
 
         const stationData = {
-            "address": address
+            "address": form.station_address
         }
         console.log("Ecco i dati della station " + JSON.stringify(stationData))
+
+        const formErrors = validateAddStation();
+        if(Object.keys(formErrors).length > 0)
+        {
+            setErrors(formErrors);
+            return;
+        }
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations?address=' + stationData['address'], {
             method: 'POST',
@@ -267,23 +294,111 @@ export default function HomePage() {
             // this.forceUpdate();
         }).catch( (err) => {
             console.log(err.message);
+            setErrors({station_address: "Invalid address"});
         });
         console.log("finito richiesta");
     }
+
+    
+    const validateAddAnimal = () => {
+        const { animal_name, animal_age, animal_gender, animal_type, animal_breed, animal_station_id } = form;
+        const newErrors = {}
+        console.log(isNaN((parseInt(animal_name))))
+        if(!animal_name || animal_name === '')
+        {
+            newErrors.animal_name = "Please enter the animal name";
+        }
+        
+        if((!animal_age) || (animal_age === '') || (isNaN(parseInt(animal_age)) === true))
+        {
+            newErrors.animal_age = "Please enter the animal age";
+        }
+
+        if(!animal_gender || animal_gender === '')
+        {
+            newErrors.animal_gender = "Please enter the animal gender";
+        }
+
+        if(!animal_type || animal_type === '')
+        {
+            newErrors.animal_type = "Please enter the animal type";
+        }
+
+        if(!animal_breed || animal_breed === '')
+        {
+            newErrors.animal_breed = "Please enter the animal breed";
+        }
+
+        if((!animal_station_id) || (animal_station_id === '') || (parseInt(animal_station_id) === NaN))
+        {
+            newErrors.animal_station_id = "Please enter the animal station ID";
+        }
+
+        if(Object.keys(newErrors).length > 0)
+        {
+            return newErrors;
+        }
+
+        const id = parseInt(animal_station_id);
+
+        for(let i = 0; i < stations?.length; i++)
+        {
+            if(id === stations[i]["id"])
+            {
+                break;
+            }
+            if(i === (stations?.length - 1))
+            {
+                newErrors.animal_station_id = "Station ID not found";
+            }
+        }
+
+        if((isNaN(parseInt(animal_name)) === false))
+        {
+            newErrors.animal_name = "Invalid animal breed";
+        }
+
+
+        if((isNaN(parseInt(animal_breed)) === false))
+        {
+            newErrors.animal_breed = "Invalid animal breed";
+        }
+
+        if((animal_gender.toUpperCase() !== 'M') && (animal_gender.toUpperCase() !== 'F'))
+        {
+            newErrors.animal_gender = "Invalid animal gender. Must be M or F";
+        }
+
+        if((animal_type.toUpperCase() !== 'DOG') && (animal_type.toUpperCase() !== 'CAT'))
+        {
+            newErrors.animal_type = "Invalid animal type. Must be dog or cat";
+        }
+        console.log(newErrors);
+        return newErrors;
+    }
+
+    //console.log("valore: " + parseInt("ciao"));
 
     const handleAddAnimal = (e) => {
         e.preventDefault();
         console.log("Dentro handle add station");
 
         const animalData = {
-            "name": name,
-            "age": parseInt(age),
-            "gender": gender,
-            "animal_type": animalType,
-            "breed": breed,
-            "station_id": station_id
+            "name": form.animal_name,
+            "age": parseInt(form.animal_age),
+            "gender": form.animal_gender,
+            "animal_type": form.animal_type,
+            "breed": form.animal_breed,
+            "station_id": parseInt(form.animal_station_id)
         }
         console.log("Ecco i dati dell'animale " + JSON.stringify(animalData))
+
+        const formErrors = validateAddAnimal();
+        if(Object.keys(formErrors).length > 0)
+        {
+            setErrors(formErrors);
+            return;
+        }
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals?name=' + animalData['name'] + '&age=' + animalData['age'] + '&gender=' + animalData['gender'] + '&animal_type=' + animalData['animal_type'] + '&breed=' + animalData['breed'], {
             method: 'POST',
@@ -305,14 +420,49 @@ export default function HomePage() {
         console.log("finito richiesta");
     }
 
+    const validateIDStationRemove = () => {
+        const { removeStationID } = form;
+        const newErrors = {}
+
+        if(!removeStationID || removeStationID === '')
+        {
+            newErrors.removeStationID = "Please enter the station ID";
+            return newErrors;
+        }
+        
+        const id = parseInt(removeStationID);
+
+        for(let i = 0; i < stations?.length; i++)
+        {
+            if(id === stations[i]["id"])
+            {
+                break;
+            }
+            if(i === (stations?.length - 1))
+            {
+                newErrors.removeStationID = "ID not found";
+            }
+        }
+
+        console.log(newErrors);
+        return newErrors;
+    }
+
     const handleRemoveStation = (e) => {
         e.preventDefault();
         console.log("Dentro handle remove station");
-    
+
         const stationData = {
-            "station_id": parseInt(delete_station_id)
+            "station_id": parseInt(form.removeStationID)
         }
         console.log("Ecco i dati della station " + JSON.stringify(stationData))
+
+        const formErrors = validateIDStationRemove();
+        if(Object.keys(formErrors).length > 0)
+        {
+            setErrors(formErrors);
+            return;
+        }
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stationData["station_id"], {
             method: 'DELETE',
@@ -334,15 +484,72 @@ export default function HomePage() {
         console.log("finito richiesta");
     }
 
+
+    const validateIDAnimalRemove = () => {
+        const { removeAnimalStationID, removeAnimalID } = form;
+        const newErrors = {}
+
+        console.log("Valore " + removeAnimalStationID);
+        console.log(typeof(removeAnimalStationID));
+        console.log("Valore " + removeAnimalID);
+
+        if((removeAnimalStationID === undefined && removeAnimalID === undefined) || (removeAnimalStationID === '' && removeAnimalID === ''))
+        {
+            newErrors.removeAnimalStationID = "Please enter the station ID";
+            newErrors.removeAnimalID = "Please enter the animal ID";
+            return newErrors;
+        }
+        
+        if(removeAnimalStationID === undefined || removeAnimalStationID === '')
+        {
+            newErrors.removeAnimalStationID = "Please enter the station ID";
+            return newErrors;
+        }
+
+        if(removeAnimalID === undefined || removeAnimalID === '')
+        {
+            newErrors.removeAnimalID = "Please enter the animal ID";
+            return newErrors;
+        }
+
+        const station_id = removeAnimalStationID;
+        const animal_id = parseInt(removeAnimalID);
+        
+        animals?.map( animalArray => {
+            for(let i = 0; i < animalArray.length; i++)
+            {
+                if(station_id === animalArray[i]["station_id"] && animal_id === animalArray[i]["id"])
+                {
+                    break;
+                }
+                if(i === (animalArray.length - 1))
+                {
+                    newErrors.removeAnimalStationID = "Station ID or animal ID not found";
+                    newErrors.removeAnimalID = "Station ID or animal ID not found";
+                }
+            }
+        });
+
+        console.log(newErrors);
+        return newErrors;
+    }
+
+
     const handleRemoveAnimal = (e) => {
         e.preventDefault();
         console.log("Dentro handle add station");
 
         const animalData = {
-            "station_id": remove_animal_station,
-            "animal_id": remove_animal_id
+            "station_id": form.removeAnimalStationID,
+            "animal_id": form.removeAnimalID
         }
-        console.log("Ecco i dati dell'animale " + JSON.stringify(animalData))
+        
+        const formErrors = validateIDAnimalRemove();
+        if(Object.keys(formErrors).length > 0)
+        {
+            setErrors(formErrors);
+            return;
+        }
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals/' + animalData["animal_id"], {
             method: 'DELETE',
@@ -389,14 +596,19 @@ export default function HomePage() {
                                     <Modal.Body>
                                         Please insert the necessary data:
                                         <Form>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="station_address">
                                                 <Form.Label>Address</Form.Label>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="es. via Emilia Est, 456, Modena, Italia"
+                                                    placeholder="es. via Emilia Ovest, 456, Modena, Italia"
                                                     autoFocus
-                                                    onChange={event => setAddress(event.target.value)}
-                                                />
+                                                    value={form.station_address}
+                                                    onChange={event => setField("station_address", event.target.value)}
+                                                    isInvalid={!!errors.station_address}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.station_address}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
                                         </Form>
                                     </Modal.Body>
@@ -423,14 +635,19 @@ export default function HomePage() {
                                     <Modal.Body>
                                         Please insert the necessary data:
                                         <Form>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="removeStationID">
                                                 <Form.Label>Station ID</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. 4"
                                                     autoFocus
-                                                    onChange={event => setDeleteStationID(event.target.value)}
-                                                />
+                                                    value={form.removeStationID}
+                                                    onChange={event => setField("removeStationID", event.target.value)}
+                                                    isInvalid={!!errors.removeStationID}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.removeStationID}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
                                         </Form>
                                     </Modal.Body>
@@ -461,59 +678,93 @@ export default function HomePage() {
                                 >
                                     <Modal.Header closeButton>
                                         <Modal.Title>Add new animal</Modal.Title>
-                                       {/*  <Button variant="light"> X</Button> */}
                                     </Modal.Header>
                                     <Modal.Body>
                                         Please insert the necessary data:
                                         <Form>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_name">
                                                 <Form.Label>Name</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. Mariangiongiangela"
                                                     autoFocus
-                                                    onChange={event => setName(event.target.value)}
-                                                />
+                                                    value={form.animal_name}
+                                                    onChange={event => setField("animal_name", event.target.value)}
+                                                    isInvalid={!!errors.animal_name}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_name}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_age">
                                                 <Form.Label>Age</Form.Label>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="es. 3"
-                                                    onChange={event => setAge(event.target.value)}
-                                                />
+                                                    placeholder="es. 4"
+                                                    autoFocus
+                                                    value={form.animal_age}
+                                                    onChange={event => setField("animal_age", event.target.value)}
+                                                    isInvalid={!!errors.animal_age}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_age}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_gender">
                                                 <Form.Label>Gender</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="M/F"
-                                                    onChange={event => setGender(event.target.value)}
-                                                />
+                                                    autoFocus
+                                                    value={form.animal_gender}
+                                                    onChange={event => setField("animal_gender", event.target.value)}
+                                                    isInvalid={!!errors.animal_gender}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_gender}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_type">
                                                 <Form.Label>Type</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="dog/cat"
-                                                    onChange={event => setAnimalType(event.target.value)}
-                                                />
+                                                    autoFocus
+                                                    value={form.animal_type}
+                                                    onChange={event => setField("animal_type", event.target.value)}
+                                                    isInvalid={!!errors.animal_type}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_type}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_breed">
                                                 <Form.Label>Breed</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. German Shepherd"
-                                                    onChange={event => setBreed(event.target.value)}
-                                                />
+                                                    autoFocus
+                                                    value={form.animal_breed}
+                                                    onChange={event => setField("animal_breed", event.target.value)}
+                                                    isInvalid={!!errors.animal_breed}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_breed}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_station_id">
                                                 <Form.Label>Station ID</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. 5"
-                                                    onChange={event => setStationID(event.target.value)}
-                                                />
+                                                    autoFocus
+                                                    value={form.animal_station_id}
+                                                    onChange={event => setField("animal_station_id", event.target.value)}
+                                                    isInvalid={!!errors.animal_station_id}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_station_id}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
                                         </Form>
                                     </Modal.Body>
@@ -540,22 +791,33 @@ export default function HomePage() {
                                     <Modal.Body>
                                         Please insert the necessary data:
                                         <Form>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-                                                <Form.Label>Station ID</Form.Label>
+                                            <Form.Group className="mb-3" controlId="removeAnimalStationID">
+                                            <Form.Label>Station ID</Form.Label>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="es. 7"
+                                                    placeholder="es. 4"
                                                     autoFocus
-                                                    onChange={event => setRemoveAnimalStation(event.target.value)}
-                                                />
+                                                    value={form.removeAnimalStationID}
+                                                    onChange={event => setField("removeAnimalStationID", event.target.value)}
+                                                    isInvalid={!!errors.removeAnimalStationID}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.removeAnimalStationID}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="removeAnimalID">
                                                 <Form.Label>Animal ID</Form.Label>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="es. 3"
-                                                    onChange={event => setRemoveAnimalID(event.target.value)}
-                                                />
+                                                    placeholder="es. 4"
+                                                    autoFocus
+                                                    value={form.removeAnimalID}
+                                                    onChange={event => setField("removeAnimalID", event.target.value)}
+                                                    isInvalid={!!errors.removeAnimalID}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.removeAnimalID}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
                                         </Form>
                                     </Modal.Body>
