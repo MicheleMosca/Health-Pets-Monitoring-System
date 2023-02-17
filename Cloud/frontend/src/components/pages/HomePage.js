@@ -258,14 +258,36 @@ export default function HomePage() {
     }
 
 
+    const validateAddStation = () => {
+        const { station_address } = form;
+        const newErrors = {}
+        console.log("Dentro validate add station");
+        if(!station_address || station_address === '')
+        {
+            newErrors.station_address = "Please enter the station address";
+            return newErrors;
+        }
+
+        console.log(newErrors);
+        return newErrors;
+    }
+
+
     const handleAddStation = (e) => {
         e.preventDefault();
         console.log("Dentro handle add station");
 
         const stationData = {
-            "address": address
+            "address": form.station_address
         }
         console.log("Ecco i dati della station " + JSON.stringify(stationData))
+
+        const formErrors = validateAddStation();
+        if(Object.keys(formErrors).length > 0)
+        {
+            setErrors(formErrors);
+            return;
+        }
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations?address=' + stationData['address'], {
             method: 'POST',
@@ -283,23 +305,111 @@ export default function HomePage() {
             // this.forceUpdate();
         }).catch( (err) => {
             console.log(err.message);
+            setErrors({station_address: "Invalid address"});
         });
         console.log("finito richiesta");
     }
+
+    
+    const validateAddAnimal = () => {
+        const { animal_name, animal_age, animal_gender, animal_type, animal_breed, animal_station_id } = form;
+        const newErrors = {}
+        console.log(isNaN((parseInt(animal_name))))
+        if(!animal_name || animal_name === '')
+        {
+            newErrors.animal_name = "Please enter the animal name";
+        }
+        
+        if((!animal_age) || (animal_age === '') || (isNaN(parseInt(animal_age)) === true))
+        {
+            newErrors.animal_age = "Please enter the animal age";
+        }
+
+        if(!animal_gender || animal_gender === '')
+        {
+            newErrors.animal_gender = "Please enter the animal gender";
+        }
+
+        if(!animal_type || animal_type === '')
+        {
+            newErrors.animal_type = "Please enter the animal type";
+        }
+
+        if(!animal_breed || animal_breed === '')
+        {
+            newErrors.animal_breed = "Please enter the animal breed";
+        }
+
+        if((!animal_station_id) || (animal_station_id === '') || (parseInt(animal_station_id) === NaN))
+        {
+            newErrors.animal_station_id = "Please enter the animal station ID";
+        }
+
+        if(Object.keys(newErrors).length > 0)
+        {
+            return newErrors;
+        }
+
+        const id = parseInt(animal_station_id);
+
+        for(let i = 0; i < stations?.length; i++)
+        {
+            if(id === stations[i]["id"])
+            {
+                break;
+            }
+            if(i === (stations?.length - 1))
+            {
+                newErrors.animal_station_id = "Station ID not found";
+            }
+        }
+
+        if((isNaN(parseInt(animal_name)) === false))
+        {
+            newErrors.animal_name = "Invalid animal breed";
+        }
+
+
+        if((isNaN(parseInt(animal_breed)) === false))
+        {
+            newErrors.animal_breed = "Invalid animal breed";
+        }
+
+        if((animal_gender.toUpperCase() !== 'M') && (animal_gender.toUpperCase() !== 'F'))
+        {
+            newErrors.animal_gender = "Invalid animal gender. Must be M or F";
+        }
+
+        if((animal_type.toUpperCase() !== 'DOG') && (animal_type.toUpperCase() !== 'CAT'))
+        {
+            newErrors.animal_type = "Invalid animal type. Must be dog or cat";
+        }
+        console.log(newErrors);
+        return newErrors;
+    }
+
+    //console.log("valore: " + parseInt("ciao"));
 
     const handleAddAnimal = (e) => {
         e.preventDefault();
         console.log("Dentro handle add station");
 
         const animalData = {
-            "name": name,
-            "age": parseInt(age),
-            "gender": gender,
-            "animal_type": animalType,
-            "breed": breed,
-            "station_id": station_id
+            "name": form.animal_name,
+            "age": parseInt(form.animal_age),
+            "gender": form.animal_gender,
+            "animal_type": form.animal_type,
+            "breed": form.animal_breed,
+            "station_id": parseInt(form.animal_station_id)
         }
         console.log("Ecco i dati dell'animale " + JSON.stringify(animalData))
+
+        const formErrors = validateAddAnimal();
+        if(Object.keys(formErrors).length > 0)
+        {
+            setErrors(formErrors);
+            return;
+        }
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals?name=' + animalData['name'] + '&age=' + animalData['age'] + '&gender=' + animalData['gender'] + '&animal_type=' + animalData['animal_type'] + '&breed=' + animalData['breed'], {
             method: 'POST',
@@ -497,14 +607,19 @@ export default function HomePage() {
                                     <Modal.Body>
                                         Please insert the necessary data:
                                         <Form>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="station_address">
                                                 <Form.Label>Address</Form.Label>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="es. via Emilia Est, 456, Modena, Italia"
+                                                    placeholder="es. via Emilia Ovest, 456, Modena, Italia"
                                                     autoFocus
-                                                    onChange={event => setAddress(event.target.value)}
-                                                />
+                                                    value={form.station_address}
+                                                    onChange={event => setField("station_address", event.target.value)}
+                                                    isInvalid={!!errors.station_address}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.station_address}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
                                         </Form>
                                     </Modal.Body>
@@ -574,59 +689,93 @@ export default function HomePage() {
                                 >
                                     <Modal.Header closeButton>
                                         <Modal.Title>Add new animal</Modal.Title>
-                                       {/*  <Button variant="light"> X</Button> */}
                                     </Modal.Header>
                                     <Modal.Body>
                                         Please insert the necessary data:
                                         <Form>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_name">
                                                 <Form.Label>Name</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. Mariangiongiangela"
                                                     autoFocus
-                                                    onChange={event => setName(event.target.value)}
-                                                />
+                                                    value={form.animal_name}
+                                                    onChange={event => setField("animal_name", event.target.value)}
+                                                    isInvalid={!!errors.animal_name}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_name}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_age">
                                                 <Form.Label>Age</Form.Label>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="es. 3"
-                                                    onChange={event => setAge(event.target.value)}
-                                                />
+                                                    placeholder="es. 4"
+                                                    autoFocus
+                                                    value={form.animal_age}
+                                                    onChange={event => setField("animal_age", event.target.value)}
+                                                    isInvalid={!!errors.animal_age}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_age}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_gender">
                                                 <Form.Label>Gender</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="M/F"
-                                                    onChange={event => setGender(event.target.value)}
-                                                />
+                                                    autoFocus
+                                                    value={form.animal_gender}
+                                                    onChange={event => setField("animal_gender", event.target.value)}
+                                                    isInvalid={!!errors.animal_gender}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_gender}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_type">
                                                 <Form.Label>Type</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="dog/cat"
-                                                    onChange={event => setAnimalType(event.target.value)}
-                                                />
+                                                    autoFocus
+                                                    value={form.animal_type}
+                                                    onChange={event => setField("animal_type", event.target.value)}
+                                                    isInvalid={!!errors.animal_type}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_type}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_breed">
                                                 <Form.Label>Breed</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. German Shepherd"
-                                                    onChange={event => setBreed(event.target.value)}
-                                                />
+                                                    autoFocus
+                                                    value={form.animal_breed}
+                                                    onChange={event => setField("animal_breed", event.target.value)}
+                                                    isInvalid={!!errors.animal_breed}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_breed}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
-                                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                                            <Form.Group className="mb-3" controlId="animal_station_id">
                                                 <Form.Label>Station ID</Form.Label>
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. 5"
-                                                    onChange={event => setStationID(event.target.value)}
-                                                />
+                                                    autoFocus
+                                                    value={form.animal_station_id}
+                                                    onChange={event => setField("animal_station_id", event.target.value)}
+                                                    isInvalid={!!errors.animal_station_id}
+                                                ></Form.Control>
+                                                <Form.Control.Feedback type='invalid'>
+                                                    {errors.animal_station_id}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
                                         </Form>
                                     </Modal.Body>
