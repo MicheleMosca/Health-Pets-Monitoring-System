@@ -2,10 +2,8 @@ import {React,useEffect,useState} from 'react';
 import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
 import {ListGroup,Card, Table} from 'react-bootstrap';
-//import { XYPlot, XAxis, YAxis, HorizontalGridLines, VerticalGridLines, LineSeries ,LineMarkSeries } from 'react-vis'
 import {XYPlot, XAxis, YAxis, VerticalGridLines, HorizontalGridLines, LineSeries, LineMarkSeries} from 'react-vis';
 // import {curveCatmullRom} from 'd3-shape';
-import moment from 'moment';
 export default function Station()
 {
     const navigate = useNavigate();
@@ -51,9 +49,6 @@ export default function Station()
                     console.log("Sto aggiornando foodDict")
                     //setFoodDict(()...foodDict,{ x : item?.timestamp,  y : item?.value})  ;
                     var myDate = new Date(item?.timestamp);
-                    console.log("Data convertitaa momentt  "+ moment(myDate).format('l').toString() + " locale vale " + moment.locale() )
-                    var newDay= new Date(moment(myDate).format('lll').toString())
-
                     var level=0;
                     if(item?.value ==='low'){
                         level=0;
@@ -65,21 +60,8 @@ export default function Station()
                         level=100;
                     }
 
-                   // setFoodDict(foodDict => [...foodDict,{ x :  newDay   ,  y : level }])
-                    level=0;
-                    var m= moment(myDate).add(3,'days').format('lll')
-                   
+                    setFoodDict(foodDict => [...foodDict,{ x :  myDate   ,  y : level }])                 
 
-                    for(var i=0; i < 10 ; i++){
-                        console.log("Sto Creando un nuovo giorno e vale "+ moment(myDate).add(9, 'hours').format('lll'))
-                        m= moment(m).add(9, 'hours').format('lll').toString()
-                        newDay= new Date(m)
-                        
-                        setFoodDict(foodDict => [...foodDict,{ x :  newDay  ,  y : level }])
-                        level+=50;
-                        if(level > 100)
-                        level=0;
-                    }
                 }
                 
                 );
@@ -106,12 +88,8 @@ export default function Station()
                 console.log("Ecco waters"+ JSON.stringify(waters));
 
                 myJson.forEach(item => {
-                    console.log("Sto aggiornando foodDict")
-                    //setFoodDict(()...foodDict,{ x : item?.timestamp,  y : item?.value})  ;
+                    console.log("Sto aggiornando waterDict")
                     var myDate = new Date(item?.timestamp);
-                    console.log("Data convertitaa momentt  "+ moment(myDate).format('l').toString() + " locale vale " + moment.locale() )
-                    var newDay= new Date(moment(myDate).format('lll').toString())
-
                     var level=0;
                     if(item?.value ==='low'){
                         level=0;
@@ -123,21 +101,8 @@ export default function Station()
                         level=100;
                     }
 
-                    //setWaterDict(waterDict => [...waterDict,{ x :  newDay   ,  y : level }])
-                    level=0;
-                    var m= moment(myDate).add(3,'days').format('lll')
+                    setWaterDict(waterDict => [...waterDict,{ x :  myDate   ,  y : level }])                  
                    
-
-                    for(var i=0; i < 10 ; i++){
-                        console.log("Sto Creando un nuovo giorno e vale "+ moment(myDate).add(9, 'hours').format('lll'))
-                        m= moment(m).add(9, 'hours').format('lll').toString()
-                        newDay= new Date(m)
-                        
-                        setWaterDict(waterDict => [...waterDict,{ x :  newDay  ,  y : level }])
-                        level+=50;
-                        if(level > 100)
-                        level=0;
-                    }
                 }
                 
                 );
@@ -215,31 +180,6 @@ export default function Station()
                 </ListGroup>
             </Card>
 
-           {/*  <ShowStations center={position} zoom = "18" /> */}
-          {/*  <XYPlot width={1000} height={1000}>
-      <VerticalGridLines />
-      <HorizontalGridLines />
-      <XAxis />
-      <YAxis />
-     {/*  <LineMarkSeries
-        className="linemark-series-example"
-        style={{
-          strokeWidth: '3px'
-        }}
-        lineStyle={{stroke: 'red'}}
-        markStyle={{stroke: 'blue'}}
-        data={[{x: 1, y: 10}, {x: 2, y: 5}, {x: 3, y: 15}]}
-      /> */}
-    
-
-
-     {/* <LineMarkSeries
-        className="linemark-series-example-2"
-        curve={'curveMonotoneX'}
-        data={foodDict} {[{x: 1, y: 11}, {x: 1.5, y: 29}, {x: 3, y: 7}]}
-        style={{mark:{stroke: 'white'}}}
-      />  }
-    </XYPlot> */}
       FOODS: <br></br>
     <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
     <HorizontalGridLines />
@@ -251,7 +191,7 @@ export default function Station()
     <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
     <HorizontalGridLines />
     <VerticalGridLines />
-    <LineMarkSeries data={waterDict} />
+    <LineMarkSeries data={waterDict}  />
     </XYPlot>
 
         </div>

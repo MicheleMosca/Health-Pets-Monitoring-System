@@ -120,20 +120,64 @@ def populatedb(db):
     db.session.add(meal_3)
     db.session.commit()
 
-    food_1 = Food(value='high', station_id=station_1.id)
+    food_1 = Food(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/02/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(food_1)
     db.session.commit()
 
-    food_2 = Food(value='medium', station_id=station_1.id)
+    food_2 = Food(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/02/2023 23:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(food_2)
     db.session.commit()
 
-    water_1 = Water(value='medium', station_id=station_1.id)
+    food_3 = Food(value='low', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 09:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(food_3)
+    db.session.commit()
+
+    food_4 = Food(value='low', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 11:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(food_4)
+    db.session.commit()
+
+    food_5 = Food(value='high', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 14:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(food_5)
+    db.session.commit()
+
+    food_6 = Food(value='low', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 17:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(food_6)
+    db.session.commit()
+
+    food_7 = Food(value='high', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(food_6)
+    db.session.commit()
+
+    food_8 = Food(value='medium', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 21:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(food_6)
+    db.session.commit()
+
+    water_1 = Water(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/02/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(water_1)
     db.session.commit()
 
-    water_2 = Water(value='high', station_id=station_1.id)
+    water_2 = Water(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/02/2023 23:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(water_2)
+    db.session.commit()
+
+    water_3 = Water(value='medium', station_id=station_1.id, timestamp=datetime.strptime('16/02/2023 03:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(water_3)
+    db.session.commit()
+
+    water_4 = Water(value='low', station_id=station_1.id, timestamp=datetime.strptime('16/02/2023 07:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(water_4)
+    db.session.commit()
+
+    water_5 = Water(value='high', station_id=station_1.id, timestamp=datetime.strptime('16/02/2023 10:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(water_5)
+    db.session.commit()
+
+    water_6 = Water(value='medium', station_id=station_1.id, timestamp=datetime.strptime('16/02/2023 13:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(water_6)
+    db.session.commit()
+
+    water_7 = Water(value='low', station_id=station_1.id, timestamp=datetime.strptime('16/02/2023 15:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(water_7)
     db.session.commit()
 
     weight_1 = Weight(value=4, animal_id=animal_1.id)
