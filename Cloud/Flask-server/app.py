@@ -1077,7 +1077,11 @@ def getAnimalWeightPrediction(username, station_id, animal_id):
     if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
         return "Animal Not Found!", 404
 
-    return predict(username, station_id, animal_id, api_key, False)
+    #weights = getAnimalWeight(username, station_id, animal_id)
+    weights = Weight.query.filter_by(animal_id=animal_id).order_by(Weight.id.desc()).all()
+    weights_list = ([{"id": w.id, "value": w.value, "timestamp": datetime.strftime(w.timestamp, '%Y-%m-%d %H:%M:%S')} for w in weights])
+
+    return jsonify(predict(weights_list))
 
 
 @app.route('/api/users/<username>/stations/<station_id>/animals/<animal_id>/weights', methods=['GET'])
@@ -1122,7 +1126,6 @@ def getAnimalWeight(username, station_id, animal_id):
             description: Not Found!
     """
     api_key = request.headers.get('X-API-KEY')
-    print(api_key)
     person = Person.query.filter_by(username=username).first()
 
     if person is None:
