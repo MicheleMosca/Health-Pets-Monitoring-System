@@ -3,6 +3,7 @@ import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
 import {ListGroup,Card,Button,Modal,ButtonGroup,ToggleButton} from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
+import NavBarComponent from "./NavBarComponent";
 
 export default function Animal()
 {
@@ -83,6 +84,7 @@ export default function Animal()
 
     return(
         <div className="text-center">
+            <NavBarComponent/>
             <div className='text-left mt-3 ml-5'>
                 <button className="text-right" type="button" class="btn btn-secondary" onClick={handleBackButton}>Back</button>
             </div>
