@@ -10,10 +10,8 @@ if not config.read('config.ini'):
     print("Please write a config.ini file")
     exit(1)
 
-def predict(username, station_id, animal_id, token, html_flag):
-    headers = {'X-API-KEY': token}
-    animal_weights = requests.get(f'http://{config.get("Flask", "FLASK_RUN_HOST")}:{config.get("Flask", "FLASK_RUN_PORT")}/api/users/'
-                                  f'{username}/stations/{station_id}/animals/{animal_id}/weights', headers=headers).json()
+def predict(weights):
+    animal_weights = weights
 
     animal_weights.reverse()
     weights_list = []
@@ -39,7 +37,6 @@ def predict(username, station_id, animal_id, token, html_flag):
 
     fig = px.line(forecast[['ds', 'yhat']], x='ds', y='yhat', title='Pesi')
 
-    if(html_flag == True):
-        return fig.to_html()
-
-    fig.show()
+    #print(fig.to_html())
+    return fig.to_html()
+    #fig.show()
