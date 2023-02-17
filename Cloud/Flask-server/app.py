@@ -36,6 +36,12 @@ API_URL = '/api/doc'  # Our API url (can of course be a local resource)
 
 locator = Nominatim(user_agent="HPMS")
 
+def safe_list_get (l, idx, default):
+  try:
+    return l[idx].value
+  except IndexError:
+    return default
+
 @app.errorhandler(404)
 def pageNotFound(error):
     """
@@ -468,8 +474,10 @@ def getStation(username, station_id):
         return "Station Not Found!", 404
 
     station = Station.query.filter_by(id=station_id).first()
+    foods = Food.query.filter_by(station_id=station_id).order_by(Food.id.desc()).limit(int(1)).all()[0]
+    waters = Water.query.filter_by(station_id=station_id).order_by(Water.id.desc()).limit(int(1)).all()[0]
 
-    return jsonify({"id": station.id, "latitude": station.latitude, "longitude": station.longitude}).get_data(as_text=True)
+    return jsonify({"id": station.id, "latitude": station.latitude, "longitude": station.longitude, "food": foods.value, "water": waters.value}).get_data(as_text=True)
 
 @app.route('/api/users/<username>/stations/<station_id>', methods=['DELETE'])
 def deleteStation(username, station_id):
@@ -1254,7 +1262,9 @@ def getStations(username):
     stations = Station.query.filter_by(person_id=Person.query.filter_by(username=username).first().id)\
         .order_by(Station.id.asc()).all()
 
-    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude, "address": s.address} for s in stations])
+    return jsonify([{"id": s.id, "latitude": s.latitude, "longitude": s.longitude, "address": s.address,
+                     "food": safe_list_get(Food.query.filter_by(station_id=s.id).order_by(Food.id.desc()).limit(int(1)).all(), 0, ''),
+                     "water": safe_list_get(Water.query.filter_by(station_id=s.id).order_by(Water.id.desc()).limit(int(1)).all(), 0, '')} for s in stations])
 
 
 @app.route('/api/users/<username>/stations/<station_id>/animals', methods=['GET'])
@@ -1304,7 +1314,9 @@ def getStationAnimals(username, station_id):
 
     return jsonify([{"id": sa.id, "name": sa.name, "age": sa.age, "gender": sa.gender,
                      "animal_type": sa.animal_type, "breed": sa.breed,
-                     "temperature": sa.temperature, "bark": sa.bark, "distance": sa.distance, "station_id": station_id} for sa in station_animals])
+                     "temperature": sa.temperature, "bark": sa.bark, "distance": sa.distance, "station_id": station_id,
+                     "beat": safe_list_get(Beat.query.filter_by(animal_id=sa.id).order_by(Beat.id.desc()).limit(int(1)).all(), 0, ''),
+                     "weight": safe_list_get(Weight.query.filter_by(animal_id=sa.id).order_by(Weight.id.desc()).limit(int(1)).all(), 0, '')} for sa in station_animals])
 
 @app.route('/api/allStations', methods=['GET'])
 def getAllStations():
