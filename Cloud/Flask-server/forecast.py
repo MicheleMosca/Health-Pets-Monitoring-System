@@ -14,15 +14,18 @@ def predict(weights):
     animal_weights = weights
 
     animal_weights.reverse()
+    #print(animal_weights)
+
     weights_list = []
 
     for aw in animal_weights:
-        dictionary = {'ds': aw['timestamp'], 'yhat': aw['value']}
+        dictionary = {'ds': pd.Timestamp(aw['timestamp']), 'y': aw['value']}
         weights_list.append(dictionary)
 
-    #Just for test
-    weights_list = testProphet()
     #print(weights_list)
+    #Just for test
+    #weights_list = testProphet()
+    print(weights_list)
 
     data = pd.DataFrame(weights_list)
     #print(data)
@@ -34,7 +37,7 @@ def predict(weights):
 
     forecast = model.predict(prediction)
     data_dict = forecast[['ds', 'yhat']].to_dict()
-    #print(data_dict['ds'].keys())
+    print(forecast[['ds', 'yhat']])
     data_list = []
 
     for key in data_dict['ds'].keys():
