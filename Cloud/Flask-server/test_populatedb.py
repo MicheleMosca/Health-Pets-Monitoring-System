@@ -188,6 +188,118 @@ def populatedb(db):
     db.session.add(weight_2)
     db.session.commit()
 
+    weight_3 = Weight(value=5, animal_id=animal_1.id)
+    db.session.add(weight_3)
+    db.session.commit()
+
+    weight_4 = Weight(value=5, animal_id=animal_1.id)
+    db.session.add(weight_4)
+    db.session.commit()
+
+    weight_5 = Weight(value=4, animal_id=animal_1.id)
+    db.session.add(weight_5)
+    db.session.commit()
+
+    weight_6 = Weight(value=4, animal_id=animal_1.id)
+    db.session.add(weight_6)
+    db.session.commit()
+
+    weight_7 = Weight(value=5, animal_id=animal_1.id)
+    db.session.add(weight_7)
+    db.session.commit()
+
+    weight_8 = Weight(value=5, animal_id=animal_1.id)
+    db.session.add(weight_8)
+    db.session.commit()
+
+    weight_9 = Weight(value=6, animal_id=animal_1.id)
+    db.session.add(weight_9)
+    db.session.commit()
+
+    weight_10 = Weight(value=6, animal_id=animal_1.id)
+    db.session.add(weight_10)
+    db.session.commit()
+
+    weight_11 = Weight(value=6, animal_id=animal_1.id)
+    db.session.add(weight_11)
+    db.session.commit()
+
+    weight_12 = Weight(value=5, animal_id=animal_1.id)
+    db.session.add(weight_12)
+    db.session.commit()
+
+    weight_13 = Weight(value=5, animal_id=animal_1.id)
+    db.session.add(weight_13)
+    db.session.commit()
+
+    weight_14 = Weight(value=6, animal_id=animal_1.id)
+    db.session.add(weight_14)
+    db.session.commit()
+
+    weight_15 = Weight(value=7, animal_id=animal_1.id)
+    db.session.add(weight_15)
+    db.session.commit()
+
+    weight_16 = Weight(value=7, animal_id=animal_1.id)
+    db.session.add(weight_16)
+    db.session.commit()
+
+    weight_17 = Weight(value=8, animal_id=animal_1.id)
+    db.session.add(weight_17)
+    db.session.commit()
+
+    weight_18 = Weight(value=8, animal_id=animal_1.id)
+    db.session.add(weight_18)
+    db.session.commit()
+
+    weight_19 = Weight(value=9, animal_id=animal_1.id)
+    db.session.add(weight_19)
+    db.session.commit()
+
+    weight_20 = Weight(value=9, animal_id=animal_1.id)
+    db.session.add(weight_20)
+    db.session.commit()
+
+    weight_21 = Weight(value=9, animal_id=animal_1.id)
+    db.session.add(weight_21)
+    db.session.commit()
+
+    weight_22 = Weight(value=10, animal_id=animal_1.id)
+    db.session.add(weight_22)
+    db.session.commit()
+
+    weight_23 = Weight(value=10, animal_id=animal_1.id)
+    db.session.add(weight_23)
+    db.session.commit()
+
+    weight_24 = Weight(value=10, animal_id=animal_1.id)
+    db.session.add(weight_24)
+    db.session.commit()
+
+    weight_25 = Weight(value=10, animal_id=animal_1.id)
+    db.session.add(weight_25)
+    db.session.commit()
+
+    weight_26 = Weight(value=9, animal_id=animal_1.id)
+    db.session.add(weight_26)
+    db.session.commit()
+
+    weight_27 = Weight(value=10, animal_id=animal_1.id)
+    db.session.add(weight_27)
+    db.session.commit()
+
+    weight_28 = Weight(value=10, animal_id=animal_1.id)
+    db.session.add(weight_28)
+    db.session.commit()
+
+    weight_29 = Weight(value=10, animal_id=animal_1.id)
+    db.session.add(weight_29)
+    db.session.commit()
+
+    weight_30 = Weight(value=10, animal_id=animal_1.id)
+    db.session.add(weight_30)
+    db.session.commit()
+
     beats_1 = Beat(value=120, animal_id=animal_1.id)
     db.session.add(beats_1)
     db.session.commit()
