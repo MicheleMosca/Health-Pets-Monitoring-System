@@ -3,7 +3,6 @@
     font-family: "MaBook";
     src: local("MaBook"),
     url("./fonts/Mabook.ttf") format("truetype");
-    font-weight: bold;
 }
 
 * {

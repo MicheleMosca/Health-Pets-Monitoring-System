@@ -16,6 +16,8 @@ export default function Animal()
     const [animal, setAnimal] = useState();
     const [varHTML, setVarHTML] = useState();
 
+    const [meals, setMeals] = useState();
+
     const [showAM, setShowAM] = useState(false);
     const handleCloseAM = () => setShowAM(false);
     const handleShowAM = () => setShowAM(true);
@@ -52,6 +54,23 @@ export default function Animal()
             })
         
     }, [])
+
+    useEffect(() => {
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/meals', {
+            method: 'GET',
+            headers:
+                {
+                    'X-API-KEY' : localStorage.getItem('auth_token'),
+                    'Content-Type' : 'application/json'
+                }
+        }).then((response) => {
+            if(!response.ok) throw new Error(response.status);
+            return response.json();
+        }).then((myJson) => {
+            setMeals(myJson);
+            console.log("Ecco meals"+ JSON.stringify(meals));
+        })
+    }, [animal])
 
     const handleAddMeal = (e) => {
         e.preventDefault();
@@ -114,6 +133,25 @@ export default function Animal()
         console.log("finito richiesta");
     }
 
+    function getMeals()
+    {
+        let html = [];
+
+        for (let i = 0; i < meals?.length; i++)
+        {
+            html.push(
+                <tr>
+                    <th scope="row">{meals[i].id}</th>
+                    <td>{meals[i].meal_type}</td>
+                    <td>{meals[i].quantity}</td>
+                    <td>{meals[i].time}</td>
+                </tr>
+            )
+        }
+
+        return html;
+    }
+
     return(
         <div className="text-center">
             <NavBarComponent/>
@@ -141,8 +179,20 @@ export default function Animal()
 
                 </ListGroup>
             </Card>
-            <div>{JSON.stringify(animal)}</div>
-            
+            {/*<div>{JSON.stringify(animal)}</div>*/}
+            <table className="table">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Meal Type</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Time</th>
+                </tr>
+                </thead>
+                <tbody>
+                {getMeals()}
+                </tbody>
+            </table>
             <div className = "buttons text-center">
                 <Button className="m-3" variant="primary" onClick={handleShowAM}>Add new meal</Button>
                 <Modal
@@ -195,10 +245,7 @@ export default function Animal()
                 </Modal>
                 <Button className="m-3" variant="danger">Delete a meal</Button>
                 <Button variant="primary" onClick={handlePredictWeight}>Predict</Button>
-
-                
             </div>
-
         </div>
     )
 }
