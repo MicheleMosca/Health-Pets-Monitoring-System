@@ -300,11 +300,11 @@ def populatedb(db):
     db.session.add(weight_30)
     db.session.commit()
 
-    weight_31 = Weight(value=15, animal_id=animal_1.id)
+    weight_31 = Weight(value=15, animal_id=animal_8.id)
     db.session.add(weight_31)
     db.session.commit()
 
-    weight_32 = Weight(value=18, animal_id=animal_1.id)
+    weight_32 = Weight(value=18, animal_id=animal_8.id)
     db.session.add(weight_32)
     db.session.commit()
 
