@@ -144,6 +144,22 @@ export default function Animal()
         console.log("finito richiesta");
     }
 
+    function deleteMeal(id)
+    {
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/meals/' + id, {
+            method: 'DELETE',
+            headers:
+                {
+                    'X-API-KEY' : localStorage.getItem('auth_token'),
+                    'Content-Type' : 'application/json'
+                }
+        }).then((response) => {
+            if(!response.ok) throw new Error(response.status);
+            return response.json();
+        }).then((myJson) => {
+            window.location.reload(false);
+        })
+    }
 
     function getMeals()
     {
@@ -156,6 +172,7 @@ export default function Animal()
                     <td>{meals[i].meal_type}</td>
                     <td>{meals[i].quantity}</td>
                     <td>{meals[i].time}</td>
+                    <td><Button className="" variant="danger" size="sm" onClick={() => deleteMeal(meals[i].id)}>-</Button></td>
                 </tr>
             )
         }
@@ -190,13 +207,13 @@ export default function Animal()
 
                 </ListGroup>
             </Card>
-            {/*<div>{JSON.stringify(animal)}</div>*/}
             <table className="table table-striped">
                 <thead>
                 <tr>
                     <th scope="col">Meal Type</th>
                     <th scope="col">Quantity</th>
                     <th scope="col">Time</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -253,25 +270,14 @@ export default function Animal()
                         
                     </Modal.Footer>
                 </Modal>
-                <Button className="m-3" variant="danger">Delete a meal</Button>
-                
-
-                <div>
-                        <Button variant="primary" onClick={handleToggle}>Show Predict</Button>
-                        { showChart ?
-                        
-                        <XYPlot width={1200}  height={300} xType="time" hidde><XAxis/><YAxis/>
-                            <HorizontalGridLines />
-                            <VerticalGridLines />
-                            <LineMarkSeries  data={weightDict} />
-                        </XYPlot>
-                        
-                        : null }
-                </div>
-                
-               
-
-                
+                <Button variant="success" onClick={handleToggle}>Show Predict</Button>
+                { showChart ?
+                    <XYPlot width={1200}  height={300} xType="time" hidde><XAxis/><YAxis/>
+                        <HorizontalGridLines />
+                        <VerticalGridLines />
+                        <LineMarkSeries  data={weightDict} />
+                    </XYPlot>
+                : null }
             </div>
         </div>
     )
