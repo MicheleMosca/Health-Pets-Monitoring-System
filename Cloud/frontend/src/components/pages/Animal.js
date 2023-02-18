@@ -21,6 +21,8 @@ export default function Animal()
         setShowChart((showChart) => !showChart);
       };
 
+    const [meals, setMeals] = useState();
+
     const [showAM, setShowAM] = useState(false);
     const handleCloseAM = () => setShowAM(false);
     const handleShowAM = () => setShowAM(true);
@@ -82,6 +84,24 @@ export default function Animal()
         
     }, [])
 
+    useEffect(() => {
+
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/meals', {
+            method: 'GET',
+            headers:
+                {
+                    'X-API-KEY' : localStorage.getItem('auth_token'),
+                    'Content-Type' : 'application/json'
+                }
+        }).then((response) => {
+            if(!response.ok) throw new Error(response.status);
+            return response.json();
+        }).then((myJson) => {
+            setMeals(myJson);
+            console.log("Ecco meals"+ JSON.stringify(meals));
+        })
+    }, [animal])
+
     const handleAddMeal = (e) => {
         e.preventDefault();
         console.log("Dentro handle add station");
@@ -113,13 +133,32 @@ export default function Animal()
     }
 
 
+    function getMeals()
+    {
+        let html = [];
+
+        for (let i = 0; i < meals?.length; i++)
+        {
+            html.push(
+                <tr>
+                    <th scope="row">{meals[i].id}</th>
+                    <td>{meals[i].meal_type}</td>
+                    <td>{meals[i].quantity}</td>
+                    <td>{meals[i].time}</td>
+                </tr>
+            )
+        }
+
+        return html;
+    }
+
     return(
         <div className="text-center">
             <NavBarComponent/>
             <div className='text-left mt-3 ml-5'>
                 <button className="text-right" type="button" class="btn btn-secondary" onClick={handleBackButton}>Back</button>
             </div>
-            <h1 className="title home-page-title">Animal #{animal?.name}</h1>
+            <h1 className="title home-page-title">{animal?.name}</h1>
             <Card style={{}}>
                 {/* <Card.Img variant="top" src="holder.js/100px180?text=Image cap" /> */}
                 {/* <ShowStations  /> */}
@@ -140,8 +179,20 @@ export default function Animal()
 
                 </ListGroup>
             </Card>
-            <div>{JSON.stringify(animal)}</div>
-            
+            {/*<div>{JSON.stringify(animal)}</div>*/}
+            <table className="table">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Meal Type</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Time</th>
+                </tr>
+                </thead>
+                <tbody>
+                {getMeals()}
+                </tbody>
+            </table>
             <div className = "buttons text-center">
                 <Button className="m-3" variant="primary" onClick={handleShowAM}>Add new meal</Button>
                 <Modal
@@ -212,7 +263,6 @@ export default function Animal()
 
                 
             </div>
-
         </div>
     )
 }

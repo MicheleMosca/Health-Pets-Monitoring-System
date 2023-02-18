@@ -1,9 +1,15 @@
 /***    General     ***/
+@font-face {
+    font-family: "MaBook";
+    src: local("MaBook"),
+    url("./fonts/Mabook.ttf") format("truetype");
+}
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: "Roboto", sans-serif
+    font-family: "MaBook", sans-serif
 }
 
 body {
@@ -37,14 +43,14 @@ body {
 .main-title {
     padding-top: 10rem;
     font-size: 5rem;
-    font-family: 'Fascinate', cursive;
+    font-family: 'MaBook', cursive;
     text-transform: uppercase
 }
 
 .title{
     padding-top: 2rem;
     font-size: 5rem;
-    font-family: 'Fascinate', cursive;
+    font-family: 'MaBook', cursive;
     text-transform: uppercase
 }
 
