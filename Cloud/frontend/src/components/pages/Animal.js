@@ -2,6 +2,7 @@ import {React,useEffect,useState} from 'react';
 import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
 import {ListGroup,Card,Button,Modal,ButtonGroup,ToggleButton} from 'react-bootstrap';
+import {XYPlot, XAxis, YAxis, VerticalGridLines, HorizontalGridLines, LineSeries, LineMarkSeries} from 'react-vis';
 import Form from 'react-bootstrap/Form';
 import NavBarComponent from "./NavBarComponent";
 
@@ -14,7 +15,14 @@ export default function Animal()
     const latLong=[];
     
     const [animal, setAnimal] = useState();
-    const [varHTML, setVarHTML] = useState();
+    const [weights, setWeights] = useState([]);
+    const [weightDict,setWeightDict] = useState([]);
+    const[showChart, setShowChart]=useState(false)
+    const handleToggle = () => {
+        setShowChart((showChart) => !showChart);
+      };
+
+    const [meals, setMeals] = useState();
 
     const [showAM, setShowAM] = useState(false);
     const handleCloseAM = () => setShowAM(false);
@@ -53,6 +61,59 @@ export default function Animal()
         
     }, [])
 
+    useEffect(() => {
+           
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/weights/prediction', {
+            method: 'GET',
+            headers: {
+                'X-API-KEY' : localStorage.getItem('auth_token'),
+                'Content-Type' : 'application/json'
+            },
+        }).then( (response) => {
+            if(!response.ok) throw new Error(response.status);
+            else {
+                return response.json();
+            }
+        }).then( (res) => {
+            console.log("Risposta data: " + res);
+            setWeights(res)
+
+            res.forEach(item => {
+                console.log("Sto aggiornando waterDict")
+                var myDate = new Date(item?.x);
+
+                setWeightDict(weightDict => [...weightDict,{ x :  myDate   ,  y : item?.y }])                  
+               
+            }
+            
+            );
+
+            //window.location.reload(true);
+        }).catch( (err) => {
+            console.log(err.message);
+        });
+        console.log("finito richiesta");
+        
+    }, [])
+
+    useEffect(() => {
+
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/meals', {
+            method: 'GET',
+            headers:
+                {
+                    'X-API-KEY' : localStorage.getItem('auth_token'),
+                    'Content-Type' : 'application/json'
+                }
+        }).then((response) => {
+            if(!response.ok) throw new Error(response.status);
+            return response.json();
+        }).then((myJson) => {
+            setMeals(myJson);
+            console.log("Ecco meals"+ JSON.stringify(meals));
+        })
+    }, [animal])
+
     const handleAddMeal = (e) => {
         e.preventDefault();
         console.log("Dentro handle add station");
@@ -83,35 +144,23 @@ export default function Animal()
         console.log("finito richiesta");
     }
 
-    const handlePredictWeight = (e) => {
-        e.preventDefault();
-        console.log("Dentro handle add station");
 
-        const mealData = {
-            "meal_quantity": meal_quantity,
-            "meal_type": meal_type,
-            "meal_time": meal_time
+    function getMeals()
+    {
+        let html = [];
+
+        for (let i = meals?.length -1 ; i >= 0; i--)
+        {
+            html.push(
+                <tr>
+                    <td>{meals[i].meal_type}</td>
+                    <td>{meals[i].quantity}</td>
+                    <td>{meals[i].time}</td>
+                </tr>
+            )
         }
-        console.log("Ecco i dati del pasto " + JSON.stringify(mealData))
 
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/weights/prediction', {
-            method: 'GET',
-            headers: {
-                'X-API-KEY' : localStorage.getItem('auth_token'),
-            },
-        }).then( (response) => {
-            if(!response.ok) throw new Error(response.status);
-            else {
-                return response.text();
-            }
-        }).then( (res) => {
-            console.log("Risposta data: " + res);
-            setVarHTML(res)
-            //window.location.reload(true);
-        }).catch( (err) => {
-            console.log(err.message);
-        });
-        console.log("finito richiesta");
+        return html;
     }
 
     return(
@@ -141,8 +190,19 @@ export default function Animal()
 
                 </ListGroup>
             </Card>
-            <div>{JSON.stringify(animal)}</div>
-            
+            {/*<div>{JSON.stringify(animal)}</div>*/}
+            <table className="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">Meal Type</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Time</th>
+                </tr>
+                </thead>
+                <tbody>
+                {getMeals()}
+                </tbody>
+            </table>
             <div className = "buttons text-center">
                 <Button className="m-3" variant="primary" onClick={handleShowAM}>Add new meal</Button>
                 <Modal
@@ -194,11 +254,25 @@ export default function Animal()
                     </Modal.Footer>
                 </Modal>
                 <Button className="m-3" variant="danger">Delete a meal</Button>
-                <Button variant="primary" onClick={handlePredictWeight}>Predict</Button>
+                
+
+                <div>
+                        <Button variant="primary" onClick={handleToggle}>Show Predict</Button>
+                        { showChart ?
+                        
+                        <XYPlot width={1200}  height={300} xType="time" hidde><XAxis/><YAxis/>
+                            <HorizontalGridLines />
+                            <VerticalGridLines />
+                            <LineMarkSeries  data={weightDict} />
+                        </XYPlot>
+                        
+                        : null }
+                </div>
+                
+               
 
                 
             </div>
-
         </div>
     )
 }

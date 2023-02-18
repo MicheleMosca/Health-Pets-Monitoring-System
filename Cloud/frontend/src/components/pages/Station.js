@@ -1,7 +1,7 @@
 import {React,useEffect,useState} from 'react';
 import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
-import {ListGroup,Card, Table} from 'react-bootstrap';
+import {ListGroup,Card, Table,Button } from 'react-bootstrap';
 import {XYPlot, XAxis, YAxis, VerticalGridLines, HorizontalGridLines, LineSeries, LineMarkSeries} from 'react-vis';
 import NavBarComponent from './NavBarComponent';
 // import {curveCatmullRom} from 'd3-shape';
@@ -16,6 +16,11 @@ export default function Station()
     const [waters, setWaters] = useState([]);
     const [foodDict,setFoodDict]=useState([]);
     const [waterDict,setWaterDict]=useState([]);
+
+    const [showTable,setShowTable]=useState(false)
+    const handleToggle = () => {
+        setShowTable((showTable) => !showTable);
+      };
     
     const handleBackButton = (e) => {
         e.preventDefault();
@@ -127,7 +132,9 @@ export default function Station()
                     This is the levels of your station
                     </Card.Text>
                 </Card.Body>
-                <ListGroup className="list-group-flush">
+                <Button variant="primary" onClick={handleToggle}>Show Table</Button>
+                { showTable? 
+                <ListGroup className="list-group-flush" >
                     <ListGroup.Item>FOOD: 
                         
                     <Table striped>
@@ -170,10 +177,8 @@ export default function Station()
                     {console.log("Foods vale "+ JSON.stringify(foods))}
                     {console.log("waters vale "+ JSON.stringify(waters))}
                     {console.log("foodDict vale "+ JSON.stringify(foodDict))}
-                    {/*createFoodDict()*/}
-                    {/*JSON.stringify(foods)*/} <br></br>
-                    {/*JSON.stringify(foodDict)*/}
                 </ListGroup>
+                : null}
             </Card>
 
             FOODS: <br></br>
