@@ -700,6 +700,9 @@ def setBeats(username, station_id, animal_id, value):
     if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
         return "Animal Not Found!", 404
 
+    if int(value) == 0:
+        return "Beat not registered!", 200
+
     beat = Beat(value=int(value), animal_id=int(animal_id))
     db.session.add(beat)
     db.session.commit()
@@ -725,7 +728,7 @@ def setAnimalWeight(username, station_id, animal_id, value):
     if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
         return "Animal Not Found!", 404
 
-    if value == 0:
+    if int(value) == 0:
         return "Animal weight not registered", 200
 
     weight = Weight(value=int(value), animal_id=int(animal_id))
@@ -910,9 +913,9 @@ def getMeal(username, station_id, animal_id):
     limit = request.args.get('limit')
 
     if limit is not None:
-        meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).limit(int(limit)).all()
+        meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.time.desc()).limit(int(limit)).all()
     else:
-        meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).all()
+        meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.time.desc()).all()
 
     return jsonify([{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity,
              "time": datetime.strftime(m.time, '%H:%M')} for m in meal])

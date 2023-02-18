@@ -125,7 +125,7 @@ export default function SignInPage()
                     <Form.Label>Password</Form.Label>
                     <Form.Control
                         type="password"
-                        value={form.removeAnimalID}
+                        value={form.password}
                         onChange={event => setField("password", event.target.value)}
                         isInvalid={!!errors.password}
                     ></Form.Control>

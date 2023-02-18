@@ -242,6 +242,7 @@ export default function HomePage() {
         const { animal_name, animal_age, animal_gender, animal_type, animal_breed, animal_station_id } = form;
         const newErrors = {}
         console.log(isNaN((parseInt(animal_name))))
+        
         if(!animal_name || animal_name === '')
         {
             newErrors.animal_name = "Please enter the animal name";
@@ -640,7 +641,6 @@ export default function HomePage() {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. 4"
-                                                    autoFocus
                                                     value={form.animal_age}
                                                     onChange={event => setField("animal_age", event.target.value)}
                                                     isInvalid={!!errors.animal_age}
@@ -654,7 +654,6 @@ export default function HomePage() {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="M/F"
-                                                    autoFocus
                                                     value={form.animal_gender}
                                                     onChange={event => setField("animal_gender", event.target.value)}
                                                     isInvalid={!!errors.animal_gender}
@@ -668,7 +667,6 @@ export default function HomePage() {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="dog/cat"
-                                                    autoFocus
                                                     value={form.animal_type}
                                                     onChange={event => setField("animal_type", event.target.value)}
                                                     isInvalid={!!errors.animal_type}
@@ -682,7 +680,6 @@ export default function HomePage() {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. German Shepherd"
-                                                    autoFocus
                                                     value={form.animal_breed}
                                                     onChange={event => setField("animal_breed", event.target.value)}
                                                     isInvalid={!!errors.animal_breed}
@@ -696,7 +693,6 @@ export default function HomePage() {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="es. 5"
-                                                    autoFocus
                                                     value={form.animal_station_id}
                                                     onChange={event => setField("animal_station_id", event.target.value)}
                                                     isInvalid={!!errors.animal_station_id}
