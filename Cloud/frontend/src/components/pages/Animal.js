@@ -6,6 +6,7 @@ import {XYPlot, XAxis, YAxis, VerticalGridLines, HorizontalGridLines, LineSeries
 import Form from 'react-bootstrap/Form';
 import NavBarComponent from "./NavBarComponent";
 import { environment } from '../constants';
+import dogImage from "../../assets/images/dog.jpg";
 
 export default function Animal()
 {
@@ -17,7 +18,9 @@ export default function Animal()
     
     const [animal, setAnimal] = useState();
     const [weights, setWeights] = useState([]);
+    const [weightPredictDict,setWeightPredictDict] = useState([]);
     const [weightDict,setWeightDict] = useState([]);
+    const [beatsDict,setBeatsDict] = useState([]);
     const[showChart, setShowChart]=useState(false)
     const handleToggle = () => {
         setShowChart((showChart) => !showChart);
@@ -101,7 +104,7 @@ export default function Animal()
                 console.log("Sto aggiornando waterDict")
                 var myDate = new Date(item?.x);
 
-                setWeightDict(weightDict => [...weightDict,{ x :  myDate   ,  y : item?.y }])                  
+                setWeightPredictDict(weightPredictDict => [...weightPredictDict,{ x :  myDate   ,  y : item?.y }])
                
             }
             
@@ -113,6 +116,76 @@ export default function Animal()
         });
         console.log("finito richiesta");
         
+    }, [])
+
+    useEffect(() => {
+
+        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/weights', {
+            method: 'GET',
+            headers: {
+                'X-API-KEY' : localStorage.getItem('auth_token'),
+                'Content-Type' : 'application/json'
+            },
+        }).then( (response) => {
+            if(!response.ok) throw new Error(response.status);
+            else {
+                return response.json();
+            }
+        }).then( (res) => {
+            console.log("Risposta data: " + res);
+            setWeights(res)
+
+            res.forEach(item => {
+                    console.log("Sto aggiornando waterDict")
+                    var myDate = new Date(item?.timestamp);
+
+                    setWeightDict(weightDict => [...weightDict,{ x :  myDate   ,  y : item?.value }])
+
+                }
+
+            );
+
+            //window.location.reload(true);
+        }).catch( (err) => {
+            console.log(err.message);
+        });
+        console.log("finito richiesta");
+
+    }, [])
+
+    useEffect(() => {
+
+        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/beats', {
+            method: 'GET',
+            headers: {
+                'X-API-KEY' : localStorage.getItem('auth_token'),
+                'Content-Type' : 'application/json'
+            },
+        }).then( (response) => {
+            if(!response.ok) throw new Error(response.status);
+            else {
+                return response.json();
+            }
+        }).then( (res) => {
+            console.log("Risposta data: " + res);
+            setWeights(res)
+
+            res.forEach(item => {
+                    console.log("Sto aggiornando waterDict")
+                    var myDate = new Date(item?.timestamp);
+
+                    setBeatsDict(beatsDict => [...beatsDict,{ x :  myDate   ,  y : item?.value }])
+
+                }
+
+            );
+
+            //window.location.reload(true);
+        }).catch( (err) => {
+            console.log(err.message);
+        });
+        console.log("finito richiesta");
+
     }, [])
 
     useEffect(() => {
@@ -259,6 +332,21 @@ export default function Animal()
     return(
         <div className="text-center">
             <NavBarComponent/>
+            <div className="row">
+                <div className="col-sm-6">
+                    <div className="card">
+                        <div className="row card-body">
+                            <div className="col-sm-6">
+                                <h5 className="card-title">...</h5>
+                                <p className="card-text">NAME: {  animal?.name }</p>
+                                <a href="#" className="btn btn-primary">Go somewhere</a>
+                            </div>
+                            <img className="col-sm-6" src={dogImage} alt="sans"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className='text-left mt-3 ml-5'>
                 <button className="text-right" type="button" class="btn btn-secondary" onClick={handleBackButton}>Back</button>
             </div>
@@ -279,10 +367,22 @@ export default function Animal()
                     <ListGroup.Item>Gender: {  animal?.gender }</ListGroup.Item>
                     <ListGroup.Item>Age: { animal?.age }</ListGroup.Item>
                     <ListGroup.Item>Bark: { animal?.bark? "true": "false" }</ListGroup.Item>
-                    <ListGroup.Item>Temperature: { animal?.temperature }</ListGroup.Item>
-
+                    <ListGroup.Item>Temperature: { animal?.temperature } °C</ListGroup.Item>
+                    <ListGroup.Item>Distance: { animal?.distance } m</ListGroup.Item>
                 </ListGroup>
             </Card>
+            WEIGHT: <br></br>
+            <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
+                <HorizontalGridLines />
+                <VerticalGridLines />
+                <LineMarkSeries data={weightDict} />
+            </XYPlot>
+            BEATS: <br></br>
+            <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
+                <HorizontalGridLines />
+                <VerticalGridLines />
+                <LineMarkSeries data={beatsDict} />
+            </XYPlot>
             <table className="table table-striped">
                 <thead>
                 <tr>
@@ -366,7 +466,7 @@ export default function Animal()
                     <XYPlot width={1200}  height={300} xType="time" hidde><XAxis/><YAxis/>
                         <HorizontalGridLines />
                         <VerticalGridLines />
-                        <LineMarkSeries  data={weightDict} />
+                        <LineMarkSeries  data={weightPredictDict} />
                     </XYPlot>
                 : null }
             </div>

@@ -174,6 +174,7 @@ export default function HomePage() {
                             <h5 className="card-text" key={animals[i]["bark"]}> Bark: {String(animals[i]["bark"]).toUpperCase()}</h5>
                             <h5 className="card-text" key={animals[i].weight}> Weight: {animals[i].weight} Kg</h5>
                             <h5 className="card-text" key={animals[i].beat}> Beats: {animals[i].beat} bpm</h5>
+                            <h5 className="card-text" key={animals[i].distance}> Distance: {animals[i].distance} m</h5>
                         </div>
                         </Card>
                     </div>
