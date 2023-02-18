@@ -15,7 +15,8 @@ export default function Animal()
     const latLong=[];
     
     const [animal, setAnimal] = useState();
-    const [weights, setWeights] = useState();
+    const [weights, setWeights] = useState([]);
+    const [weightDict,setWeightDict] = useState([]);
     const[showChart, setShowChart]=useState(false)
     const handleToggle = () => {
         setShowChart((showChart) => !showChart);
@@ -66,15 +67,26 @@ export default function Animal()
             method: 'GET',
             headers: {
                 'X-API-KEY' : localStorage.getItem('auth_token'),
+                'Content-Type' : 'application/json'
             },
         }).then( (response) => {
             if(!response.ok) throw new Error(response.status);
             else {
-                return response.text();
+                return response.json();
             }
         }).then( (res) => {
             console.log("Risposta data: " + res);
             setWeights(res)
+
+            res.forEach(item => {
+                console.log("Sto aggiornando waterDict")
+                var myDate = new Date(item?.x);
+
+                setWeightDict(weightDict => [...weightDict,{ x :  myDate   ,  y : item?.y }])                  
+               
+            }
+            
+            );
 
             //window.location.reload(true);
         }).catch( (err) => {
@@ -251,7 +263,7 @@ export default function Animal()
                         <XYPlot width={1200}  height={300} xType="time" hidde><XAxis/><YAxis/>
                             <HorizontalGridLines />
                             <VerticalGridLines />
-                            <LineMarkSeries  />
+                            <LineMarkSeries  data={weightDict} />
                         </XYPlot>
                         
                         : null }
