@@ -32,6 +32,24 @@ export default function Animal()
     const [meal_time, setMealTime] = useState/*string*/("");
     const [meal_type, setMealType] = useState/*string*/("");
     
+    /*Validate Form*/
+    const [form, setForm] = useState({});
+    const [errors, setErrors] = useState({});
+    const setField = (field, value) => {
+        setForm({
+            ...form,
+            [field]: value
+        })
+
+        if(!!errors[field])
+        {
+            setErrors({
+                ...errors,
+                [field]: null
+            })
+        }
+    }
+    
     
     const handleBackButton = (e) => {
         e.preventDefault();
@@ -114,16 +132,73 @@ export default function Animal()
         })
     }, [animal])
 
+    const validateAddMeal = () => {
+        const { meal_quantity, meal_type, meal_time } = form;
+        const newErrors = {}
+        console.log(isNaN((parseInt(meal_quantity))))
+        
+        if((!meal_quantity) || (meal_quantity === ''))
+        {
+            newErrors.meal_quantity = "Please enter the meal quantity (grams)";
+        }
+
+        if(!meal_type || meal_type === '')
+        {
+            newErrors.meal_type = "Please enter the meal type (secco/umido)";
+        }
+
+        if(!meal_time || meal_time === '')
+        {
+            newErrors.meal_time = "Please enter the meal time";
+        }
+
+        if(Object.keys(newErrors).length > 0)
+        {
+            return newErrors;
+        }
+
+        if((isNaN(parseInt(meal_type)) === false))
+        {
+            newErrors.meal_type = "Invalid animal gender. Must be 'secco' or 'umido'";
+        }
+
+        if(isNaN(parseInt(meal_quantity)) === true)
+        {
+            newErrors.meal_quantity = "Invalid meal quantity";
+        }
+
+        if((meal_type.toUpperCase() !== 'SECCO') && (meal_type.toUpperCase() !== 'UMIDO'))
+        {
+            newErrors.meal_type = "Invalid animal gender. Must be 'secco' or 'umido'";
+        }
+
+        var isValid = /^([0-1]?[0-9]|2[0-4]):([0-5][0-9])(:[0-5][0-9])?$/.test(meal_time);
+
+        if (!isValid) {
+            newErrors.meal_time = "Invalid time. The format must be 'HH:mm' (es. 12:00)";
+        }
+
+        console.log(newErrors);
+        return newErrors;
+    }
+
     const handleAddMeal = (e) => {
         e.preventDefault();
         console.log("Dentro handle add station");
 
         const mealData = {
-            "meal_quantity": meal_quantity,
-            "meal_type": meal_type,
-            "meal_time": meal_time
+            "meal_quantity": form.meal_quantity,
+            "meal_type": form.meal_type,
+            "meal_time": form.meal_time
         }
         console.log("Ecco i dati del pasto " + JSON.stringify(mealData))
+
+        const formErrors = validateAddMeal();
+        if(Object.keys(formErrors).length > 0)
+        {
+            setErrors(formErrors);
+            return;
+        }
 
         fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/meals?meal_type=' + mealData["meal_type"] + '&quantity=' + mealData["meal_quantity"] + '&time=' + mealData["meal_time"], {
             method: 'POST',
@@ -235,30 +310,45 @@ export default function Animal()
                     <Modal.Body>
                         Please insert the necessary data:
                         <Form>
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Group className="mb-3" controlId="meal_quantity">
                                 <Form.Label>Quantity (grams)</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="es. 100"
+                                    placeholder="es. 50"
                                     autoFocus
-                                    onChange={event => setMealQuantity(event.target.value)}
-                                />
+                                    value={form.meal_quantity}
+                                    onChange={event => setField("meal_quantity", event.target.value)}
+                                    isInvalid={!!errors.meal_quantity}
+                                ></Form.Control>
+                                <Form.Control.Feedback type='invalid'>
+                                    {errors.meal_quantity}
+                                </Form.Control.Feedback>
                             </Form.Group>
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Group className="mb-3" controlId="meal_type">
                                 <Form.Label>Meal type</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="secco/umido"
-                                    onChange={event => setMealType(event.target.value)}
-                                />
+                                    value={form.meal_type}
+                                    onChange={event => setField("meal_type", event.target.value)}
+                                    isInvalid={!!errors.meal_type}
+                                ></Form.Control>
+                                <Form.Control.Feedback type='invalid'>
+                                    {errors.meal_type}
+                                </Form.Control.Feedback>
                             </Form.Group>
-                            <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
+                            <Form.Group className="mb-3" controlId="meal_time">
                                 <Form.Label>Time</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="es. 17:00"
-                                    onChange={event => setMealTime(event.target.value)}
-                                />
+                                    placeholder="es. 5"
+                                    value={form.meal_time}
+                                    onChange={event => setField("meal_time", event.target.value)}
+                                    isInvalid={!!errors.meal_time}
+                                ></Form.Control>
+                                <Form.Control.Feedback type='invalid'>
+                                    {errors.meal_time}
+                                </Form.Control.Feedback>
                             </Form.Group>
                         </Form>
                     </Modal.Body>
