@@ -21,7 +21,7 @@ il modulo HX711.
 
 HX711 scale;
 
-float calibration_factor = -7050;
+float calibration_factor = 7050;
 
 void setup() {
   Serial.begin(9600);

@@ -1,12 +1,12 @@
 #define SEND_INTERVAL 10000 // every 10 seconds
 
-unsigned char weight = 3;
+unsigned char weight = 0;
 
 /* Serial Send variables */
 unsigned long timestamp;
 
 /* Serial Receive variables */
-#define BUFFDIM 8 // header, size, animal_id, meal_type, quantity, distance, checksum, footer
+#define BUFFDIM 7 // header, size, animal_id, meal_type, quantity, checksum, footer
 unsigned char animal_id_received = 0;
 unsigned char meal_type = 'u';
 unsigned char quantity = 0;
@@ -115,7 +115,7 @@ void setup()
 
   /* Food system */
   myservo.attach(servo);
-  myservo.write(0);
+  myservo.write(90);
 
   timer_food = millis();
   state_food = 0;
@@ -154,7 +154,7 @@ void loop()
 {
   unsigned char water = waterSystem();
   unsigned char food = foodSystem();
-  if (distance == 1)
+  if (distance <= 1)
     weight = weightSystem();
   menu(water, food, weight);
 
@@ -215,14 +215,12 @@ int serialReceive(unsigned char *animal_id, unsigned char *meal_type, unsigned c
   if (Serial.available() > 0)
   {
     unsigned char ucData;
-
     ucData = Serial.read(); // read a byte
     if (ucData == 0xFE) // EOF
     {
       // Append last byte
       ucInBuffer[stBufferIndex] = ucData;
       stBufferIndex++;
-
       int r = useData(&animal_id, &meal_type, &quantity);
 
       // Clear buffer
@@ -302,20 +300,20 @@ void foodRelease()
   {
       if(state_food == 0 && millis() - timer_food > 2000)
       {
-        myservo.write(90);
+        myservo.write(0);
         quantity_food--;
         timer_food = millis();
         state_food = 1;
       }
       if(state_food == 1 && millis() - timer_food > 2000)
       {
-        myservo.write(0);
+        myservo.write(90);
         timer_food = millis();
         state_food = 0;
       }
   }
   else
-    myservo.write(0);
+    myservo.write(90);
 }
 
 unsigned char foodSystem(){
@@ -323,9 +321,9 @@ unsigned char foodSystem(){
   // 20cm low; 9cm medium; 3cm high
   unsigned char ping = sonar.ping_cm();
 
-  if (ping >= 7)
+  if (ping >= 8)
     return 'l';
-  else if (ping < 7 && ping > 3)
+  else if (ping < 8 && ping > 3)
     return 'm';
   else if (ping <= 3)
     return 'h';
@@ -345,7 +343,7 @@ void menu(char water, char food, char weight){
   if(customKey == 'A' || (statusKey == 0 && customKey == 0)){
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print("Menu");
+    lcd.print("Menu ");
     lcd.setCursor(0,1);
     lcd.print("weight = ");
     lcd.print((float)weight);
