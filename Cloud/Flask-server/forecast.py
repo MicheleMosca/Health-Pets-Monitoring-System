@@ -37,12 +37,17 @@ def predict(weights):
 
     forecast = model.predict(prediction)
     data_dict = forecast[['ds', 'yhat']].to_dict()
-    print(forecast[['ds', 'yhat']])
+    #print(forecast[['ds', 'yhat']])
     data_list = []
 
     for key in data_dict['ds'].keys():
         data_list.append({"x": data_dict['ds'][key], "y": data_dict['yhat'][key]})
 
-    #print(data_list)
+    for elem_w in weights_list:
+        for elem_d in data_list:
+            if(elem_d['x'] == elem_w['ds']):
+                elem_d['y'] = elem_w['y']
+
+    print(data_list)
 
     return data_list
