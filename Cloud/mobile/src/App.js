@@ -6,7 +6,9 @@ import LoginPage from './components/pages/LoginPage'
 import RegisterPage from './components/pages/RegisterPage'
 import ForgetPasswordPage from './components/pages/ForgetPasswordPage'
 import HomePage from './components/pages/HomePage'
-import AllStations from './components/pages/allStations'
+import AllStations from './components/pages/AllStations'
+import Station from './components/pages/Station'
+import Animal from './components/pages/Animal'
 
 import './App.css'
 
@@ -20,7 +22,9 @@ export default function App() {
                     <Route path="/register" element={ <RegisterPage/> } />
                     <Route path="/forget-password" element={ <ForgetPasswordPage/> } />
                     <Route path="/home" element={ <HomePage/> } />
-                    <Route path="/AllStations" element={ <AllStations/> } />
+                    <Route path="/allStations" element={ <AllStations/> } />
+                    <Route path="/Station" element={ <Station/> } />
+                    <Route path="/Animal" element={ <Animal/> } />
                 </Routes>
                 <Footer />
             </div>
@@ -30,7 +34,7 @@ export default function App() {
 
 const Footer = () => {
     return (
-        <p className="text-center" style={ FooterStyle }>Designed & coded by <a href="https://izemspot.netlify.com" target="_blank" rel="noopener noreferrer">IZEMSPOT</a></p>
+        <p className="text-center" style={ FooterStyle }>HPMS: Health Pets Monitoring System</p>
     )
 }
 
@@ -38,7 +42,7 @@ const FooterStyle = {
     background: "#222",
     fontSize: ".8rem",
     color: "#fff",
-    position: "absolute",
+    position: "bottom",
     bottom: 0,
     padding: "1rem",
     margin: 0,

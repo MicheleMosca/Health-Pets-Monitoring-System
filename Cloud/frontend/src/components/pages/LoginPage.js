@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link , useNavigate } from 'react-router-dom'
 import { Button,Container,Row,Col,Modal,Form, Card } from 'react-bootstrap';
+import { environment } from '../constants';
 
 import '../../App.css'
 
@@ -75,7 +76,7 @@ export default function SignInPage()
             return;
         }
 
-          fetch('/api/login', {
+          fetch(environment.site+'/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(loginData)

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { environment } from '../constants';
 
 import '../../App.css'
 
@@ -29,7 +30,7 @@ export default function SignUpPage()
         console.log("Ecco i dati del signup " + JSON.stringify(signupData))
         console.log("Ecco data " + JSON.stringify(data))
 
-        fetch('/api/register', {
+        fetch(environment.site+'/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(signupData)

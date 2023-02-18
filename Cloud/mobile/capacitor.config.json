@@ -4,5 +4,11 @@
   "bundledWebRuntime": false,
   "npmClient": "npm",
   "webDir": "build",
+  "server": {
+    "allowNavigation": []
+  },
+  "android": {
+    "allowMixedContent": true
+  },
   "cordova": {}
 }

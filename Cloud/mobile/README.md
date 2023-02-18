@@ -28,5 +28,8 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 
 
+### remember  on manifest --> android:usesCleartextTraffic="true"
+
+
 
 

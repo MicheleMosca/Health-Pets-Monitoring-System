@@ -1,6 +1,16 @@
 import React from 'react';
-import {MapContainer, Marker, Popup, TileLayer, Circle} from "react-leaflet";
+import {MapContainer, Marker, Popup, TileLayer, Circle, useMapEvent} from "react-leaflet";
 import L from 'leaflet';
+
+import { environment } from './constants';
+
+function SetViewOnClick() {
+    const map = useMapEvent('click', (e) => {
+        map.setView(e.latlng, map.getZoom())
+    })
+
+    return null
+}
 
 export class ShowStations extends React.Component
 {
@@ -27,10 +37,18 @@ export class ShowStations extends React.Component
                 iconAnchor: [12, 41],
                 popupAnchor: [1, -34],
                 shadowSize: [41, 41]
+            }),
+            greenIcon: new L.Icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
             })
         };
 
-        fetch('/api/allStations', {method: 'GET'}).then((response) => {
+        fetch(environment.site+'/api/allStations', {method: 'GET'}).then((response) => {
             if(!response.ok) throw new Error(response.status);
             return response.json();
         }).then((myJson) => {
@@ -70,6 +88,9 @@ export class ShowStations extends React.Component
                 )
             }
 
+            if (this.state.markers[i]["id"] === this.props.station_id)
+                color = this.state.greenIcon;
+
             markers.push(
                 <Marker position={position} icon={color}>
                     <Popup>
@@ -86,6 +107,7 @@ export class ShowStations extends React.Component
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
+                <SetViewOnClick/>
                 {markers}
             </MapContainer>
         );

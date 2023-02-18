@@ -2,6 +2,8 @@ import React from 'react';
 import {MapContainer, Marker, Popup, TileLayer, Circle, useMapEvent} from "react-leaflet";
 import L from 'leaflet';
 
+import { environment } from './constants';
+
 function SetViewOnClick() {
     const map = useMapEvent('click', (e) => {
         map.setView(e.latlng, map.getZoom())
@@ -46,7 +48,7 @@ export class ShowStations extends React.Component
             })
         };
 
-        fetch('/api/allStations', {method: 'GET'}).then((response) => {
+        fetch(environment.site+'/api/allStations', {method: 'GET'}).then((response) => {
             if(!response.ok) throw new Error(response.status);
             return response.json();
         }).then((myJson) => {

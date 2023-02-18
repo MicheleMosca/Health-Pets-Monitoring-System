@@ -6,6 +6,7 @@ import homeImage from "../../assets/images/home.jpg";
 import dogImage from "../../assets/images/dog.jpg";
 import catImage from "../../assets/images/cat.jpg";
 import BackgroundImage from '../../assets/images/pattern.png'
+import { environment } from '../constants';
 
 export default function HomePage() {
     const navigate = useNavigate();
@@ -65,7 +66,7 @@ export default function HomePage() {
             console.log("fatto")
         }
 
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations',
+        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations',
             {
                 method: 'GET',
                 headers:
@@ -87,7 +88,7 @@ export default function HomePage() {
         for (let i = 0; i < stations?.length; i++)
         {
             console.log("Siamo ad " + i);
-            fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stations[i]['id'] + '/animals',
+            fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations/' + stations[i]['id'] + '/animals',
                 {
                     method: 'GET',
                     headers:
@@ -215,7 +216,7 @@ export default function HomePage() {
             return;
         }
 
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations?address=' + stationData['address'], {
+        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations?address=' + stationData['address'], {
             method: 'POST',
             headers: {
                 'X-API-KEY' : localStorage.getItem('auth_token'),
@@ -337,7 +338,7 @@ export default function HomePage() {
             return;
         }
 
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals?name=' + animalData['name'] + '&age=' + animalData['age'] + '&gender=' + animalData['gender'] + '&animal_type=' + animalData['animal_type'] + '&breed=' + animalData['breed'], {
+        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals?name=' + animalData['name'] + '&age=' + animalData['age'] + '&gender=' + animalData['gender'] + '&animal_type=' + animalData['animal_type'] + '&breed=' + animalData['breed'], {
             method: 'POST',
             headers: {
                 'X-API-KEY' : localStorage.getItem('auth_token'),
@@ -401,7 +402,7 @@ export default function HomePage() {
             return;
         }
 
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stationData["station_id"], {
+        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations/' + stationData["station_id"], {
             method: 'DELETE',
             headers: {
             'X-API-KEY' : localStorage.getItem('auth_token'),
@@ -488,7 +489,7 @@ export default function HomePage() {
             return;
         }
 
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals/' + animalData["animal_id"], {
+        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations/' + animalData['station_id'] + '/animals/' + animalData["animal_id"], {
             method: 'DELETE',
             headers: {
                 'X-API-KEY' : localStorage.getItem('auth_token'),
