@@ -700,6 +700,9 @@ def setBeats(username, station_id, animal_id, value):
     if int(animal_id) not in [animal.id for animal in Station.query.filter_by(id=station_id).first().animals]:
         return "Animal Not Found!", 404
 
+    if int(value) == 0:
+        return "Beat not registered!", 200
+
     beat = Beat(value=int(value), animal_id=int(animal_id))
     db.session.add(beat)
     db.session.commit()
