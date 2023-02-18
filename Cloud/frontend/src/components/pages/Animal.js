@@ -222,7 +222,7 @@ export default function Animal()
 
     function deleteMeal(id)
     {
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/meals/' + id, {
+        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/meals/' + id, {
             method: 'DELETE',
             headers:
                 {
