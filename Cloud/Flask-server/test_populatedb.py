@@ -300,6 +300,14 @@ def populatedb(db):
     db.session.add(weight_30)
     db.session.commit()
 
+    weight_31 = Weight(value=15, animal_id=animal_1.id)
+    db.session.add(weight_31)
+    db.session.commit()
+
+    weight_32 = Weight(value=18, animal_id=animal_1.id)
+    db.session.add(weight_32)
+    db.session.commit()
+
     beats_1 = Beat(value=120, animal_id=animal_1.id)
     db.session.add(beats_1)
     db.session.commit()
