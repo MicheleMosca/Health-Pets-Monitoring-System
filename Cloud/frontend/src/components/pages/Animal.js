@@ -137,7 +137,7 @@ export default function Animal()
     {
         let html = [];
 
-        for (let i = 0; i < meals?.length; i++)
+        for (let i = meals?.length -1 ; i >= 0; i--)
         {
             html.push(
                 <tr>
@@ -180,7 +180,7 @@ export default function Animal()
                 </ListGroup>
             </Card>
             {/*<div>{JSON.stringify(animal)}</div>*/}
-            <table className="table">
+            <table className="table table-striped">
                 <thead>
                 <tr>
                     <th scope="col">#</th>
