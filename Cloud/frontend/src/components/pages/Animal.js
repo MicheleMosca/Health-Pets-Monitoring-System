@@ -2,6 +2,7 @@ import {React,useEffect,useState} from 'react';
 import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
 import {ListGroup,Card,Button,Modal,ButtonGroup,ToggleButton} from 'react-bootstrap';
+import {XYPlot, XAxis, YAxis, VerticalGridLines, HorizontalGridLines, LineSeries, LineMarkSeries} from 'react-vis';
 import Form from 'react-bootstrap/Form';
 import NavBarComponent from "./NavBarComponent";
 
@@ -14,7 +15,11 @@ export default function Animal()
     const latLong=[];
     
     const [animal, setAnimal] = useState();
-    const [varHTML, setVarHTML] = useState();
+    const [weights, setWeights] = useState();
+    const[showChart, setShowChart]=useState(false)
+    const handleToggle = () => {
+        setShowChart((showChart) => !showChart);
+      };
 
     const [meals, setMeals] = useState();
 
@@ -56,6 +61,31 @@ export default function Animal()
     }, [])
 
     useEffect(() => {
+           
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/weights/prediction', {
+            method: 'GET',
+            headers: {
+                'X-API-KEY' : localStorage.getItem('auth_token'),
+            },
+        }).then( (response) => {
+            if(!response.ok) throw new Error(response.status);
+            else {
+                return response.text();
+            }
+        }).then( (res) => {
+            console.log("Risposta data: " + res);
+            setWeights(res)
+
+            //window.location.reload(true);
+        }).catch( (err) => {
+            console.log(err.message);
+        });
+        console.log("finito richiesta");
+        
+    }, [])
+
+    useEffect(() => {
+
         fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/meals', {
             method: 'GET',
             headers:
@@ -102,42 +132,12 @@ export default function Animal()
         console.log("finito richiesta");
     }
 
-    const handlePredictWeight = (e) => {
-        e.preventDefault();
-        console.log("Dentro handle add station");
-
-        const mealData = {
-            "meal_quantity": meal_quantity,
-            "meal_type": meal_type,
-            "meal_time": meal_time
-        }
-        console.log("Ecco i dati del pasto " + JSON.stringify(mealData))
-
-        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/weights/prediction', {
-            method: 'GET',
-            headers: {
-                'X-API-KEY' : localStorage.getItem('auth_token'),
-            },
-        }).then( (response) => {
-            if(!response.ok) throw new Error(response.status);
-            else {
-                return response.text();
-            }
-        }).then( (res) => {
-            console.log("Risposta data: " + res);
-            setVarHTML(res)
-            //window.location.reload(true);
-        }).catch( (err) => {
-            console.log(err.message);
-        });
-        console.log("finito richiesta");
-    }
 
     function getMeals()
     {
         let html = [];
 
-        for (let i = 0; i < meals?.length; i++)
+        for (let i = meals?.length -1 ; i >= 0; i--)
         {
             html.push(
                 <tr>
@@ -180,7 +180,7 @@ export default function Animal()
                 </ListGroup>
             </Card>
             {/*<div>{JSON.stringify(animal)}</div>*/}
-            <table className="table">
+            <table className="table table-striped">
                 <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -244,7 +244,24 @@ export default function Animal()
                     </Modal.Footer>
                 </Modal>
                 <Button className="m-3" variant="danger">Delete a meal</Button>
-                <Button variant="primary" onClick={handlePredictWeight}>Predict</Button>
+                
+
+                <div>
+                        <Button variant="primary" onClick={handleToggle}>Show Predict</Button>
+                        { showChart ?
+                        
+                        <XYPlot width={1200}  height={300} xType="time" hidde><XAxis/><YAxis/>
+                            <HorizontalGridLines />
+                            <VerticalGridLines />
+                            <LineMarkSeries  />
+                        </XYPlot>
+                        
+                        : null }
+                </div>
+                
+               
+
+                
             </div>
         </div>
     )
