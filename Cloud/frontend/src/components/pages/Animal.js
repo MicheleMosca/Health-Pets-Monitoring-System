@@ -141,7 +141,6 @@ export default function Animal()
         {
             html.push(
                 <tr>
-                    <th scope="row">{meals[i].id}</th>
                     <td>{meals[i].meal_type}</td>
                     <td>{meals[i].quantity}</td>
                     <td>{meals[i].time}</td>
@@ -183,7 +182,6 @@ export default function Animal()
             <table className="table table-striped">
                 <thead>
                 <tr>
-                    <th scope="col">#</th>
                     <th scope="col">Meal Type</th>
                     <th scope="col">Quantity</th>
                     <th scope="col">Time</th>

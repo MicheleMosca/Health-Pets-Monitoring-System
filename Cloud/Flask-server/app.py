@@ -910,9 +910,9 @@ def getMeal(username, station_id, animal_id):
     limit = request.args.get('limit')
 
     if limit is not None:
-        meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).limit(int(limit)).all()
+        meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.time.desc()).limit(int(limit)).all()
     else:
-        meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.id.desc()).all()
+        meal = Meal.query.filter_by(animal_id=animal_id).order_by(Meal.time.desc()).all()
 
     return jsonify([{"id": m.id, "meal_type": m.meal_type, "quantity": m.quantity,
              "time": datetime.strftime(m.time, '%H:%M')} for m in meal])
