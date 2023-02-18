@@ -10,11 +10,6 @@ export default function Station()
     const location = useLocation();  //ora in location.state.id trovo l'id della stazione 
     //const [latLong,setLatLong]=useState([]);
     const latLong=[];
-
-    const data = new Array(19).fill(0).reduce((prev, curr) => [...prev, {
-        x: prev.slice(-1)[0].x + 1,
-        y: prev.slice(-1)[0].y * (0.9 + Math.random() * 0.2) 
-      }], [{x: 0, y: 10}]);
     
     const [foods, setFoods] = useState([]);
     const [waters, setWaters] = useState([]);
