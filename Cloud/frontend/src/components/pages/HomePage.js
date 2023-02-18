@@ -557,7 +557,7 @@ export default function HomePage() {
                                     </Modal.Footer>
                                 </Modal>
                                 <Button className="m-1" variant="danger" size="lg" onClick={handleShowSR}>
-                                --
+                                -
                                 </Button>
                                 <Modal
                                     className="text-center"
@@ -714,7 +714,7 @@ export default function HomePage() {
                                     </Modal.Footer>
                                 </Modal>
                                 <Button className="m-1" variant="danger" size="lg" onClick={handleShowRA}>
-                                --
+                                -
                                 </Button>
                                 <Modal
                                     className="text-center"

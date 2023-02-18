@@ -120,7 +120,7 @@ export default function Animal()
             <div className='text-left mt-3 ml-5'>
                 <button className="text-right" type="button" class="btn btn-secondary" onClick={handleBackButton}>Back</button>
             </div>
-            <h1 className="title home-page-title">Animal #{animal?.name}</h1>
+            <h1 className="title home-page-title">{animal?.name}</h1>
             <Card style={{}}>
                 {/* <Card.Img variant="top" src="holder.js/100px180?text=Image cap" /> */}
                 {/* <ShowStations  /> */}
