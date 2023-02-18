@@ -11,9 +11,6 @@ export default function HomePage() {
     const navigate = useNavigate();
     const [stations, setStations] = useState();
     const [animals, setAnimals] = useState([]);
-    const [foods, setFoods] = useState([]);
-    const [waters, setWaters] = useState([]);
-    const [beats, setBeats] = useState([]);
 
     /*Validate form*/
     const [form, setForm] = useState({});
@@ -81,12 +78,15 @@ export default function HomePage() {
             return response.json();
         }).then((myJson) => {
             setStations(myJson);
+            console.log("Ecco il json");
+            console.log(myJson);
         })
       }, []);
 
     useEffect(() => {
         for (let i = 0; i < stations?.length; i++)
         {
+            console.log("Siamo ad " + i);
             fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stations[i]['id'] + '/animals',
                 {
                     method: 'GET',
@@ -99,73 +99,11 @@ export default function HomePage() {
                 if(!response.ok) throw new Error(response.status);
                 return response.json();
             }).then((myJson) => {
-                setAnimals([...animals, myJson]);
+                for (let j = 0; j < myJson?.length; j++)
+                    setAnimals(animals => [...animals, myJson[j]]);
             })
         }
     }, [stations])
-
-    useEffect(() => {
-        for (let i = 0; i < stations?.length; i++)
-        {
-            fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stations[i]['id'] + '/foods?limit=1',
-                {
-                    method: 'GET',
-                    headers:
-                        {
-                            'X-API-KEY' : localStorage.getItem('auth_token'),
-                            'Content-Type' : 'application/json'
-                        }
-                }).then((response) => {
-                if(!response.ok) throw new Error(response.status);
-                return response.json();
-            }).then((myJson) => {
-                setFoods([...foods, myJson]);
-            })
-        }
-    }, [stations])
-
-    useEffect(() => {
-        for (let i = 0; i < stations?.length; i++)
-        {
-            fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stations[i]['id'] + '/waters?limit=1',
-                {
-                    method: 'GET',
-                    headers:
-                        {
-                            'X-API-KEY' : localStorage.getItem('auth_token'),
-                            'Content-Type' : 'application/json'
-                        }
-                }).then((response) => {
-                if(!response.ok) throw new Error(response.status);
-                return response.json();
-            }).then((myJson) => {
-                setWaters([...waters, myJson]);
-            })
-        }
-    }, [stations])
-
-    useEffect(() => {
-        for (let i = 0; i < stations?.length; i++)
-        {
-            for (let j = 0; j < animals[i]?.length; j++)
-            {
-                fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + stations[i]['id'] + '/animals/' + animals[i][j]['id'] + '/beats?limit=1',
-                    {
-                        method: 'GET',
-                        headers:
-                            {
-                                'X-API-KEY' : localStorage.getItem('auth_token'),
-                                'Content-Type' : 'application/json'
-                            }
-                    }).then((response) => {
-                    if(!response.ok) throw new Error(response.status);
-                    return response.json();
-                }).then((myJson) => {
-                    setBeats([...beats, myJson]);
-                })
-            }
-        }
-    }, [animals])
 
     const styleCard = {
         width: '18rem'
@@ -194,15 +132,15 @@ export default function HomePage() {
             html.push(
                 <div className="col"  >
                     
-                    <div className="card mb-3 shadow bg-white rounded" style={styleCard}  >
+                    <div className="card mb-3 shadow bg-white rounded" style={styleCard} key={stations[i].id} >
                     
                     <Card  onClick={() => goToStation(stations[i])} style={{ cursor: "pointer" }} >
                         <img className="card-img-top" src={homeImage} alt="Station"/>
                         <div className="card-body">
                             <h5 className="card-title text-center"> Station #{stations[i]['id']} </h5>
                             <br/>
-                            <h5 className="card-text"> Food Level: {foods[i]?.map(food => (food['value'].toUpperCase()))} </h5>
-                            <h5 className="card-text"> Water Level: {waters[i]?.map(water => (water['value'].toUpperCase()))} </h5>
+                            <h5 className="card-text" key={stations[i].food}> Food Level: {stations[i].food?.toUpperCase()} </h5>
+                            <h5 className="card-text" key={stations[i].water}> Water Level: {stations[i].water?.toUpperCase()} </h5>
                         </div>
                        {/*  <Button  > vai</Button> */}
                     </Card>
@@ -219,29 +157,28 @@ export default function HomePage() {
     {
         const html = []
 
-        animals?.map( animalArray => {
-            for (let i = 0; i < animalArray.length; i++)
-            {
-                html.push(
-                    <div className="col">
-                        <div className="card mb-3 shadow bg-white rounded" style={styleCard}>
-                            <Card onClick={() => goToAnimal(animalArray[i])} style={{ cursor: "pointer" }}>
-                            {animalArray[i]['animal_type'] === 'dog' ?
-                                <img className="card-img-top" src={dogImage} alt="Station"/> :
-                                <img className="card-img-top" src={catImage} alt="Station"/>}
-                            <div className="card-body">
-                                <h5 className="card-title text-center"> {animalArray[i]['name']} </h5>
-                                <br/>
-                                <h5 className="card-text"> Temperature: {animalArray[i]['temperature']} °C</h5>
-                                <h5 className="card-text"> Bark: {String(animalArray[i]['bark']).toUpperCase()}</h5>
-                                <h5 className="card-text"> Beats: {beats[i]?.map(beat => (beat['value']))} bpm</h5>
-                            </div>
-                            </Card>
+        for (let i = 0; i < animals?.length; i++)
+        {
+            html.push(
+                <div className="col">
+                    <div className="card mb-3 shadow bg-white rounded" style={styleCard} key={animals[i].id} >
+                        <Card onClick={() => goToAnimal(animals[i])} style={{ cursor: "pointer" }}>
+                        {animals[i]['animal_type'] === 'dog' ?
+                            <img className="card-img-top" src={dogImage} alt="Station"/> :
+                            <img className="card-img-top" src={catImage} alt="Station"/>}
+                        <div className="card-body">
+                            <h5 className="card-title text-center" key={animals[i].name}> {animals[i].name} </h5>
+                            <br/>
+                            <h5 className="card-text" key={animals[i]["temperature"]}> Temperature: {animals[i]["temperature"]} °C</h5>
+                            <h5 className="card-text" key={animals[i]["bark"]}> Bark: {String(animals[i]["bark"]).toUpperCase()}</h5>
+                            <h5 className="card-text" key={animals[i].weight}> Weight: {animals[i].weight} Kg</h5>
+                            <h5 className="card-text" key={animals[i].beat}> Beats: {animals[i].beat} bpm</h5>
                         </div>
+                        </Card>
                     </div>
-                )
-            }
-        })
+                </div>
+            )
+        }
 
         return html;
     }
@@ -620,7 +557,7 @@ export default function HomePage() {
                                     </Modal.Footer>
                                 </Modal>
                                 <Button className="m-1" variant="danger" size="lg" onClick={handleShowSR}>
-                                --
+                                -
                                 </Button>
                                 <Modal
                                     className="text-center"
@@ -658,6 +595,7 @@ export default function HomePage() {
                                 </Modal>
                         </h3>
                         <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
+                            {console.log(stations)}
                             {getStations()}
                         </div>
                     </div>
@@ -776,7 +714,7 @@ export default function HomePage() {
                                     </Modal.Footer>
                                 </Modal>
                                 <Button className="m-1" variant="danger" size="lg" onClick={handleShowRA}>
-                                --
+                                -
                                 </Button>
                                 <Modal
                                     className="text-center"
@@ -831,6 +769,7 @@ export default function HomePage() {
                         </h3>
                         </div>
                         <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
+                            {console.log(animals)}
                             {getAnimals()}
                         </div>
                     </div>

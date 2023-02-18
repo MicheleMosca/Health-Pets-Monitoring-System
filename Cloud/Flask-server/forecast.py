@@ -33,10 +33,11 @@ def predict(weights):
     prediction = model.make_future_dataframe(periods=30)
 
     forecast = model.predict(prediction)
-    print(forecast)
+    #print(forecast[['ds', 'yhat']].to_dict())
 
-    fig = px.line(forecast[['ds', 'yhat']], x='ds', y='yhat', title='Pesi')
+    #fig = px.line(forecast[['ds', 'yhat']], x='ds', y='yhat', title='Pesi')
+    #dict_points = fig.to_plotly_json()
 
-    #print(fig.to_html())
-    return fig.to_html()
+    return forecast[['ds', 'yhat']].to_dict()
+
     #fig.show()

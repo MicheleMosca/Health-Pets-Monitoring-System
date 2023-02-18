@@ -3,6 +3,7 @@ import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
 import {ListGroup,Card,Button,Modal,ButtonGroup,ToggleButton} from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
+import NavBarComponent from "./NavBarComponent";
 
 export default function Animal()
 {
@@ -13,6 +14,7 @@ export default function Animal()
     const latLong=[];
     
     const [animal, setAnimal] = useState();
+    const [varHTML, setVarHTML] = useState();
 
     const [showAM, setShowAM] = useState(false);
     const handleCloseAM = () => setShowAM(false);
@@ -81,12 +83,44 @@ export default function Animal()
         console.log("finito richiesta");
     }
 
+    const handlePredictWeight = (e) => {
+        e.preventDefault();
+        console.log("Dentro handle add station");
+
+        const mealData = {
+            "meal_quantity": meal_quantity,
+            "meal_type": meal_type,
+            "meal_time": meal_time
+        }
+        console.log("Ecco i dati del pasto " + JSON.stringify(mealData))
+
+        fetch('/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.station_id + '/animals/' + location.state.id + '/weights/prediction', {
+            method: 'GET',
+            headers: {
+                'X-API-KEY' : localStorage.getItem('auth_token'),
+            },
+        }).then( (response) => {
+            if(!response.ok) throw new Error(response.status);
+            else {
+                return response.text();
+            }
+        }).then( (res) => {
+            console.log("Risposta data: " + res);
+            setVarHTML(res)
+            //window.location.reload(true);
+        }).catch( (err) => {
+            console.log(err.message);
+        });
+        console.log("finito richiesta");
+    }
+
     return(
         <div className="text-center">
+            <NavBarComponent/>
             <div className='text-left mt-3 ml-5'>
                 <button className="text-right" type="button" class="btn btn-secondary" onClick={handleBackButton}>Back</button>
             </div>
-            <h1 className="title home-page-title">Animal #{animal?.name}</h1>
+            <h1 className="title home-page-title">{animal?.name}</h1>
             <Card style={{}}>
                 {/* <Card.Img variant="top" src="holder.js/100px180?text=Image cap" /> */}
                 {/* <ShowStations  /> */}
@@ -156,9 +190,13 @@ export default function Animal()
                             Close
                         </Button>
                         <Button variant="primary" onClick={handleAddMeal}>Add</Button>
+                        
                     </Modal.Footer>
                 </Modal>
                 <Button className="m-3" variant="danger">Delete a meal</Button>
+                <Button variant="primary" onClick={handlePredictWeight}>Predict</Button>
+
+                
             </div>
 
         </div>
