@@ -364,6 +364,7 @@ export default function Animal()
                             <div className="row card-body">
                                 <div className="col-sm-6">
                                     <h5 className="card-title">Animal Data</h5>
+                                    <p className="card-text">ID: {  animal?.id }</p>
                                     <p className="card-text">Type: {  animal?.animal_type }</p>
                                     <p className="card-text">Breed: {  animal?.breed }</p>
                                     <p className="card-text">Gender: {  animal?.gender }</p>
