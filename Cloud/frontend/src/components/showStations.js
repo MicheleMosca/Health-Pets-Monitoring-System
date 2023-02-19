@@ -20,7 +20,8 @@ export class ShowStations extends React.Component
         this.state = {
             markers: [],
             HeaderStyle: {
-                height: '700px'
+                height: '700px',
+                margin: '50px'
             },
             redIcon: new L.Icon({
                 iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
