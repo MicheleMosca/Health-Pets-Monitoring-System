@@ -8,7 +8,8 @@ import configparser
 import requests
 import sqlite3
 from geopy.distance import geodesic as gd
-
+import threading
+import time
 
 config = configparser.ConfigParser()
 if not config.read('config.ini'):
@@ -19,9 +20,11 @@ create_DB = False
 if(os.path.isfile('botDB.db') == False):
     create_DB = True
 
+
 #DB Creation
 db = sqlite3.connect('botDB.db')
 curs = db.cursor()
+
 
 def distanceControl(stations):
     stations_alarm = set()
@@ -36,6 +39,8 @@ def distanceControl(stations):
 
     return stations_alarm
 
+
+users = []
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=start_message)
@@ -149,6 +154,7 @@ async def petStatus(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    global users
     if(len(context.args) != 2):
         await context.bot.send_message(chat_id=update.effective_chat.id, text=loginParametersError_message)
         return
@@ -170,7 +176,6 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     curs.execute("SELECT * FROM users")
     users = curs.fetchall()
-    print(users)
 
     #Controllo che il chat_id non sia associato ad altri user
     for u in users:
@@ -180,6 +185,8 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     curs.execute("INSERT INTO users VALUES ('%s', %d, '%s')" % (username, update.effective_chat.id, token))
     db.commit()
+    curs.execute("SELECT * FROM users")
+    users = curs.fetchall()
     await context.bot.send_message(chat_id=update.effective_chat.id, text=loginSuccess_message)
     reply_keyboard = [['/FoodStation', '/PetStatus'], ['/help', '/logout']]
     await update.message.reply_text(
@@ -191,6 +198,7 @@ async def login(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def logout(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    global users
     curs.execute("SELECT * FROM users")
     users = curs.fetchall()
 
@@ -198,6 +206,8 @@ async def logout(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if (update.effective_chat.id == u[1]):
             curs.execute("DELETE FROM users WHERE chat_id=%d" % u[1])
             db.commit()
+            curs.execute("SELECT * FROM users")
+            users = curs.fetchall()
             await update.message.reply_text(
                 logoutSuccess_message, reply_markup=ReplyKeyboardRemove()
             )
@@ -208,6 +218,45 @@ async def logout(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text=unknownCommand_message)
+
+
+class myThread(threading.Thread):
+    def __init__(self, threadID, token):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.token = token
+
+    def run(self):
+        print(f"[THREAD {self.threadID}] Sono partito")
+
+        while True:
+            print(f"[THREAD {self.threadID}] Eseguo il codice")
+            print(f"[THREAD {self.threadID}] Gli utenti sono: {users}")
+
+            stations = requests.get(f'http://{config.get("Server", "HOST")}:{config.get("Server", "PORT")}/api/allStations').json()
+            alarmed_stations = []
+            for station in stations:
+                if station['alarmed'] == 'True':
+                    alarmed_stations.append(station)
+
+            print(f"[THREAD {self.threadID}] Le stazioni allarmate sono: {alarmed_stations}")
+
+            ids = distanceControl(alarmed_stations)
+
+            for user in users:
+                user_stations = requests.get(f'http://{config.get("Server", "HOST")}:{config.get("Server", "PORT")}/api/users/{user[0]}/stations', headers={
+                    'X-API-KEY': user[2]
+                }).json()
+                print(f"[THREAD {self.threadID}] L'utente {user[0]} ha le seguenti stazioni: ")
+                for station in user_stations:
+                    print(station['id'])
+                    if station['id'] in ids:
+                        print(f"[THREAD {self.threadID}] Spedisco il messaggio a {user[0]}")
+                        url = f"https://api.telegram.org/bot{self.token}/sendMessage?chat_id={user[1]}&text=There+is+an+allarm+in+your+zone%21"
+                        requests.get(url)
+
+            print(f"[THREAD {self.threadID}] Vado in sleep")
+            time.sleep(25)
 
 def startBot():
     application = ApplicationBuilder().token(config.get('Telegram Bot', 'BOT_TOKEN')).build()
@@ -232,6 +281,13 @@ def startBot():
 
     unknown_handler = MessageHandler(filters.COMMAND, unknown)
     application.add_handler(unknown_handler)
+
+    global users
+    curs.execute("SELECT * FROM users")
+    users = curs.fetchall()
+
+    thread1 = myThread(1, config.get('Telegram Bot', 'BOT_TOKEN'))
+    thread1.start()
 
     application.run_polling()
 
