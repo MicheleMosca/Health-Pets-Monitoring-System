@@ -7,6 +7,7 @@ from messages import start_message, help_message, \
 import configparser
 import requests
 import sqlite3
+from geopy.distance import geodesic as gd
 
 
 config = configparser.ConfigParser()
@@ -21,6 +22,19 @@ if(os.path.isfile('botDB.db') == False):
 #DB Creation
 db = sqlite3.connect('botDB.db')
 curs = db.cursor()
+
+def distanceControl(stations):
+    stations_alarm = set()
+
+    for s1 in stations:
+        for s2 in stations:
+            if (s1['id'] != s2['id']):
+                dist = gd((s1['latitude'], s1['longitude']), (s2['latitude'], s2['longitude'])).m
+                if (dist < 300):
+                    stations_alarm.add(s1['id'])
+                    stations_alarm.add(s2['id'])
+
+    return stations_alarm
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
