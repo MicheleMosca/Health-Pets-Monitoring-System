@@ -134,7 +134,7 @@ export default function SignInPage()
                     </Form.Control.Feedback>
                 </Form.Group>
                 <div className="">
-                    <Button variant="dark" onClick={handleLogin}>
+                    <Button type="submit" variant="dark" onClick={handleLogin}>
                         Enter
                     </Button>
                 </div>

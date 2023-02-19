@@ -21,7 +21,7 @@ export default function AllStations()
             <div className='text-left mt-3 ml-5'>
                 <button className="text-right" type="button" class="btn btn-secondary" onClick={handleBackButton}>Back</button>
             </div>
-            <h1 className="title home-page-title">All Our Stations</h1>
+            <h1 className="title">All Our Stations</h1>
             <ShowStations/>
         </div>
     )
