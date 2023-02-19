@@ -120,183 +120,183 @@ def populatedb(db):
     db.session.add(meal_3)
     db.session.commit()
 
-    food_1 = Food(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/02/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))
+    food_1 = Food(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/01/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(food_1)
     db.session.commit()
 
-    food_2 = Food(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/02/2023 23:30:00', '%d/%m/%Y %H:%M:%S'))
+    food_2 = Food(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/01/2023 23:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(food_2)
     db.session.commit()
 
-    food_3 = Food(value='low', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 09:30:00', '%d/%m/%Y %H:%M:%S'))
+    food_3 = Food(value='low', station_id=station_1.id,  timestamp=datetime.strptime('16/01/2023 09:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(food_3)
     db.session.commit()
 
-    food_4 = Food(value='low', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 11:30:00', '%d/%m/%Y %H:%M:%S'))
+    food_4 = Food(value='low', station_id=station_1.id,  timestamp=datetime.strptime('16/01/2023 11:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(food_4)
     db.session.commit()
 
-    food_5 = Food(value='high', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 14:30:00', '%d/%m/%Y %H:%M:%S'))
+    food_5 = Food(value='high', station_id=station_1.id,  timestamp=datetime.strptime('16/01/2023 14:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(food_5)
     db.session.commit()
 
-    food_6 = Food(value='low', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 17:30:00', '%d/%m/%Y %H:%M:%S'))
+    food_6 = Food(value='low', station_id=station_1.id,  timestamp=datetime.strptime('16/01/2023 17:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(food_6)
     db.session.commit()
 
-    food_7 = Food(value='high', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))
-    db.session.add(food_6)
+    food_7 = Food(value='high', station_id=station_1.id,  timestamp=datetime.strptime('16/01/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(food_7)
     db.session.commit()
 
-    food_8 = Food(value='medium', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 21:30:00', '%d/%m/%Y %H:%M:%S'))
-    db.session.add(food_6)
+    food_8 = Food(value='medium', station_id=station_1.id,  timestamp=datetime.strptime('16/01/2023 21:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(food_8)
     db.session.commit()
 
-    water_1 = Water(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/02/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))
+    water_1 = Water(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/01/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(water_1)
     db.session.commit()
 
-    water_2 = Water(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/02/2023 23:30:00', '%d/%m/%Y %H:%M:%S'))
+    water_2 = Water(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/01/2023 23:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(water_2)
     db.session.commit()
 
-    water_3 = Water(value='medium', station_id=station_1.id, timestamp=datetime.strptime('16/02/2023 03:30:00', '%d/%m/%Y %H:%M:%S'))
+    water_3 = Water(value='medium', station_id=station_1.id, timestamp=datetime.strptime('16/01/2023 03:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(water_3)
     db.session.commit()
 
-    water_4 = Water(value='low', station_id=station_1.id, timestamp=datetime.strptime('16/02/2023 07:30:00', '%d/%m/%Y %H:%M:%S'))
+    water_4 = Water(value='low', station_id=station_1.id, timestamp=datetime.strptime('16/01/2023 07:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(water_4)
     db.session.commit()
 
-    water_5 = Water(value='high', station_id=station_1.id, timestamp=datetime.strptime('16/02/2023 10:30:00', '%d/%m/%Y %H:%M:%S'))
+    water_5 = Water(value='high', station_id=station_1.id, timestamp=datetime.strptime('16/01/2023 10:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(water_5)
     db.session.commit()
 
-    water_6 = Water(value='medium', station_id=station_1.id, timestamp=datetime.strptime('16/02/2023 13:30:00', '%d/%m/%Y %H:%M:%S'))
+    water_6 = Water(value='medium', station_id=station_1.id, timestamp=datetime.strptime('16/01/2023 13:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(water_6)
     db.session.commit()
 
-    water_7 = Water(value='low', station_id=station_1.id, timestamp=datetime.strptime('16/02/2023 15:30:00', '%d/%m/%Y %H:%M:%S'))
+    water_7 = Water(value='low', station_id=station_1.id, timestamp=datetime.strptime('16/01/2023 15:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(water_7)
     db.session.commit()
 
-    weight_1 = Weight(value=4, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/01 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_1 = Weight(value=4, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/01 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_1)
     db.session.commit()
 
-    weight_2 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/02 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_2 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/02 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_2)
     db.session.commit()
 
-    weight_3 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/03 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_3 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/03 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_3)
     db.session.commit()
 
-    weight_4 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/04 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_4 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/04 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_4)
     db.session.commit()
 
-    weight_5 = Weight(value=4, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/05 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_5 = Weight(value=4, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/05 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_5)
     db.session.commit()
 
-    weight_6 = Weight(value=4, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/06 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_6 = Weight(value=4, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/06 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_6)
     db.session.commit()
 
-    weight_7 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/07 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_7 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/07 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_7)
     db.session.commit()
 
-    weight_8 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/08 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_8 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/08 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_8)
     db.session.commit()
 
-    weight_9 = Weight(value=6, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/09 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_9 = Weight(value=6, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/09 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_9)
     db.session.commit()
 
-    weight_10 = Weight(value=6, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/10 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_10 = Weight(value=6, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/10 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_10)
     db.session.commit()
 
-    weight_11 = Weight(value=6, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/11 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_11 = Weight(value=6, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/11 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_11)
     db.session.commit()
 
-    weight_12 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/12 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_12 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/12 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_12)
     db.session.commit()
 
-    weight_13 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/13 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_13 = Weight(value=5, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/13 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_13)
     db.session.commit()
 
-    weight_14 = Weight(value=6, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/14 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_14 = Weight(value=6, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/14 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_14)
     db.session.commit()
 
-    weight_15 = Weight(value=7, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/15 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_15 = Weight(value=7, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/15 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_15)
     db.session.commit()
 
-    weight_16 = Weight(value=7, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/16 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_16 = Weight(value=7, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/16 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_16)
     db.session.commit()
 
-    weight_17 = Weight(value=8, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/17 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_17 = Weight(value=8, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/17 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_17)
     db.session.commit()
 
-    weight_18 = Weight(value=8, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/18 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_18 = Weight(value=8, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/18 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_18)
     db.session.commit()
 
-    weight_19 = Weight(value=9, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/19 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_19 = Weight(value=9, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/19 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_19)
     db.session.commit()
 
-    weight_20 = Weight(value=9, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/20 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_20 = Weight(value=9, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/20 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_20)
     db.session.commit()
 
-    weight_21 = Weight(value=9, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/21 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_21 = Weight(value=9, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/21 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_21)
     db.session.commit()
 
-    weight_22 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/22 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_22 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/22 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_22)
     db.session.commit()
 
-    weight_23 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/23 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_23 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/23 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_23)
     db.session.commit()
 
-    weight_24 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/24 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_24 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/24 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_24)
     db.session.commit()
 
-    weight_25 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/25 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_25 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/25 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_25)
     db.session.commit()
 
-    weight_26 = Weight(value=9, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/26 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_26 = Weight(value=9, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/26 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_26)
     db.session.commit()
 
-    weight_27 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/27 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_27 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/27 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_27)
     db.session.commit()
 
-    weight_28 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/28 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_28 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/01/28 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_28)
     db.session.commit()
 
-    weight_29 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/03/01 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_29 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/01 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_29)
     db.session.commit()
 
-    weight_30 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/03/02 19:30:00', '%Y/%m/%d %H:%M:%S'))
+    weight_30 = Weight(value=10, animal_id=animal_1.id, timestamp=datetime.strptime('2023/02/02 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_30)
     db.session.commit()
 
