@@ -10,6 +10,7 @@ export default function NavBarComponent() {
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link href="/allStations">All Stations</Nav.Link>
+              <Nav.Link href="https://t.me/HealthPetsMonitoringSystem_bot">Telegram Bot</Nav.Link>
             {/*<Nav.Link href="#pricing">Pricing</Nav.Link>*/}
             {/*<NavDropdown title="Dropdown" id="collasible-nav-dropdown">*/}
             {/*  <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>*/}
