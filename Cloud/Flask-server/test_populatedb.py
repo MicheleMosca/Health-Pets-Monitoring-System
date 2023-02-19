@@ -145,11 +145,11 @@ def populatedb(db):
     db.session.commit()
 
     food_7 = Food(value='high', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))
-    db.session.add(food_6)
+    db.session.add(food_7)
     db.session.commit()
 
     food_8 = Food(value='medium', station_id=station_1.id,  timestamp=datetime.strptime('16/02/2023 21:30:00', '%d/%m/%Y %H:%M:%S'))
-    db.session.add(food_6)
+    db.session.add(food_8)
     db.session.commit()
 
     water_1 = Water(value='high', station_id=station_1.id, timestamp=datetime.strptime('15/02/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))

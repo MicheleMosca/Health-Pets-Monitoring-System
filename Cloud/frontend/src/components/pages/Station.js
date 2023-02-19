@@ -21,6 +21,21 @@ export default function Station()
     const [foodDict,setFoodDict]=useState([]);
     const [waterDict,setWaterDict]=useState([]);
 
+    const useWindowSize = () => {
+        const [size, setSize] = useState([0, 0]);
+        useLayoutEffect(() => {
+          function updateSize() {
+            setSize([window.innerWidth, window.innerHeight]);
+          }
+          window.addEventListener("resize", updateSize);
+          updateSize();
+          return () => window.removeEventListener("resize", updateSize);
+        }, []);
+        return size;
+      };
+
+      const [width, height] = useWindowSize();
+
     var foodData = {
         columns: [
           {
@@ -73,7 +88,7 @@ export default function Station()
     }
 
     useEffect(() => {
-        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.id+ '/foods?limit=10',
+        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.id+ '/foods',
                 {
                     method: 'GET',
                     headers:
@@ -114,7 +129,7 @@ export default function Station()
     }, [])
 
     useEffect(() => {
-        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.id+ '/waters?limit=10',
+        fetch(environment.site+'/api/users/' + localStorage.getItem('username') + '/stations/' + location.state.id+ '/waters',
                 {
                     method: 'GET',
                     headers:
@@ -213,7 +228,7 @@ export default function Station()
                     <h3 className="mt-5">FOODS</h3>
                 </div>
                 <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
-                    <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
+                    <XYPlot width={width}  height={300} xType="time"><XAxis/><YAxis/>
                     <HorizontalGridLines />
                     <VerticalGridLines />
                     <LineMarkSeries data={foodDict} />
@@ -223,7 +238,7 @@ export default function Station()
                     <h3 className="mt-5">WATER</h3>
                 </div>
                 <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
-                    <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
+                    <XYPlot width={width}  height={300} xType="time"><XAxis/><YAxis/>
                     <HorizontalGridLines />
                     <VerticalGridLines />
                     <LineMarkSeries data={waterDict}  />
