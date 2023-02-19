@@ -10,7 +10,7 @@ export default function NavBarComponent() {
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto">
             <Nav.Link href="/allStations">All Stations</Nav.Link>
-              <Nav.Link href="https://t.me/HealthPetsMonitoringSystem_bot">Telegram Bot</Nav.Link>
+              <Nav.Link href="https://t.me/HealthPetsMonitoringSystem_bot" target="_blank">Telegram Bot</Nav.Link>
           </Nav>
             <Nav className="justify-content-end">
             <Nav.Link eventKey={2} href="/login"> Logout {/* <Link to="/login">Log out</Link> */}</Nav.Link>
