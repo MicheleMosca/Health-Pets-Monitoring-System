@@ -7,6 +7,8 @@ import Form from 'react-bootstrap/Form';
 import NavBarComponent from "./NavBarComponent";
 import { environment } from '../constants';
 import dogImage from "../../assets/images/dog.jpg";
+import catImage from "../../assets/images/cat.jpg";
+import ModalContext from "react-bootstrap/ModalContext";
 
 export default function Animal()
 {
@@ -332,143 +334,169 @@ export default function Animal()
     return(
         <div className="text-center">
             <NavBarComponent/>
-            <div className="row">
-                <div className="col-sm-6">
-                    <div className="card">
-                        <div className="row card-body">
-                            <div className="col-sm-6">
-                                <h5 className="card-title">...</h5>
-                                <p className="card-text">NAME: {  animal?.name }</p>
-                                <a href="#" className="btn btn-primary">Go somewhere</a>
-                            </div>
-                            <img className="col-sm-6" src={dogImage} alt="sans"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div className='text-left mt-3 ml-5'>
                 <button className="text-right" type="button" class="btn btn-secondary" onClick={handleBackButton}>Back</button>
             </div>
             <h1 className="title home-page-title">{animal?.name}</h1>
-            <Card style={{}}>
-                {/* <Card.Img variant="top" src="holder.js/100px180?text=Image cap" /> */}
-                {/* <ShowStations  /> */}
-                <Card.Body>
-                    <Card.Title>Animal data</Card.Title>
-                    <Card.Text>
-                    This is the info of your pet
-                    </Card.Text>
-                </Card.Body>
-                <ListGroup className="list-group-flush">
-                    <ListGroup.Item>NAME: {  animal?.name }</ListGroup.Item>
-                    <ListGroup.Item>Type: {  animal?.animal_type }</ListGroup.Item>
-                    <ListGroup.Item>Breed: {  animal?.breed }</ListGroup.Item>
-                    <ListGroup.Item>Gender: {  animal?.gender }</ListGroup.Item>
-                    <ListGroup.Item>Age: { animal?.age }</ListGroup.Item>
-                    <ListGroup.Item>Bark: { animal?.bark? "true": "false" }</ListGroup.Item>
-                    <ListGroup.Item>Temperature: { animal?.temperature } °C</ListGroup.Item>
-                    <ListGroup.Item>Distance: { animal?.distance } m</ListGroup.Item>
-                </ListGroup>
-            </Card>
-            WEIGHT: <br></br>
-            <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
-                <HorizontalGridLines />
-                <VerticalGridLines />
-                <LineMarkSeries data={weightDict} />
-            </XYPlot>
-            BEATS: <br></br>
-            <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
-                <HorizontalGridLines />
-                <VerticalGridLines />
-                <LineMarkSeries data={beatsDict} />
-            </XYPlot>
-            <table className="table table-striped">
-                <thead>
-                <tr>
-                    <th scope="col">Meal Type</th>
-                    <th scope="col">Quantity</th>
-                    <th scope="col">Time</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                {getMeals()}
-                </tbody>
-            </table>
-            <div className = "buttons text-center">
-                <Button className="m-3" variant="primary" onClick={handleShowAM}>Add new meal</Button>
-                <Modal
-                    className="text-center"
-                    show={showAM}
-                    onHide={handleCloseAM}
-                    backdrop="static"
-                    keyboard={false}
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title>Add new meal</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        Please insert the necessary data:
-                        <Form>
-                            <Form.Group className="mb-3" controlId="meal_quantity">
-                                <Form.Label>Quantity (grams)</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="es. 50"
-                                    autoFocus
-                                    value={form.meal_quantity}
-                                    onChange={event => setField("meal_quantity", event.target.value)}
-                                    isInvalid={!!errors.meal_quantity}
-                                ></Form.Control>
-                                <Form.Control.Feedback type='invalid'>
-                                    {errors.meal_quantity}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="meal_type">
-                                <Form.Label>Meal type</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="secco/umido"
-                                    value={form.meal_type}
-                                    onChange={event => setField("meal_type", event.target.value)}
-                                    isInvalid={!!errors.meal_type}
-                                ></Form.Control>
-                                <Form.Control.Feedback type='invalid'>
-                                    {errors.meal_type}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="meal_time">
-                                <Form.Label>Time</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="es. 5"
-                                    value={form.meal_time}
-                                    onChange={event => setField("meal_time", event.target.value)}
-                                    isInvalid={!!errors.meal_time}
-                                ></Form.Control>
-                                <Form.Control.Feedback type='invalid'>
-                                    {errors.meal_time}
-                                </Form.Control.Feedback>
-                            </Form.Group>
-                        </Form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleCloseAM}>
-                            Close
-                        </Button>
-                        <Button variant="primary" onClick={handleAddMeal}>Add</Button>
-                        
-                    </Modal.Footer>
-                </Modal>
-                <Button variant="success" onClick={handleToggle}>Show Predict</Button>
-                { showChart ?
-                    <XYPlot width={1200}  height={300} xType="time" hidde><XAxis/><YAxis/>
+            <div className="container-fluid mt-5">
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <div className="col-sm-6">
+                        <div className="card mb-3 shadow bg-white rounded">
+                            <div className="row card-body">
+                                <div className="col-sm-6">
+                                    <h5 className="card-title">Animal Data</h5>
+                                    <p className="card-text">Type: {  animal?.animal_type }</p>
+                                    <p className="card-text">Breed: {  animal?.breed }</p>
+                                    <p className="card-text">Gender: {  animal?.gender }</p>
+                                    <p className="card-text">Age: { animal?.age }</p>
+                                    <p className="card-text">Bark: { animal?.bark? "true": "false" }</p>
+                                    <p className="card-text">Temperature: { animal?.temperature } °C</p>
+                                    <p className="card-text">Distance: { animal?.distance } m</p>
+                                </div>
+                                {animal?.animal_type === 'dog' ? <img className="col-sm-6" src={dogImage} alt="Station"/> : <img className="col-sm-6" src={catImage} alt="Station"/>}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/*<Card style={{}}>*/}
+                {/*    /!* <Card.Img variant="top" src="holder.js/100px180?text=Image cap" /> *!/*/}
+                {/*    /!* <ShowStations  /> *!/*/}
+                {/*    /!*<Card.Body>*!/*/}
+                {/*    /!*    <Card.Title>Animal data</Card.Title>*!/*/}
+                {/*    /!*    <Card.Text>*!/*/}
+                {/*    /!*    This is the info of your pet*!/*/}
+                {/*    /!*    </Card.Text>*!/*/}
+                {/*    /!*</Card.Body>*!/*/}
+                {/*    /!*<ListGroup className="list-group-flush">*!/*/}
+                {/*    /!*    <ListGroup.Item>NAME: {  animal?.name }</ListGroup.Item>*!/*/}
+                {/*    /!*    <ListGroup.Item>Type: {  animal?.animal_type }</ListGroup.Item>*!/*/}
+                {/*    /!*    <ListGroup.Item>Breed: {  animal?.breed }</ListGroup.Item>*!/*/}
+                {/*    /!*    <ListGroup.Item>Gender: {  animal?.gender }</ListGroup.Item>*!/*/}
+                {/*    /!*    <ListGroup.Item>Age: { animal?.age }</ListGroup.Item>*!/*/}
+                {/*    /!*    <ListGroup.Item>Bark: { animal?.bark? "true": "false" }</ListGroup.Item>*!/*/}
+                {/*    /!*    <ListGroup.Item>Temperature: { animal?.temperature } °C</ListGroup.Item>*!/*/}
+                {/*    /!*    <ListGroup.Item>Distance: { animal?.distance } m</ListGroup.Item>*!/*/}
+                {/*    /!*</ListGroup>*!/*/}
+                {/*</Card>*/}
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <h3>WEIGHT</h3>
+                </div>
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
                         <HorizontalGridLines />
                         <VerticalGridLines />
-                        <LineMarkSeries  data={weightPredictDict} />
+                        <LineMarkSeries data={weightDict} />
                     </XYPlot>
-                : null }
+                </div>
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <h3>BEATS</h3>
+                </div>
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
+                        <HorizontalGridLines />
+                        <VerticalGridLines />
+                        <LineMarkSeries data={beatsDict} />
+                    </XYPlot>
+                </div>
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <h3>MEALS</h3>
+                </div>
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <div className="table-responsive">
+                        <table className="table table-striped">
+                            <thead>
+                            <tr>
+                                <th scope="col">Meal Type</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Time</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {getMeals()}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <div className = "buttons text-center">
+                        <Button className="m-3" variant="primary" onClick={handleShowAM}>Add new meal</Button>
+                        <Modal
+                            className="text-center"
+                            show={showAM}
+                            onHide={handleCloseAM}
+                            backdrop="static"
+                            keyboard={false}
+                        >
+                            <Modal.Header closeButton>
+                                <Modal.Title>Add new meal</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                Please insert the necessary data:
+                                <Form>
+                                    <Form.Group className="mb-3" controlId="meal_quantity">
+                                        <Form.Label>Quantity (grams)</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="es. 50"
+                                            autoFocus
+                                            value={form.meal_quantity}
+                                            onChange={event => setField("meal_quantity", event.target.value)}
+                                            isInvalid={!!errors.meal_quantity}
+                                        ></Form.Control>
+                                        <Form.Control.Feedback type='invalid'>
+                                            {errors.meal_quantity}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                    <Form.Group className="mb-3" controlId="meal_type">
+                                        <Form.Label>Meal type</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="secco/umido"
+                                            value={form.meal_type}
+                                            onChange={event => setField("meal_type", event.target.value)}
+                                            isInvalid={!!errors.meal_type}
+                                        ></Form.Control>
+                                        <Form.Control.Feedback type='invalid'>
+                                            {errors.meal_type}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                    <Form.Group className="mb-3" controlId="meal_time">
+                                        <Form.Label>Time</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="es. 5"
+                                            value={form.meal_time}
+                                            onChange={event => setField("meal_time", event.target.value)}
+                                            isInvalid={!!errors.meal_time}
+                                        ></Form.Control>
+                                        <Form.Control.Feedback type='invalid'>
+                                            {errors.meal_time}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                </Form>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={handleCloseAM}>
+                                    Close
+                                </Button>
+                                <Button variant="primary" onClick={handleAddMeal}>Add</Button>
+
+                            </Modal.Footer>
+                        </Modal>
+                        <Button variant="success" onClick={handleToggle}>Show Predict</Button>
+                        { showChart ?
+                            <div>
+                                <h3 className="mt-5">WEIGHT PREDICT</h3>
+                                <XYPlot width={1200}  height={300} xType="time" hidde><XAxis/><YAxis/>
+                                    <HorizontalGridLines />
+                                    <VerticalGridLines />
+                                    <LineMarkSeries  data={weightPredictDict} />
+                                </XYPlot>
+                            </div>
+                        : null }
+                    </div>
+                </div>
             </div>
         </div>
     )

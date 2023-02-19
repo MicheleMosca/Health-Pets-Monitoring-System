@@ -25,7 +25,7 @@ def predict(weights):
     #print(weights_list)
     #Just for test
     #weights_list = testProphet()
-    print(weights_list)
+    #print(weights_list)
 
     data = pd.DataFrame(weights_list)
     #print(data)
@@ -48,6 +48,6 @@ def predict(weights):
             if(elem_d['x'] == elem_w['ds']):
                 elem_d['y'] = elem_w['y']
 
-    print(data_list)
+    #print(data_list)
 
     return data_list

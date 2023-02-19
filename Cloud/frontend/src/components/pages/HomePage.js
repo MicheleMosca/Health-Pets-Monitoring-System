@@ -455,20 +455,18 @@ export default function HomePage() {
         const station_id = removeAnimalStationID;
         const animal_id = parseInt(removeAnimalID);
         
-        animals?.map( animalArray => {
-            for(let i = 0; i < animalArray.length; i++)
+        for ( let i = 0 ; i < animals.length; i++)
+        {
+            if(station_id === animals[i].station_id && animal_id === animals[i].id)
             {
-                if(station_id === animalArray[i]["station_id"] && animal_id === animalArray[i]["id"])
-                {
-                    break;
-                }
-                if(i === (animalArray.length - 1))
-                {
-                    newErrors.removeAnimalStationID = "Station ID or animal ID not found";
-                    newErrors.removeAnimalID = "Station ID or animal ID not found";
-                }
+                break;
             }
-        });
+            if(i === (animals.length - 1))
+            {
+                newErrors.removeAnimalStationID = "Station ID or animal ID not found";
+                newErrors.removeAnimalID = "Station ID or animal ID not found";
+            }
+        }
 
         console.log(newErrors);
         return newErrors;
@@ -598,7 +596,6 @@ export default function HomePage() {
                                 </Modal>
                         </h3>
                         <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
-                            {console.log(stations)}
                             {getStations()}
                         </div>
                     </div>
@@ -767,7 +764,6 @@ export default function HomePage() {
                         </h3>
                         </div>
                         <div className="row row-cols-1 row-cols-md-3 g-4 mt-2">
-                            {console.log(animals)}
                             {getAnimals()}
                         </div>
                     </div>
