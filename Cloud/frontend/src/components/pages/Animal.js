@@ -358,26 +358,6 @@ export default function Animal()
                         </div>
                     </div>
                 </div>
-                {/*<Card style={{}}>*/}
-                {/*    /!* <Card.Img variant="top" src="holder.js/100px180?text=Image cap" /> *!/*/}
-                {/*    /!* <ShowStations  /> *!/*/}
-                {/*    /!*<Card.Body>*!/*/}
-                {/*    /!*    <Card.Title>Animal data</Card.Title>*!/*/}
-                {/*    /!*    <Card.Text>*!/*/}
-                {/*    /!*    This is the info of your pet*!/*/}
-                {/*    /!*    </Card.Text>*!/*/}
-                {/*    /!*</Card.Body>*!/*/}
-                {/*    /!*<ListGroup className="list-group-flush">*!/*/}
-                {/*    /!*    <ListGroup.Item>NAME: {  animal?.name }</ListGroup.Item>*!/*/}
-                {/*    /!*    <ListGroup.Item>Type: {  animal?.animal_type }</ListGroup.Item>*!/*/}
-                {/*    /!*    <ListGroup.Item>Breed: {  animal?.breed }</ListGroup.Item>*!/*/}
-                {/*    /!*    <ListGroup.Item>Gender: {  animal?.gender }</ListGroup.Item>*!/*/}
-                {/*    /!*    <ListGroup.Item>Age: { animal?.age }</ListGroup.Item>*!/*/}
-                {/*    /!*    <ListGroup.Item>Bark: { animal?.bark? "true": "false" }</ListGroup.Item>*!/*/}
-                {/*    /!*    <ListGroup.Item>Temperature: { animal?.temperature } °C</ListGroup.Item>*!/*/}
-                {/*    /!*    <ListGroup.Item>Distance: { animal?.distance } m</ListGroup.Item>*!/*/}
-                {/*    /!*</ListGroup>*!/*/}
-                {/*</Card>*/}
                 <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
                     <h3>WEIGHT</h3>
                 </div>

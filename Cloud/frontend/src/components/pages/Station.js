@@ -165,63 +165,75 @@ export default function Station()
                 <button className="text-right" type="button" class="btn btn-secondary" onClick={handleBackButton}>Back</button>
             </div>
             <h1 className="title home-page-title">Station #{location.state.id}</h1>
-            <Card style={{}}>
-                {/* <Card.Img variant="top" src="holder.js/100px180?text=Image cap" /> */}
-                <Card.Body>
-                    <Card.Title>Station data</Card.Title>
-                    <Card.Text>
-                    This is the levels of your station
-                    </Card.Text>
-                </Card.Body>
-                <Button variant="primary" onClick={handleToggle}>Show Table</Button>
-                { showTable? 
-                <ListGroup className="list-group-flush" >
-                    <ListGroup.Item>FOOD: 
-                    <MDBDataTable
-                        scrollY
-                        maxHeight="200px"
-                        striped
-                        bordered
-                        small
-                        data={foodData}
-                    />
-                    
-                    </ListGroup.Item>
-                    <ListGroup.Item>WATER: 
-                    <MDBDataTable
-                        scrollY
-                        maxHeight="200px"
-                        striped
-                        bordered
-                        small
-                        data={waterData}
-                    />            
+            <div className="container-fluid mt-5">
 
-                    </ListGroup.Item>
-                    {console.log("Foods vale "+ JSON.stringify(foods))}
-                    {console.log("waters vale "+ JSON.stringify(waters))}
-                    {console.log("foodDict vale "+ JSON.stringify(foodDict))}
-                </ListGroup>
-                : null}
-            </Card>
+                    <Card style={{}}>
+                        {/* <Card.Img variant="top" src="holder.js/100px180?text=Image cap" /> */}
+                        <Card.Body>
+                            <Card.Title>Station data</Card.Title>
+                            <Card.Text>
+                            This is the levels of your station
+                            </Card.Text>
+                        </Card.Body>
+                        <div className="row row-cols-1 justify-content-center">
+                        <Button className="btn-sm" variant="primary" onClick={handleToggle}>Show Table</Button>
+                        </div>
+                        { showTable?
+                        <ListGroup className="list-group-flush" >
+                            <ListGroup.Item>FOOD:
+                            <MDBDataTable
+                                scrollY
+                                maxHeight="200px"
+                                striped
+                                bordered
+                                small
+                                data={foodData}
+                            />
 
-            <br></br>
-            
+                            </ListGroup.Item>
+                            <ListGroup.Item>WATER:
+                            <MDBDataTable
+                                scrollY
+                                maxHeight="200px"
+                                striped
+                                bordered
+                                small
+                                data={waterData}
+                            />
 
-            FOODS: <br></br>
-            <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
-            <HorizontalGridLines />
-            <VerticalGridLines />
-            <LineMarkSeries data={foodDict} />
-            </XYPlot>
+                            </ListGroup.Item>
+                            {console.log("Foods vale "+ JSON.stringify(foods))}
+                            {console.log("waters vale "+ JSON.stringify(waters))}
+                            {console.log("foodDict vale "+ JSON.stringify(foodDict))}
+                        </ListGroup>
+                        : null}
+                    </Card>
 
-            WATERS: <br></br>
-            <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
-            <HorizontalGridLines />
-            <VerticalGridLines />
-            <LineMarkSeries data={waterDict}  />
-            </XYPlot>
-            <ShowStations center={position} zoom = "18" station_id={location.state.id}/>
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <h3 className="mt-5">FOODS</h3>
+                </div>
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
+                    <HorizontalGridLines />
+                    <VerticalGridLines />
+                    <LineMarkSeries data={foodDict} />
+                    </XYPlot>
+                </div>
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <h3 className="mt-5">WATER</h3>
+                </div>
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
+                    <HorizontalGridLines />
+                    <VerticalGridLines />
+                    <LineMarkSeries data={waterDict}  />
+                    </XYPlot>
+                </div>
+                <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
+                    <h3 className="mt-5">LOCATION</h3>
+                </div>
+                <ShowStations center={position} zoom = "18" station_id={location.state.id}/>
+            </div>
         </div>
     )
 }
