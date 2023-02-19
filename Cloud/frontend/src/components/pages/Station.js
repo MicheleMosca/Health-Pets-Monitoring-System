@@ -7,6 +7,8 @@ import NavBarComponent from './NavBarComponent';
 // import {curveCatmullRom} from 'd3-shape';
 import { environment } from '../constants';
 
+import { MDBDataTable } from 'mdbreact';
+
 export default function Station()
 {
     const navigate = useNavigate();
@@ -18,6 +20,43 @@ export default function Station()
     const [waters, setWaters] = useState([]);
     const [foodDict,setFoodDict]=useState([]);
     const [waterDict,setWaterDict]=useState([]);
+
+    var foodData = {
+        columns: [
+          {
+            label: 'Data',
+            field: 'timestamp',
+            sort: 'asc',
+            width: 150
+          },
+          {
+            label: 'Value',
+            field: 'value',
+            sort: 'asc',
+            width: 270
+          }
+        ],
+        rows: foods
+      };
+
+      var waterData = {
+        columns: [
+          {
+            label: 'Data',
+            field: 'timestamp',
+            sort: 'asc',
+            width: 150
+          },
+          {
+            label: 'Value',
+            field: 'value',
+            sort: 'asc',
+            width: 270
+          }
+        ],
+        rows: waters
+      };
+
 
     const [showTable,setShowTable]=useState(false)
     const handleToggle = () => {
@@ -138,42 +177,25 @@ export default function Station()
                 { showTable? 
                 <ListGroup className="list-group-flush" >
                     <ListGroup.Item>FOOD: 
-                        
-                    <Table striped>
-                        <thead>
-                            <tr>
-                            <th>Time</th>
-                            <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        { foods.map(food => ( /*food.value*/
-                            <tr>
-                                <td>{food.timestamp}</td>
-                                <td>{food.value}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </Table>                      
+                    <MDBDataTable
+                        scrollY
+                        maxHeight="200px"
+                        striped
+                        bordered
+                        small
+                        data={foodData}
+                    />
                     
                     </ListGroup.Item>
                     <ListGroup.Item>WATER: 
-                        <Table striped>
-                            <thead>
-                                <tr>
-                                <th>Time</th>
-                                <th>Value</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            { waters.map(water => ( /*food.value*/
-                                <tr>
-                                    <td>{water.timestamp}</td>
-                                    <td>{water.value}</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </Table>           
+                    <MDBDataTable
+                        scrollY
+                        maxHeight="200px"
+                        striped
+                        bordered
+                        small
+                        data={waterData}
+                    />            
 
                     </ListGroup.Item>
                     {console.log("Foods vale "+ JSON.stringify(foods))}
@@ -182,6 +204,9 @@ export default function Station()
                 </ListGroup>
                 : null}
             </Card>
+
+            <br></br>
+            
 
             FOODS: <br></br>
             <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
