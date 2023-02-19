@@ -42,6 +42,10 @@ def populatedb(db):
     db.session.add(station_4)
     db.session.commit()
 
+    station_5 = Station(latitude=44.63198, longitude=10.948055, address="33, Via Barbato Zanoni, Punta, Buon Pastore-Sant'Agnese-San Damaso, Modena, Emilia-Romagna, 41125, Italia", person_id=user_4.id)
+    db.session.add(station_5)
+    db.session.commit()
+
     animal_1 = Animal(name='Pluto', age=2, gender='M', animal_type='dog',
                    breed='alano', person_id=user_1.id, station_id=station_1.id)
     animal_1.temperature = 36
@@ -103,8 +107,9 @@ def populatedb(db):
     db.session.commit()
 
     animal_10 = Animal(name='mao', age=7, gender='F', animal_type='cat',
-                      breed='bengala', person_id=user_4.id, station_id=station_4.id)
+                      breed='bengala', person_id=user_4.id, station_id=station_5.id)
     animal_10.temperature = 36
+    animal_10.bark=True
     db.session.add(animal_10)
     db.session.commit()
 
@@ -300,48 +305,56 @@ def populatedb(db):
     db.session.add(weight_30)
     db.session.commit()
 
-    weight_31 = Weight(value=15, animal_id=animal_8.id)
+    weight_31 = Weight(value=15, animal_id=animal_8.id, timestamp=datetime.strptime('2023/02/03 19:30:00', '%Y/%m/%d %H:%M:%S') )
     db.session.add(weight_31)
     db.session.commit()
 
-    weight_32 = Weight(value=18, animal_id=animal_8.id)
+    weight_32 = Weight(value=18, animal_id=animal_8.id, timestamp=datetime.strptime('2023/02/04 19:30:00', '%Y/%m/%d %H:%M:%S'))
     db.session.add(weight_32)
     db.session.commit()
 
-    beats_1 = Beat(value=120, animal_id=animal_1.id)
+    beats_1 = Beat(value=120, animal_id=animal_1.id , timestamp=datetime.strptime('15/01/2023 19:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(beats_1)
     db.session.commit()
 
-    beats_2 = Beat(value=110, animal_id=animal_1.id)
+    beats_2 = Beat(value=110, animal_id=animal_1.id , timestamp=datetime.strptime('15/01/2023 22:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(beats_2)
     db.session.commit()
 
-    beats_3 = Beat(value=90, animal_id=animal_2.id)
+    beats_3 = Beat(value=90, animal_id=animal_1.id , timestamp=datetime.strptime('16/01/2023 03:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(beats_3)
     db.session.commit()
 
-    beats_4 = Beat(value=100, animal_id=animal_3.id)
+    beats_4 = Beat(value=100, animal_id=animal_1.id , timestamp=datetime.strptime('16/01/2023 06:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(beats_4)
     db.session.commit()
 
-    beats_5 = Beat(value=50, animal_id=animal_4.id)
+    beats_5 = Beat(value=50, animal_id=animal_1.id , timestamp=datetime.strptime('16/01/2023 09:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(beats_5)
     db.session.commit()
 
-    beats_6 = Beat(value=110, animal_id=animal_5.id)
+    beats_6 = Beat(value=110, animal_id=animal_1.id, timestamp=datetime.strptime('16/01/2023 12:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(beats_6)
     db.session.commit()
 
-    beats_7 = Beat(value=70, animal_id=animal_6.id)
+    beats_7 = Beat(value=70, animal_id=animal_1.id , timestamp=datetime.strptime('16/01/2023 15:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(beats_7)
     db.session.commit()
 
-    beats_8 = Beat(value=150, animal_id=animal_7.id)
+    beats_8 = Beat(value=150, animal_id=animal_1.id ,  timestamp=datetime.strptime('16/01/2023 18:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(beats_8)
     db.session.commit()
 
-    beats_9 = Beat(value=120, animal_id=animal_8.id)
+    beats_9 = Beat(value=120, animal_id=animal_1.id ,  timestamp=datetime.strptime('16/01/2023 21:30:00', '%d/%m/%Y %H:%M:%S'))
     db.session.add(beats_9)
+    db.session.commit()
+
+    beats_10 = Beat(value=110, animal_id=animal_10.id ,  timestamp=datetime.strptime('19/02/2023 18:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(beats_10)
+    db.session.commit()
+
+    beats_11 = Beat(value=110, animal_id=animal_2.id ,  timestamp=datetime.strptime('19/02/2023 18:30:00', '%d/%m/%Y %H:%M:%S'))
+    db.session.add(beats_11)
     db.session.commit()
 
     return str(user_1.id)
