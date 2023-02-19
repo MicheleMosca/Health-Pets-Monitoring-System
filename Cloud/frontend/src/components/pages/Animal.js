@@ -464,7 +464,7 @@ export default function Animal()
                                         <Form.Label>Time</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            placeholder="es. 5"
+                                            placeholder="es. 17:00"
                                             value={form.meal_time}
                                             onChange={event => setField("meal_time", event.target.value)}
                                             isInvalid={!!errors.meal_time}
