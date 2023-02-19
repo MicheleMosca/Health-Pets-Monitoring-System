@@ -1,4 +1,4 @@
-import {React,useEffect,useState} from 'react';
+import {React,useEffect,useState, useLayoutEffect} from 'react';
 import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
 import {ListGroup,Card,Button,Modal,ButtonGroup,ToggleButton} from 'react-bootstrap';
@@ -55,7 +55,26 @@ export default function Animal()
             })
         }
     }
-    
+
+    const useWindowSize = () => {
+        const [size, setSize] = useState([0, 0]);
+        useLayoutEffect(() => {
+            function updateSize() {
+                if (window.innerWidth <= 1200)
+                    setSize([window.innerWidth, window.innerHeight]);
+                else
+                {
+                    setSize([1200, window.innerHeight]);
+                }
+            }
+            window.addEventListener("resize", updateSize);
+            updateSize();
+            return () => window.removeEventListener("resize", updateSize);
+        }, []);
+        return size;
+    };
+
+    const [width, height] = useWindowSize();
     
     const handleBackButton = (e) => {
         e.preventDefault();
@@ -362,7 +381,7 @@ export default function Animal()
                     <h3>WEIGHT</h3>
                 </div>
                 <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
-                    <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
+                    <XYPlot width={width}  height={300} xType="time"><XAxis/><YAxis/>
                         <HorizontalGridLines />
                         <VerticalGridLines />
                         <LineMarkSeries data={weightDict} />
@@ -372,7 +391,7 @@ export default function Animal()
                     <h3>BEATS</h3>
                 </div>
                 <div className="row row-cols-1 row-cols-md-3 g-4 mt-2 justify-content-center">
-                    <XYPlot width={1200}  height={300} xType="time"><XAxis/><YAxis/>
+                    <XYPlot width={width}  height={300} xType="time"><XAxis/><YAxis/>
                         <HorizontalGridLines />
                         <VerticalGridLines />
                         <LineMarkSeries data={beatsDict} />
@@ -468,7 +487,7 @@ export default function Animal()
                         { showChart ?
                             <div>
                                 <h3 className="mt-5">WEIGHT PREDICT</h3>
-                                <XYPlot width={1200}  height={300} xType="time" hidde><XAxis/><YAxis/>
+                                <XYPlot width={width}  height={300} xType="time" hidde><XAxis/><YAxis/>
                                     <HorizontalGridLines />
                                     <VerticalGridLines />
                                     <LineMarkSeries  data={weightPredictDict} />

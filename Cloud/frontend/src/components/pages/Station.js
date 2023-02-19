@@ -1,4 +1,4 @@
-import {React,useEffect,useState} from 'react';
+import {React,useEffect,useState, useLayoutEffect} from 'react';
 import { useNavigate,useLocation } from 'react-router-dom';
 import {ShowStations} from "../showStations";
 import {ListGroup,Card, Table,Button } from 'react-bootstrap';
@@ -25,7 +25,12 @@ export default function Station()
         const [size, setSize] = useState([0, 0]);
         useLayoutEffect(() => {
           function updateSize() {
-            setSize([window.innerWidth, window.innerHeight]);
+              if (window.innerWidth <= 1200)
+                  setSize([window.innerWidth, window.innerHeight]);
+              else
+              {
+                  setSize([1200, window.innerHeight]);
+              }
           }
           window.addEventListener("resize", updateSize);
           updateSize();
@@ -34,7 +39,7 @@ export default function Station()
         return size;
       };
 
-      const [width, height] = useWindowSize();
+    const [width, height] = useWindowSize();
 
     var foodData = {
         columns: [
