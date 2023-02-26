@@ -4,6 +4,10 @@ Sistema di monitoraggio della salute degli animali domestici con rilevazione di 
 ## Sito Web
 ![](Sito-web.png)
 
+## Presentazione
+La presentazione usata per l'esposizione del progetto è reperibile mediante il seguente link:
+[Health Pets Monitoring System](https://docs.google.com/presentation/d/1xayvDfFI8EZre74YQXk2f3XqVuServ13/edit?usp=sharing&ouid=107652794691641788775&rtpof=true&sd=true)
+
 ## TODO
 Lista di funzioni da implementare:
 
